@@ -27,6 +27,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow" factoryClass="com.demo.MyToolWindowFactory"
                     icon="AllIcons.Toolwindows.ToolWindowPalette"/>
+        <postStartupActivity implementation="com.demo.ColourStartupActivity"/>
     </extensions>
 
 </idea-plugin>
