@@ -29,6 +29,6 @@ object WindowColorApplier {
         val r = (hash shr 16) and 0xFF
         val g = (hash shr 8) and 0xFF
         val b = hash and 0xFF
-        return Color(r, g, b, 180)
+        return JBColor(Color(r, g, b, 180), Color(r, g, b, 180))
     }
 }
