@@ -23,7 +23,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
                     factoryClass="com.demo.MyToolWindowFactory"
-                    icon="/META-INF/pluginIcon.svg"/>
+                    icon="/META-INF/simple-plugin-icon.svg"/>
         <postStartupActivity implementation="com.demo.ColourStartupActivity"/>
 
         <projectConfigurable
