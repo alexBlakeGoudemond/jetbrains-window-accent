@@ -9,6 +9,7 @@ import java.awt.FlowLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
@@ -58,24 +59,25 @@ class WindowColorSettingsConfigurable(
 
         gbcLabel.gridy = 1
         gbcField.gridy = 1
-        form.add(customColorCheckBox, gbcField)
+        form.add(JBLabel("Custom color:"), gbcLabel)
 
-        gbcLabel.gridy = 2
-        gbcField.gridy = 2
         val colorRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
             add(colorPreview)
             add(chooseColorButton)
         }
-        form.add(JLabel("Custom color:"), gbcLabel)
         form.add(colorRow, gbcField)
+
+        gbcLabel.gridy = 2
+        gbcField.gridy = 2
+        form.add(customColorCheckBox, gbcField)
 
         gbcLabel.gridy = 3
         gbcField.gridy = 3
-        form.add(JLabel("Preview:"), gbcLabel)
+        form.add(JBLabel("Preview:"), gbcLabel)
         form.add(previewLabel, gbcField)
 
         colorPreview.preferredSize = java.awt.Dimension(24, 24)
-        colorPreview.border = javax.swing.BorderFactory.createLineBorder(Color.DARK_GRAY)
+        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
 
         panel.add(form, BorderLayout.NORTH)
 
@@ -141,9 +143,10 @@ class WindowColorSettingsConfigurable(
     private fun updatePreview() {
         val color = if (customColorCheckBox.isSelected) selectedColor else null
         colorPreview.background = color ?: panel.background
-        previewLabel.text = when {
-            color == null -> "Auto-generated from project name"
-            else -> "RGB: ${color.red}, ${color.green}, ${color.blue}"
+        previewLabel.text = if (color == null) {
+            "Auto-generated from project name"
+        } else {
+            "RGB: ${color.red}, ${color.green}, ${color.blue}"
         }
         colorPreview.repaint()
     }

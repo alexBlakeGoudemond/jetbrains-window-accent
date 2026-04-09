@@ -19,11 +19,11 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
         var customColorRgb: Int? = null
     )
 
-    enum class Side(val borderLayoutConstraint: String) {
-        EAST("East"),
-        WEST("West"),
-        NORTH("North"),
-        SOUTH("South")
+    enum class Side {
+        EAST,
+        WEST,
+        NORTH,
+        SOUTH
     }
 
     private var state = State()
