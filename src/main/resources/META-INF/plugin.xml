@@ -21,14 +21,16 @@
     <!-- Extensions defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow" factoryClass="com.demo.MyToolWindowFactory"
-                    icon="AllIcons.Toolwindows.ToolWindowPalette"/>
+        <toolWindow id="MyToolWindow"
+                    factoryClass="com.demo.MyToolWindowFactory"
+                    icon="/META-INF/pluginIcon.svg"/>
         <postStartupActivity implementation="com.demo.ColourStartupActivity"/>
+
         <projectConfigurable
-            id="com.demo.windowColorSettings"
-            instance="com.demo.WindowColorSettingsConfigurable"
-            parentId="appearance"
-            displayName="Window Color Panel"/>
+                id="com.demo.windowColorSettings"
+                instance="com.demo.WindowColorSettingsConfigurable"
+                parentId="appearance"
+                displayName="Window Color Panel"/>
     </extensions>
 
 </idea-plugin>

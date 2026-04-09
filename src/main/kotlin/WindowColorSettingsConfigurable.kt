@@ -2,6 +2,7 @@ package com.demo
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.components.JBLabel
 import java.awt.BorderLayout
 import java.awt.Color
@@ -17,6 +18,7 @@ import javax.swing.JComponent
 import javax.swing.JColorChooser
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.Icon
 
 class WindowColorSettingsConfigurable(
     private val project: Project
