@@ -5,22 +5,16 @@
 
     <!-- Public plugin name should be written in Title Case.
      Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>MultipleWindowIdentifier</name>
+    <name>Multiple Window Identifier</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="alex.blake-goudemond@psybergate.co.za">Alex Blake-Goudemond</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
-    <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
-        ]]></description>
-
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-    <depends>com.intellij.modules.compose</depends>
-    <depends>com.intellij.modules.lsp</depends>
+    <description>
+        Adds visual elements to differentiate between multiple JetBrains windows
+    </description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
@@ -29,6 +23,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow" factoryClass="com.demo.MyToolWindowFactory"
                     icon="AllIcons.Toolwindows.ToolWindowPalette"/>
+        <postStartupActivity implementation="com.demo.ColourStartupActivity"/>
     </extensions>
 
 </idea-plugin>

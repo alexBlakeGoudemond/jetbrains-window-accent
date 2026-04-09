@@ -1,50 +1,35 @@
 package com.demo
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.jewel.bridge.addComposeTab
-import org.jetbrains.jewel.ui.component.OutlinedButton
-import org.jetbrains.jewel.ui.component.Text
-import kotlin.random.Random
+import com.intellij.ui.content.ContentFactory
+import javax.swing.BoxLayout
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JPanel
 
 class MyToolWindowFactory : ToolWindowFactory {
-    override fun shouldBeAvailable(project: Project) = true
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        toolWindow.addComposeTab(MyMessageBundle.message("toolwindow.stripe.MyToolWindow"), focusOnClickInside = true) {
-            LaunchedEffect(Unit) {
-                // initial data loading
-            }
-            MyToolWindowContent()
+
+        val panel = JPanel()
+        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+
+        val label = JLabel("Window Identity Tool")
+        val button = JButton("Regenerate Color")
+
+        button.addActionListener {
+            WindowColorApplier.apply(project)
         }
-    }
-}
 
-@Composable
-@Preview
-private fun MyToolWindowContent() {
-    val labelText = remember {
-        mutableStateOf(MyMessageBundle.message("toolwindow.MyToolWindow.number.label", "?"))
+        panel.add(label)
+        panel.add(button)
+
+        val content = ContentFactory.getInstance()
+            .createContent(panel, "", false)
+
+        toolWindow.contentManager.addContent(content)
     }
 
-    Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(labelText.value)
-
-        OutlinedButton(onClick = {
-            labelText.value = MyMessageBundle.message(
-                "toolwindow.MyToolWindow.number.label", Random(System.currentTimeMillis()).nextInt(1000)
-            )
-        }) { Text(MyMessageBundle.message("toolwindow.MyToolWindow.shuffle.button")) }
-    }
 }
