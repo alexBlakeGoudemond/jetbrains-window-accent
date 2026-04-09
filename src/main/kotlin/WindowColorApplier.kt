@@ -6,6 +6,7 @@ import com.intellij.ui.JBColor
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
+import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
@@ -20,7 +21,7 @@ object WindowColorApplier {
             val settings = project.getService(WindowColorSettings::class.java)
 
             val existingPanel = root.contentPane.components
-                .firstOrNull { it.getClientProperty(PANEL_CLIENT_PROPERTY) == true }
+                .firstOrNull { (it as? JComponent)?.getClientProperty(PANEL_CLIENT_PROPERTY) == true }
 
             if (existingPanel != null) {
                 root.contentPane.remove(existingPanel)

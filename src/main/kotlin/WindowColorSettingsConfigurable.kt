@@ -2,15 +2,19 @@ package com.demo
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.components.JBComboBox
 import com.intellij.ui.components.JBLabel
-import com.intellij.ui.components.fields.ColorPanel
 import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.FlowLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import javax.swing.JButton
+import javax.swing.JCheckBox
+import javax.swing.JComboBox
 import javax.swing.JComponent
+import javax.swing.JColorChooser
+import javax.swing.JLabel
 import javax.swing.JPanel
 
 class WindowColorSettingsConfigurable(
@@ -22,10 +26,13 @@ class WindowColorSettingsConfigurable(
     private val panel = JPanel(BorderLayout())
     private val form = JPanel(GridBagLayout())
 
-    private val sideCombo = JBComboBox(WindowColorSettings.Side.entries.toTypedArray())
-    private val customColorCheckBox = JBCheckBox("Use custom color")
-    private val colorPanel = ColorPanel()
-    private val previewLabel = JBLabel("")
+    private val sideCombo = JComboBox(WindowColorSettings.Side.entries.toTypedArray())
+    private val customColorCheckBox = JCheckBox("Use custom color")
+    private val colorPreview = JPanel()
+    private val chooseColorButton = JButton("Choose color")
+    private val previewLabel = JLabel("")
+
+    private var selectedColor: Color? = null
 
     override fun getDisplayName(): String = "Window Color Panel"
 
@@ -55,13 +62,20 @@ class WindowColorSettingsConfigurable(
 
         gbcLabel.gridy = 2
         gbcField.gridy = 2
-        form.add(JBLabel("Custom color:"), gbcLabel)
-        form.add(colorPanel, gbcField)
+        val colorRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
+            add(colorPreview)
+            add(chooseColorButton)
+        }
+        form.add(JLabel("Custom color:"), gbcLabel)
+        form.add(colorRow, gbcField)
 
         gbcLabel.gridy = 3
         gbcField.gridy = 3
-        form.add(JBLabel("Preview:"), gbcLabel)
+        form.add(JLabel("Preview:"), gbcLabel)
         form.add(previewLabel, gbcField)
+
+        colorPreview.preferredSize = java.awt.Dimension(24, 24)
+        colorPreview.border = javax.swing.BorderFactory.createLineBorder(Color.DARK_GRAY)
 
         panel.add(form, BorderLayout.NORTH)
 
@@ -70,7 +84,17 @@ class WindowColorSettingsConfigurable(
             updatePreview()
         }
 
-        colorPanel.addActionListener { updatePreview() }
+        chooseColorButton.addActionListener {
+            val chosen = JColorChooser.showDialog(
+                panel,
+                "Choose custom color",
+                selectedColor ?: Color(0, 0, 255)
+            )
+            if (chosen != null) {
+                selectedColor = chosen
+                updatePreview()
+            }
+        }
 
         updateFromSettings()
         updateEnabledState()
@@ -81,16 +105,15 @@ class WindowColorSettingsConfigurable(
 
     override fun isModified(): Boolean {
         val selectedSide = sideCombo.selectedItem as WindowColorSettings.Side
-        val currentColorRgb = colorPanel.color?.rgb
         return selectedSide != settings.getSide() ||
             customColorCheckBox.isSelected != settings.isUseCustomColor() ||
-            currentColorRgb != settings.getCustomColor()?.rgb
+            selectedColor?.rgb != settings.getCustomColor()?.rgb
     }
 
     override fun apply() {
         settings.setSide(sideCombo.selectedItem as WindowColorSettings.Side)
         settings.setUseCustomColor(customColorCheckBox.isSelected)
-        settings.setCustomColor(if (customColorCheckBox.isSelected) colorPanel.color else null)
+        settings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
         WindowColorApplier.apply(project)
     }
 
@@ -107,18 +130,21 @@ class WindowColorSettingsConfigurable(
     private fun updateFromSettings() {
         sideCombo.selectedItem = settings.getSide()
         customColorCheckBox.isSelected = settings.isUseCustomColor()
-        colorPanel.color = settings.getCustomColor()
+        selectedColor = settings.getCustomColor()
     }
 
     private fun updateEnabledState() {
-        colorPanel.isEnabled = customColorCheckBox.isSelected
+        chooseColorButton.isEnabled = customColorCheckBox.isSelected
+        colorPreview.isEnabled = customColorCheckBox.isSelected
     }
 
     private fun updatePreview() {
-        val color = if (customColorCheckBox.isSelected) colorPanel.color else null
+        val color = if (customColorCheckBox.isSelected) selectedColor else null
+        colorPreview.background = color ?: panel.background
         previewLabel.text = when {
             color == null -> "Auto-generated from project name"
             else -> "RGB: ${color.red}, ${color.green}, ${color.blue}"
         }
+        colorPreview.repaint()
     }
 }
