@@ -2,7 +2,6 @@ plugins {
     id("java")
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intellijPlatform)
-    alias(libs.plugins.compose)
 }
 
 group = "com.demo"
@@ -23,11 +22,8 @@ repositories {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
-        intellijIdea(providers.gradleProperty("platformVersion"))
+        create(providers.gradleProperty("platformVersion"))
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
-
-        // Add plugin dependencies for compilation here:
-        composeUI()
     }
 }
 
@@ -46,5 +42,10 @@ intellijPlatform {
 tasks {
     wrapper {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
+    }
+
+    // not building gradle plugin, so dont load it
+    runIde {
+        systemProperty("idea.max.content.load.filesize", "2000000")
     }
 }
