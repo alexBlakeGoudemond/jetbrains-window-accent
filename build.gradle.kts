@@ -46,6 +46,6 @@ tasks {
 
     // not building gradle plugin, so dont load it
     runIde {
-        systemProperty("idea.disable.bundled.plugins", "org.jetbrains.plugins.gradle")
+        systemProperty("idea.max.content.load.filesize", "2000000")
     }
 }
