@@ -17,7 +17,7 @@ class MyToolWindowFactory : ToolWindowFactory {
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
 
         val label = JLabel("Window Identity Tool")
-        val button = JButton("Regenerate Color")
+        val button = JButton("Reapply Panel")
 
         button.addActionListener {
             WindowColorApplier.apply(project)
