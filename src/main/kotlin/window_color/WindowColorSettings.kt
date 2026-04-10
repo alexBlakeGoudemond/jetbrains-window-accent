@@ -1,4 +1,4 @@
-package com.demo
+package com.demo.window_color
 
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service

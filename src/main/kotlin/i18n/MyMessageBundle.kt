@@ -1,4 +1,4 @@
-package com.demo
+package com.demo.i18n
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.Nls

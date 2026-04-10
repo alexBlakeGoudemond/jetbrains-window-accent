@@ -1,11 +1,11 @@
-package com.demo
+package com.demo.window_color
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
 import java.awt.*
 import javax.swing.*
-
+// TODO Consider splitting into separate classes
 class WindowColorSettingsConfigurable(
     private val project: Project
 ) : Configurable {
@@ -64,7 +64,7 @@ class WindowColorSettingsConfigurable(
         form.add(JBLabel("Preview:"), gbcLabel)
         form.add(previewLabel, gbcField)
 
-        colorPreview.preferredSize = java.awt.Dimension(24, 24)
+        colorPreview.preferredSize = Dimension(24, 24)
         colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
 
         panel.add(form, BorderLayout.NORTH)

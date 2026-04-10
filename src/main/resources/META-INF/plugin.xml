@@ -24,11 +24,11 @@
         <toolWindow id="MyToolWindow"
                     factoryClass="com.demo.WindowColorToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"/>
-        <postStartupActivity implementation="com.demo.WindowColorStartupActivity"/>
+        <postStartupActivity implementation="com.demo.window_color.WindowColorStartupActivity"/>
 
         <projectConfigurable
                 id="com.demo.windowColorSettings"
-                instance="com.demo.WindowColorSettingsConfigurable"
+                instance="com.demo.window_color.WindowColorSettingsConfigurable"
                 parentId="appearance"
                 displayName="Window Color Panel"/>
     </extensions>
