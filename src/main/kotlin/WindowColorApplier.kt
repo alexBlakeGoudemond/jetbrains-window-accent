@@ -59,12 +59,6 @@ object WindowColorApplier {
         }
     }
 
-    fun disable(project: Project) {
-        val settings = project.getService(WindowColorSettings::class.java)
-        settings.setPanelEnabled(false)
-        apply(project)
-    }
-
     fun toggle(project: Project): Boolean {
         val settings = project.getService(WindowColorSettings::class.java)
         settings.togglePanelEnabled()

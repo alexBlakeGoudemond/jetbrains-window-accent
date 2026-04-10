@@ -2,23 +2,9 @@ package com.demo
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.components.JBLabel
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.FlowLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import java.awt.Insets
-import javax.swing.BorderFactory
-import javax.swing.JButton
-import javax.swing.JCheckBox
-import javax.swing.JComboBox
-import javax.swing.JComponent
-import javax.swing.JColorChooser
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.Icon
+import java.awt.*
+import javax.swing.*
 
 class WindowColorSettingsConfigurable(
     private val project: Project

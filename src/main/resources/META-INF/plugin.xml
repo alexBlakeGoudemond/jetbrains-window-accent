@@ -22,9 +22,9 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
-                    factoryClass="com.demo.MyToolWindowFactory"
+                    factoryClass="com.demo.WindowColorToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"/>
-        <postStartupActivity implementation="com.demo.ColourStartupActivity"/>
+        <postStartupActivity implementation="com.demo.WindowColorStartupActivity"/>
 
         <projectConfigurable
                 id="com.demo.windowColorSettings"
