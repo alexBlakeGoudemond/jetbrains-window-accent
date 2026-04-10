@@ -13,7 +13,7 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description>
-        Adds visual elements to differentiate between multiple JetBrains windows
+        Window Color Panel helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and easy-to-find settings.
     </description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
