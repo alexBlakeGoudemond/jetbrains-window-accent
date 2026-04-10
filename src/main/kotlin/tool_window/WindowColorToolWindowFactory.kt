@@ -7,31 +7,25 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import java.awt.BorderLayout
-import java.awt.FlowLayout
 import javax.swing.BorderFactory
-import javax.swing.BoxLayout
 import javax.swing.JButton
-import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.SwingConstants
 
 class WindowColorToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        val settings = project.getService(WindowColorSettings::class.java)
+
         val panel = JPanel(BorderLayout())
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
-        val innerPanel = JPanel()
-        innerPanel.layout = BoxLayout(innerPanel, BoxLayout.Y_AXIS)
-
-        val label = JLabel("Window Color Panel")
-        label.alignmentX = JLabel.CENTER_ALIGNMENT
-
         val toggleButton = JButton()
-
-        val settings = project.getService(WindowColorSettings::class.java)
+        toggleButton.horizontalAlignment = SwingConstants.CENTER
 
         fun refreshButtonText() {
-            toggleButton.text = if (settings.isPanelEnabled()) "Disable colored panel" else "Enable colored panel"
+            toggleButton.text =
+                if (settings.isPanelEnabled()) "Disable colored panel" else "Enable colored panel"
         }
 
         toggleButton.addActionListener {
@@ -41,19 +35,11 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
 
         refreshButtonText()
 
-        val labelRow = JPanel(FlowLayout(FlowLayout.CENTER, 0, 0))
-        labelRow.isOpaque = false
-        labelRow.add(label)
+        val buttonPanel = JPanel()
+        buttonPanel.isOpaque = false
+        buttonPanel.add(toggleButton)
 
-        val buttonRow = JPanel(FlowLayout(FlowLayout.CENTER, 0, 0))
-        buttonRow.isOpaque = false
-        buttonRow.add(toggleButton)
-
-        innerPanel.isOpaque = false
-        innerPanel.add(labelRow)
-        innerPanel.add(buttonRow)
-
-        panel.add(innerPanel, BorderLayout.CENTER)
+        panel.add(buttonPanel, BorderLayout.CENTER)
 
         val content = ContentFactory.getInstance()
             .createContent(panel, "", false)
