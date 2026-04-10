@@ -4,7 +4,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
-import javax.swing.BoxLayout
+import java.awt.BorderLayout
+import java.awt.FlowLayout
+import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -12,11 +14,15 @@ import javax.swing.JPanel
 class MyToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        val panel = JPanel(BorderLayout())
+        panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
-        val panel = JPanel()
-        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+        val innerPanel = JPanel()
+        innerPanel.layout = javax.swing.BoxLayout(innerPanel, javax.swing.BoxLayout.Y_AXIS)
 
         val label = JLabel("Window Color Panel")
+        label.alignmentX = JLabel.CENTER_ALIGNMENT
+
         val toggleButton = JButton()
 
         val settings = project.getService(WindowColorSettings::class.java)
@@ -32,8 +38,19 @@ class MyToolWindowFactory : ToolWindowFactory {
 
         refreshButtonText()
 
-        panel.add(label)
-        panel.add(toggleButton)
+        val labelRow = JPanel(FlowLayout(FlowLayout.CENTER, 0, 0))
+        labelRow.isOpaque = false
+        labelRow.add(label)
+
+        val buttonRow = JPanel(FlowLayout(FlowLayout.CENTER, 0, 0))
+        buttonRow.isOpaque = false
+        buttonRow.add(toggleButton)
+
+        innerPanel.isOpaque = false
+        innerPanel.add(labelRow)
+        innerPanel.add(buttonRow)
+
+        panel.add(innerPanel, BorderLayout.CENTER)
 
         val content = ContentFactory.getInstance()
             .createContent(panel, "", false)
