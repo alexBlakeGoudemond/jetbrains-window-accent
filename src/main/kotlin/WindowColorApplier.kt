@@ -23,6 +23,15 @@ object WindowColorApplier {
             val existingPanel = root.contentPane.components
                 .firstOrNull { (it as? JComponent)?.getClientProperty(PANEL_CLIENT_PROPERTY) == true }
 
+            if (!settings.isPanelEnabled()) {
+                if (existingPanel != null) {
+                    root.contentPane.remove(existingPanel)
+                    root.contentPane.revalidate()
+                    root.contentPane.repaint()
+                }
+                return@invokeLater
+            }
+
             if (existingPanel != null) {
                 root.contentPane.remove(existingPanel)
             }
@@ -48,6 +57,19 @@ object WindowColorApplier {
             root.contentPane.revalidate()
             root.contentPane.repaint()
         }
+    }
+
+    fun disable(project: Project) {
+        val settings = project.getService(WindowColorSettings::class.java)
+        settings.setPanelEnabled(false)
+        apply(project)
+    }
+
+    fun toggle(project: Project): Boolean {
+        val settings = project.getService(WindowColorSettings::class.java)
+        settings.togglePanelEnabled()
+        apply(project)
+        return settings.isPanelEnabled()
     }
 
     private fun borderLayoutConstraint(side: WindowColorSettings.Side): String {

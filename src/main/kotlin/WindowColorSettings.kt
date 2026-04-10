@@ -16,7 +16,8 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
     data class State(
         var side: Side = Side.EAST,
         var useCustomColor: Boolean = false,
-        var customColorRgb: Int? = null
+        var customColorRgb: Int? = null,
+        var panelEnabled: Boolean = true
     )
 
     enum class Side {
@@ -51,4 +52,15 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
     }
 
     fun getCustomColor(): Color? = state.customColorRgb?.let { Color(it, true) }
+
+    fun isPanelEnabled(): Boolean = state.panelEnabled
+
+    fun setPanelEnabled(enabled: Boolean) {
+        state.panelEnabled = enabled
+    }
+
+    fun togglePanelEnabled(): Boolean {
+        state.panelEnabled = !state.panelEnabled
+        return state.panelEnabled
+    }
 }

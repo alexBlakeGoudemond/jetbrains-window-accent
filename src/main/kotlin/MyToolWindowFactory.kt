@@ -16,20 +16,28 @@ class MyToolWindowFactory : ToolWindowFactory {
         val panel = JPanel()
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
 
-        val label = JLabel("Window Identity Tool")
-        val button = JButton("Reapply Panel")
+        val label = JLabel("Window Color Panel")
+        val toggleButton = JButton()
 
-        button.addActionListener {
-            WindowColorApplier.apply(project)
+        val settings = project.getService(WindowColorSettings::class.java)
+
+        fun refreshButtonText() {
+            toggleButton.text = if (settings.isPanelEnabled()) "Disable colored panel" else "Enable colored panel"
         }
 
+        toggleButton.addActionListener {
+            WindowColorApplier.toggle(project)
+            refreshButtonText()
+        }
+
+        refreshButtonText()
+
         panel.add(label)
-        panel.add(button)
+        panel.add(toggleButton)
 
         val content = ContentFactory.getInstance()
             .createContent(panel, "", false)
 
         toolWindow.contentManager.addContent(content)
     }
-
 }
