@@ -207,8 +207,12 @@ class WindowColorSettingsConfigurable(
             override fun paintComponent(g: Graphics) {
                 super.paintComponent(g)
                 val g2 = g as Graphics2D
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
                 g2.drawImage(screenshot, 0, 0, width, height, null)
+
+                g2.color = Color(0, 0, 0, 60)
+                g2.fillRect(0, 0, width, height)
 
                 val mx = displayPoint.x.coerceIn(0, screenshot.width - 1)
                 val my = displayPoint.y.coerceIn(0, screenshot.height - 1)
@@ -234,8 +238,11 @@ class WindowColorSettingsConfigurable(
 
                 val hoveredColor = Color(screenshot.getRGB(mx, my), true)
 
-                g2.color = Color(0, 0, 0, 160)
-                g2.fillOval(loupeX - 6, loupeY - 6, loupeSize + 12, loupeSize + 12)
+                g2.color = Color(0, 0, 0, 120)
+                g2.fillRoundRect(loupeX - 10, loupeY - 10, loupeSize + 20, loupeSize + 52, 22, 22)
+
+                g2.color = Color(255, 255, 255, 25)
+                g2.fillRoundRect(loupeX - 8, loupeY - 8, loupeSize + 16, loupeSize + 48, 20, 20)
 
                 g2.drawImage(
                     screenshot,
@@ -250,22 +257,31 @@ class WindowColorSettingsConfigurable(
                     null
                 )
 
-                g2.color = Color.WHITE
-                g2.stroke = BasicStroke(2f)
-                g2.drawOval(loupeX, loupeY, loupeSize, loupeSize)
+                g2.color = Color(255, 255, 255, 230)
+                g2.stroke = BasicStroke(2.5f)
+                g2.drawRoundRect(loupeX, loupeY, loupeSize, loupeSize, 16, 16)
 
                 val centerX = loupeX + loupeSize / 2
                 val centerY = loupeY + loupeSize / 2
-                g2.drawLine(centerX - 10, centerY, centerX + 10, centerY)
-                g2.drawLine(centerX, centerY - 10, centerX, centerY + 10)
+                g2.color = Color(0, 0, 0, 140)
+                g2.stroke = BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+                g2.drawLine(centerX - 12, centerY, centerX + 12, centerY)
+                g2.drawLine(centerX, centerY - 12, centerX, centerY + 12)
+
+                g2.color = Color.WHITE
+                g2.stroke = BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+                g2.drawLine(centerX - 12, centerY, centerX + 12, centerY)
+                g2.drawLine(centerX, centerY - 12, centerX, centerY + 12)
 
                 g2.color = hoveredColor
                 g2.fillRoundRect(loupeX + 14, loupeY + loupeSize - 44, 44, 24, 8, 8)
                 g2.color = Color.WHITE
                 g2.drawRoundRect(loupeX + 14, loupeY + loupeSize - 44, 44, 24, 8, 8)
 
-                g2.color = Color(255, 255, 255, 220)
+                g2.color = Color(255, 255, 255, 235)
+                g2.font = g2.font.deriveFont(Font.BOLD, 12f)
                 g2.drawString("HEX: ${toHex(hoveredColor)}", loupeX + 68, loupeY + loupeSize - 28)
+                g2.font = g2.font.deriveFont(Font.PLAIN, 12f)
                 g2.drawString(
                     "RGB: ${hoveredColor.red}, ${hoveredColor.green}, ${hoveredColor.blue}",
                     loupeX + 68,
