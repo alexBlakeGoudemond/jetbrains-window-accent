@@ -1,5 +1,6 @@
 package com.demo.window_color
 
+import com.demo.window_title.WindowTitleApplier
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
@@ -17,6 +18,7 @@ class WindowColorSettingsConfigurable(
 
     private val sideCombo = JComboBox(WindowColorSettings.Side.entries.toTypedArray())
     private val customColorCheckBox = JCheckBox("Use custom color")
+    private val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
     private val colorPreview = JPanel()
     private val chooseColorButton = JButton("Choose color")
     private val previewLabel = JLabel("")
@@ -61,6 +63,11 @@ class WindowColorSettingsConfigurable(
 
         gbcLabel.gridy = 3
         gbcField.gridy = 3
+        form.add(JBLabel("Title numbering:"), gbcLabel)
+        form.add(titleNumberingCheckBox, gbcField)
+
+        gbcLabel.gridy = 4
+        gbcField.gridy = 4
         form.add(JBLabel("Preview:"), gbcLabel)
         form.add(previewLabel, gbcField)
 
@@ -97,14 +104,22 @@ class WindowColorSettingsConfigurable(
         val selectedSide = sideCombo.selectedItem as WindowColorSettings.Side
         return selectedSide != settings.getSide() ||
             customColorCheckBox.isSelected != settings.isUseCustomColor() ||
-            selectedColor?.rgb != settings.getCustomColor()?.rgb
+            selectedColor?.rgb != settings.getCustomColor()?.rgb ||
+            titleNumberingCheckBox.isSelected != settings.isTitleNumberingEnabled()
     }
 
     override fun apply() {
         settings.setSide(sideCombo.selectedItem as WindowColorSettings.Side)
         settings.setUseCustomColor(customColorCheckBox.isSelected)
         settings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
+        settings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
+
         WindowColorApplier.apply(project)
+        if (settings.isTitleNumberingEnabled()) {
+            WindowTitleApplier.apply(project)
+        } else {
+            WindowTitleApplier.remove(project)
+        }
     }
 
     override fun reset() {
@@ -121,6 +136,7 @@ class WindowColorSettingsConfigurable(
         sideCombo.selectedItem = settings.getSide()
         customColorCheckBox.isSelected = settings.isUseCustomColor()
         selectedColor = settings.getCustomColor()
+        titleNumberingCheckBox.isSelected = settings.isTitleNumberingEnabled()
     }
 
     private fun updateEnabledState() {

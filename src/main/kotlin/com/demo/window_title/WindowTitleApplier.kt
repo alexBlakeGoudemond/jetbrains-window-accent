@@ -37,6 +37,22 @@ object WindowTitleApplier {
         }
     }
 
+    fun remove(project: Project) {
+        ApplicationManager.getApplication().invokeLater {
+            val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
+
+            alarms.remove(project)?.cancelAllRequests()
+            projectNumbers.remove(project)
+
+            val currentTitle = frame.title ?: return@invokeLater
+            val cleanedTitle = currentTitle.replace(Regex("^\\[\\d+]\\s*"), "")
+
+            if (currentTitle != cleanedTitle) {
+                frame.title = cleanedTitle
+            }
+        }
+    }
+
     private fun updateTitle(frame: Frame, number: Int) {
         val originalTitle = frame.title ?: return
 
