@@ -1,11 +1,14 @@
 package com.demo.window_color
 
 import com.demo.window_title.WindowTitleApplier
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.*
 // TODO Consider splitting into separate classes
 class WindowColorSettingsConfigurable(
@@ -22,6 +25,7 @@ class WindowColorSettingsConfigurable(
     private val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
     private val colorPreview = JPanel()
     private val chooseColorButton = JButton("Choose color")
+    private val dropperButton = JButton(AllIcons.Actions.Colors)
     private val previewLabel = JLabel("")
 
     private var selectedColor: Color? = null
@@ -55,6 +59,7 @@ class WindowColorSettingsConfigurable(
         val colorRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
             add(colorPreview)
             add(chooseColorButton)
+            add(dropperButton)
         }
         form.add(colorRow, gbcField)
 
@@ -90,6 +95,18 @@ class WindowColorSettingsConfigurable(
             )
             if (chosen != null) {
                 selectedColor = chosen
+                updatePreview()
+            }
+        }
+
+        dropperButton.toolTipText = "Pick a color from the screen"
+        dropperButton.isFocusable = false
+        dropperButton.addActionListener {
+            val chosen = pickColorFromScreen()
+            if (chosen != null) {
+                selectedColor = chosen
+                customColorCheckBox.isSelected = true
+                updateEnabledState()
                 updatePreview()
             }
         }
@@ -148,6 +165,7 @@ class WindowColorSettingsConfigurable(
 
     private fun updateEnabledState() {
         chooseColorButton.isEnabled = customColorCheckBox.isSelected
+        dropperButton.isEnabled = customColorCheckBox.isSelected
         colorPreview.isEnabled = customColorCheckBox.isSelected
     }
 
@@ -160,5 +178,55 @@ class WindowColorSettingsConfigurable(
             "RGB: ${color.red}, ${color.green}, ${color.blue}"
         }
         colorPreview.repaint()
+    }
+
+    private fun pickColorFromScreen(): Color? {
+        val dialog = JDialog(SwingUtilities.getWindowAncestor(panel), "Pick a color", Dialog.ModalityType.MODELESS)
+        dialog.isUndecorated = true
+        dialog.isAlwaysOnTop = true
+        dialog.background = Color(0, 0, 0, 0)
+
+        val instruction = JLabel("Click anywhere on screen to pick a color").apply {
+            border = BorderFactory.createEmptyBorder(16, 16, 16, 16)
+            foreground = Color.WHITE
+            background = Color(0, 0, 0, 180)
+            isOpaque = true
+        }
+
+        dialog.contentPane = JPanel(GridBagLayout()).apply {
+            background = Color(0, 0, 0, 0)
+            add(instruction)
+        }
+
+        val selected = arrayOfNulls<Color>(1)
+        val glass = Toolkit.getDefaultToolkit().systemEventQueue
+
+        val listener = object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                try {
+                    val location = MouseInfo.getPointerInfo().location
+                    val robot = Robot()
+                    selected[0] = robot.getPixelColor(location.x, location.y)
+                } catch (_: Exception) {
+                    selected[0] = null
+                } finally {
+                    dialog.dispose()
+                }
+            }
+        }
+
+        // Attach listener to the temporary dialog itself.
+        dialog.addMouseListener(listener)
+        dialog.contentPane.addMouseListener(listener)
+
+        dialog.setSize(260, 64)
+        dialog.setLocationRelativeTo(panel)
+        dialog.isVisible = true
+
+        while (dialog.isVisible) {
+            Thread.sleep(10)
+        }
+
+        return selected[0]
     }
 }
