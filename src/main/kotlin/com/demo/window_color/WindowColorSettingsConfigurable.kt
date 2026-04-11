@@ -10,6 +10,7 @@ import java.awt.*
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
 import javax.swing.*
 // TODO Consider splitting into separate classes
 class WindowColorSettingsConfigurable(
@@ -182,6 +183,12 @@ class WindowColorSettingsConfigurable(
         val robot = Robot()
         val screenshot = robot.createScreenCapture(Rectangle(screenSize))
 
+        val zoom = 8
+        val zoomRadius = 12
+        val loupeSize = 180
+
+        val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
+
         val overlay = JDialog(owner, Dialog.ModalityType.MODELESS).apply {
             isUndecorated = true
             isAlwaysOnTop = true
@@ -191,15 +198,72 @@ class WindowColorSettingsConfigurable(
             setLocation(0, 0)
         }
 
-        val imageLabel = JLabel(ImageIcon(screenshot)).apply {
-            cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
-            border = BorderFactory.createLineBorder(Color.WHITE, 2)
+        val canvas = object : JComponent() {
+            override fun paintComponent(g: Graphics) {
+                super.paintComponent(g)
+                val g2 = g as Graphics2D
+
+                g2.drawImage(screenshot, 0, 0, width, height, null)
+
+                val mx = mousePoint.x.coerceIn(0, screenshot.width - 1)
+                val my = mousePoint.y.coerceIn(0, screenshot.height - 1)
+
+                val sourceX = (mx - zoomRadius).coerceIn(0, screenshot.width - zoomRadius * 2)
+                val sourceY = (my - zoomRadius).coerceIn(0, screenshot.height - zoomRadius * 2)
+                val sourceSize = zoomRadius * 2
+
+                val loupeX = (mx + 24).coerceAtMost(width - loupeSize - 20)
+                val loupeY = (my + 24).coerceAtMost(height - loupeSize - 20)
+
+                g2.color = Color(0, 0, 0, 160)
+                g2.fillOval(loupeX - 6, loupeY - 6, loupeSize + 12, loupeSize + 12)
+
+                g2.drawImage(
+                    screenshot,
+                    loupeX,
+                    loupeY,
+                    loupeX + loupeSize,
+                    loupeY + loupeSize,
+                    sourceX,
+                    sourceY,
+                    sourceX + sourceSize,
+                    sourceY + sourceSize,
+                    null
+                )
+
+                g2.color = Color.WHITE
+                g2.stroke = BasicStroke(2f)
+                g2.drawOval(loupeX, loupeY, loupeSize, loupeSize)
+
+                val centerX = loupeX + loupeSize / 2
+                val centerY = loupeY + loupeSize / 2
+                g2.drawLine(centerX - 10, centerY, centerX + 10, centerY)
+                g2.drawLine(centerX, centerY - 10, centerX, centerY + 10)
+
+                g2.color = Color(255, 255, 255, 180)
+                g2.drawString("Click to select", loupeX + 18, loupeY + loupeSize + 20)
+            }
         }
 
-        imageLabel.addMouseListener(object : MouseAdapter() {
+        canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
+
+        canvas.addMouseMotionListener(object : MouseMotionAdapter() {
+            override fun mouseMoved(e: MouseEvent) {
+                mousePoint.setLocation(e.x, e.y)
+                canvas.repaint()
+            }
+
+            override fun mouseDragged(e: MouseEvent) {
+                mousePoint.setLocation(e.x, e.y)
+                canvas.repaint()
+            }
+        })
+
+        canvas.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
                 try {
-                    selectedColor = screenshot.getRGB(e.x, e.y).let { Color(it, true) }
+                    val picked = screenshot.getRGB(e.x, e.y)
+                    selectedColor = Color(picked, true)
                     customColorCheckBox.isSelected = true
                     updateEnabledState()
                     updatePreview()
@@ -209,11 +273,7 @@ class WindowColorSettingsConfigurable(
             }
         })
 
-        overlay.contentPane = JPanel(BorderLayout()).apply {
-            isOpaque = false
-            add(imageLabel, BorderLayout.CENTER)
-        }
-
+        overlay.contentPane = canvas
         overlay.isVisible = true
     }
 
