@@ -13,6 +13,8 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.*
+import kotlin.math.roundToInt
+
 // TODO Consider splitting into separate classes
 class WindowColorSettingsConfigurable(
     private val project: Project
@@ -189,7 +191,8 @@ class WindowColorSettingsConfigurable(
         val loupeMargin = 24
 
         val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
-        val displayPoint = Point(mousePoint)
+        var displayX = mousePoint.x.toDouble()
+        var displayY = mousePoint.y.toDouble()
         val displayAlpha = 0.22
 
         fun toHex(color: Color): String = "#%02X%02X%02X".format(color.red, color.green, color.blue)
@@ -214,8 +217,8 @@ class WindowColorSettingsConfigurable(
                 g2.color = Color(0, 0, 0, 60)
                 g2.fillRect(0, 0, width, height)
 
-                val mx = displayPoint.x.coerceIn(0, screenshot.width - 1)
-                val my = displayPoint.y.coerceIn(0, screenshot.height - 1)
+                val mx = displayX.roundToInt().coerceIn(0, screenshot.width - 1)
+                val my = displayY.roundToInt().coerceIn(0, screenshot.height - 1)
 
                 val sourceX = (mx - zoomRadius).coerceIn(0, screenshot.width - zoomRadius * 2)
                 val sourceY = (my - zoomRadius).coerceIn(0, screenshot.height - zoomRadius * 2)
@@ -313,15 +316,15 @@ class WindowColorSettingsConfigurable(
         canvas.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 mousePoint.setLocation(e.x, e.y)
-                displayPoint.x += ((mousePoint.x - displayPoint.x) * displayAlpha).toInt()
-                displayPoint.y += ((mousePoint.y - displayPoint.y) * displayAlpha).toInt()
+                displayX += (mousePoint.x - displayX) * displayAlpha
+                displayY += (mousePoint.y - displayY) * displayAlpha
                 canvas.repaint()
             }
 
             override fun mouseDragged(e: MouseEvent) {
                 mousePoint.setLocation(e.x, e.y)
-                displayPoint.x += ((mousePoint.x - displayPoint.x) * displayAlpha).toInt()
-                displayPoint.y += ((mousePoint.y - displayPoint.y) * displayAlpha).toInt()
+                displayX += (mousePoint.x - displayX) * displayAlpha
+                displayY += (mousePoint.y - displayY) * displayAlpha
                 canvas.repaint()
             }
         })
