@@ -13,18 +13,21 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description>
-        Adds visual elements to differentiate between multiple JetBrains windows
+        Window Color Panel helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and easy-to-find settings.
     </description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
-    <!-- Extensions defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <!--
+        Extensions defined by the plugin.
+        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html
+        NOTE: ToolWindow, StartupActivity (EntryPoint) and Settings are defined here
+     -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
                     factoryClass="com.demo.tool_window.WindowColorToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"/>
-        <postStartupActivity implementation="com.demo.window_color.WindowColorStartupActivity"/>
+        <postStartupActivity implementation="com.demo.WindowColorPanelStartupActivity"/>
 
         <projectConfigurable
                 id="com.demo.windowColorSettings"

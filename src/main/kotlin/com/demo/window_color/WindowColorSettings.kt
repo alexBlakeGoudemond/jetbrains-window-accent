@@ -17,7 +17,8 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
         var side: Side = Side.EAST,
         var useCustomColor: Boolean = false,
         var customColorRgb: Int? = null,
-        var panelEnabled: Boolean = true
+        var panelEnabled: Boolean = true,
+        var titleNumberingEnabled: Boolean = false
     )
 
     enum class Side {
@@ -62,5 +63,16 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
     fun togglePanelEnabled(): Boolean {
         state.panelEnabled = !state.panelEnabled
         return state.panelEnabled
+    }
+
+    fun isTitleNumberingEnabled(): Boolean = state.titleNumberingEnabled
+
+    fun setTitleNumberingEnabled(enabled: Boolean) {
+        state.titleNumberingEnabled = enabled
+    }
+
+    fun toggleTitleNumberingEnabled(): Boolean {
+        state.titleNumberingEnabled = !state.titleNumberingEnabled
+        return state.titleNumberingEnabled
     }
 }
