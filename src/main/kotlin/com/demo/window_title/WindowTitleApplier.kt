@@ -17,28 +17,44 @@ object WindowTitleApplier {
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
     private val alarms = ConcurrentHashMap<Project, Alarm>()
 
-    fun apply(project: Project) {
+    fun apply(project: Project, enabled: Boolean = true) {
         val app = ApplicationManager.getApplication()
 
         app.invokeLater {
-            val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
-
-            val number = projectNumbers.computeIfAbsent(project) {
-                counter.getAndIncrement()
+            if (enabled) {
+                applyInternal(project)
+            } else {
+                remove(project)
             }
-
-            updateTitle(frame, number)
-            reapplyOnFocus(project)
-            startTitleEnforcer(project)
         }
     }
 
-    fun applyToAllOpenProjects() {
+    fun applyToAllOpenProjects(enabled: Boolean = true) {
         ApplicationManager.getApplication().invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
-                apply(project)
+                apply(project, enabled)
             }
         }
+    }
+
+    fun toggle(project: Project): Boolean {
+        val settings = project.getService(com.demo.window_color.WindowColorSettings::class.java)
+        val enabled = !settings.isTitleNumberingEnabled()
+        settings.setTitleNumberingEnabled(enabled)
+        apply(project, enabled)
+        return enabled
+    }
+
+    private fun applyInternal(project: Project) {
+        val frame = WindowManager.getInstance().getFrame(project) ?: return
+
+        val number = projectNumbers.computeIfAbsent(project) {
+            counter.getAndIncrement()
+        }
+
+        updateTitle(frame, number)
+        reapplyOnFocus(project)
+        startTitleEnforcer(project)
     }
 
     fun remove(project: Project) {
