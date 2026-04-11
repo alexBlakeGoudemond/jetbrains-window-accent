@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
 import java.awt.*
+import java.awt.event.AWTEventListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
@@ -102,13 +103,7 @@ class WindowColorSettingsConfigurable(
         dropperButton.toolTipText = "Pick a color from the screen"
         dropperButton.isFocusable = false
         dropperButton.addActionListener {
-            val chosen = pickColorFromScreen()
-            if (chosen != null) {
-                selectedColor = chosen
-                customColorCheckBox.isSelected = true
-                updateEnabledState()
-                updatePreview()
-            }
+            pickColorFromScreenAsync()
         }
 
         updateFromSettings()
@@ -180,53 +175,46 @@ class WindowColorSettingsConfigurable(
         colorPreview.repaint()
     }
 
-    private fun pickColorFromScreen(): Color? {
-        val dialog = JDialog(SwingUtilities.getWindowAncestor(panel), "Pick a color", Dialog.ModalityType.MODELESS)
-        dialog.isUndecorated = true
-        dialog.isAlwaysOnTop = true
-        dialog.background = Color(0, 0, 0, 0)
+    private fun pickColorFromScreenAsync() {
+        val owner = SwingUtilities.getWindowAncestor(panel) ?: return
 
-        val instruction = JLabel("Click anywhere on screen to pick a color").apply {
-            border = BorderFactory.createEmptyBorder(16, 16, 16, 16)
-            foreground = Color.WHITE
-            background = Color(0, 0, 0, 180)
-            isOpaque = true
-        }
+        val screenSize = Toolkit.getDefaultToolkit().screenSize
+        val robot = Robot()
+        val screenshot = robot.createScreenCapture(Rectangle(screenSize))
 
-        dialog.contentPane = JPanel(GridBagLayout()).apply {
+        val overlay = JDialog(owner, Dialog.ModalityType.MODELESS).apply {
+            isUndecorated = true
+            isAlwaysOnTop = true
             background = Color(0, 0, 0, 0)
-            add(instruction)
+            defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
+            setSize(screenSize)
+            setLocation(0, 0)
         }
 
-        val selected = arrayOfNulls<Color>(1)
-        val glass = Toolkit.getDefaultToolkit().systemEventQueue
+        val imageLabel = JLabel(ImageIcon(screenshot)).apply {
+            cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
+            border = BorderFactory.createLineBorder(Color.WHITE, 2)
+        }
 
-        val listener = object : MouseAdapter() {
+        imageLabel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
                 try {
-                    val location = MouseInfo.getPointerInfo().location
-                    val robot = Robot()
-                    selected[0] = robot.getPixelColor(location.x, location.y)
-                } catch (_: Exception) {
-                    selected[0] = null
+                    selectedColor = screenshot.getRGB(e.x, e.y).let { Color(it, true) }
+                    customColorCheckBox.isSelected = true
+                    updateEnabledState()
+                    updatePreview()
                 } finally {
-                    dialog.dispose()
+                    overlay.dispose()
                 }
             }
+        })
+
+        overlay.contentPane = JPanel(BorderLayout()).apply {
+            isOpaque = false
+            add(imageLabel, BorderLayout.CENTER)
         }
 
-        // Attach listener to the temporary dialog itself.
-        dialog.addMouseListener(listener)
-        dialog.contentPane.addMouseListener(listener)
-
-        dialog.setSize(260, 64)
-        dialog.setLocationRelativeTo(panel)
-        dialog.isVisible = true
-
-        while (dialog.isVisible) {
-            Thread.sleep(10)
-        }
-
-        return selected[0]
+        overlay.isVisible = true
     }
+
 }
