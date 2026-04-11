@@ -8,6 +8,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
 import java.awt.*
 import java.awt.event.AWTEventListener
+import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
@@ -183,11 +184,13 @@ class WindowColorSettingsConfigurable(
         val robot = Robot()
         val screenshot = robot.createScreenCapture(Rectangle(screenSize))
 
-        val zoom = 8
         val zoomRadius = 12
         val loupeSize = 180
 
         val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
+        var cancelled = false
+
+        fun toHex(color: Color): String = "#%02X%02X%02X".format(color.red, color.green, color.blue)
 
         val overlay = JDialog(owner, Dialog.ModalityType.MODELESS).apply {
             isUndecorated = true
@@ -215,6 +218,8 @@ class WindowColorSettingsConfigurable(
                 val loupeX = (mx + 24).coerceAtMost(width - loupeSize - 20)
                 val loupeY = (my + 24).coerceAtMost(height - loupeSize - 20)
 
+                val hoveredColor = Color(screenshot.getRGB(mx, my), true)
+
                 g2.color = Color(0, 0, 0, 160)
                 g2.fillOval(loupeX - 6, loupeY - 6, loupeSize + 12, loupeSize + 12)
 
@@ -240,12 +245,40 @@ class WindowColorSettingsConfigurable(
                 g2.drawLine(centerX - 10, centerY, centerX + 10, centerY)
                 g2.drawLine(centerX, centerY - 10, centerX, centerY + 10)
 
-                g2.color = Color(255, 255, 255, 180)
-                g2.drawString("Click to select", loupeX + 18, loupeY + loupeSize + 20)
+                g2.color = hoveredColor
+                g2.fillRoundRect(loupeX + 14, loupeY + loupeSize - 44, 44, 24, 8, 8)
+                g2.color = Color.WHITE
+                g2.drawRoundRect(loupeX + 14, loupeY + loupeSize - 44, 44, 24, 8, 8)
+
+                g2.color = Color(255, 255, 255, 220)
+                g2.drawString("HEX: ${toHex(hoveredColor)}", loupeX + 68, loupeY + loupeSize - 28)
+                g2.drawString(
+                    "RGB: ${hoveredColor.red}, ${hoveredColor.green}, ${hoveredColor.blue}",
+                    loupeX + 68,
+                    loupeY + loupeSize - 12
+                )
+                g2.drawString("Click to select · Esc to cancel", loupeX + 18, loupeY + loupeSize + 20)
             }
         }
 
         canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
+        canvas.isFocusable = true
+
+        val closeOverlay: (Boolean) -> Unit = { applySelection ->
+            try {
+                if (applySelection) {
+                    val mx = mousePoint.x.coerceIn(0, screenshot.width - 1)
+                    val my = mousePoint.y.coerceIn(0, screenshot.height - 1)
+                    val picked = screenshot.getRGB(mx, my)
+                    selectedColor = Color(picked, true)
+                    customColorCheckBox.isSelected = true
+                    updateEnabledState()
+                    updatePreview()
+                }
+            } finally {
+                overlay.dispose()
+            }
+        }
 
         canvas.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
@@ -261,20 +294,27 @@ class WindowColorSettingsConfigurable(
 
         canvas.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
-                try {
-                    val picked = screenshot.getRGB(e.x, e.y)
-                    selectedColor = Color(picked, true)
-                    customColorCheckBox.isSelected = true
-                    updateEnabledState()
-                    updatePreview()
-                } finally {
-                    overlay.dispose()
-                }
+                mousePoint.setLocation(e.x, e.y)
+                closeOverlay(true)
             }
         })
 
+        overlay.rootPane.registerKeyboardAction(
+            {
+                cancelled = true
+                closeOverlay(false)
+            },
+            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+            JComponent.WHEN_IN_FOCUSED_WINDOW
+        )
+
         overlay.contentPane = canvas
         overlay.isVisible = true
+        canvas.requestFocusInWindow()
+
+        if (cancelled) {
+            return
+        }
     }
 
 }
