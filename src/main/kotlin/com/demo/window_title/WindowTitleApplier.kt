@@ -27,13 +27,8 @@ object WindowTitleApplier {
                 counter.getAndIncrement()
             }
 
-            // Initial apply
             updateTitle(frame, number)
-
-            // 👇 Reapply on focus
             reapplyOnFocus(project)
-
-            // 👇 Add persistent alarm (polling)
             startTitleEnforcer(project)
         }
     }
@@ -51,7 +46,6 @@ object WindowTitleApplier {
             val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
 
             alarms.remove(project)?.cancelAllRequests()
-            projectNumbers.remove(project)
 
             val currentTitle = frame.title ?: return@invokeLater
             val cleanedTitle = currentTitle.replace(Regex("^\\[\\d+]\\s*"), "")
@@ -67,6 +61,9 @@ object WindowTitleApplier {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 remove(project)
             }
+
+            projectNumbers.clear()
+            counter.set(1)
         }
     }
 
