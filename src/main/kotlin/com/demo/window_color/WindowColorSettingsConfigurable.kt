@@ -132,16 +132,16 @@ class WindowColorSettingsConfigurable(
         settings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
 
         WindowColorApplier.apply(project)
-
-        if (settings.isTitleNumberingEnabled()) {
-            WindowTitleApplier.applyToAllOpenProjects()
-        } else {
-            WindowTitleApplier.removeFromAllOpenProjects()
-        }
+        WindowTitleApplier.apply(project, settings.isTitleNumberingEnabled())
 
         ProjectManager.getInstance().openProjects.forEach { openProject ->
-            openProject.getService(WindowColorSettings::class.java)
-                .setTitleNumberingEnabled(settings.isTitleNumberingEnabled())
+            openProject.getService(WindowColorSettings::class.java).apply {
+                setSide(settings.getSide())
+                setUseCustomColor(settings.isUseCustomColor())
+                setCustomColor(settings.getCustomColor())
+                setTitleNumberingEnabled(settings.isTitleNumberingEnabled())
+                setPanelEnabled(settings.isPanelEnabled())
+            }
         }
     }
 

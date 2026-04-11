@@ -7,61 +7,78 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
-import java.awt.BorderLayout
+import java.awt.GridLayout
 import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JPanel
-import javax.swing.SwingConstants
 
 class WindowColorToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val settings = project.getService(WindowColorSettings::class.java)
 
-        val panel = JPanel(BorderLayout())
+        val panel = JPanel(GridLayout(0, 1, 8, 8))
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
-        val togglePanelButton = JButton()
-        togglePanelButton.horizontalAlignment = SwingConstants.CENTER
-
-        val toggleTitleButton = JButton()
-        toggleTitleButton.horizontalAlignment = SwingConstants.CENTER
+        val toggleAllColorsButton = JButton()
+        val toggleAllTitlesButton = JButton()
+        val toggleCurrentColorButton = JButton()
+        val toggleCurrentTitleButton = JButton()
 
         fun refreshButtonText() {
-            togglePanelButton.text =
-                if (settings.isPanelEnabled()) "Disable colored panel" else "Enable colored panel"
+            toggleAllColorsButton.text =
+                if (settings.isPanelEnabled()) "Disable colors for all open windows"
+                else "Enable colors for all open windows"
 
-            toggleTitleButton.text =
-                if (settings.isTitleNumberingEnabled()) "Disable title numbering" else "Enable title numbering"
+            toggleAllTitlesButton.text =
+                if (settings.isTitleNumberingEnabled()) "Disable title numbers for all open windows"
+                else "Enable title numbers for all open windows"
+
+            toggleCurrentColorButton.text =
+                if (settings.isPanelEnabled()) "Disable color for current window"
+                else "Enable color for current window"
+
+            toggleCurrentTitleButton.text =
+                if (settings.isTitleNumberingEnabled()) "Disable title number for current window"
+                else "Enable title number for current window"
         }
 
-        togglePanelButton.addActionListener {
-            WindowColorApplier.toggle(project)
+        toggleAllColorsButton.addActionListener {
+            val enabled = !settings.isPanelEnabled()
+            settings.setPanelEnabled(enabled)
+            WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
-        toggleTitleButton.addActionListener {
-            val enabled = settings.toggleTitleNumberingEnabled()
-            if (enabled) {
-                WindowTitleApplier.applyToAllOpenProjects()
-            } else {
-                WindowTitleApplier.removeFromAllOpenProjects()
-            }
+        toggleAllTitlesButton.addActionListener {
+            val enabled = !settings.isTitleNumberingEnabled()
+            settings.setTitleNumberingEnabled(enabled)
+            WindowTitleApplier.applyToAllOpenProjects(enabled)
+            refreshButtonText()
+        }
+
+        toggleCurrentColorButton.addActionListener {
+            val enabled = !settings.isPanelEnabled()
+            settings.setPanelEnabled(enabled)
+            WindowColorApplier.apply(project)
+            refreshButtonText()
+        }
+
+        toggleCurrentTitleButton.addActionListener {
+            val enabled = !settings.isTitleNumberingEnabled()
+            settings.setTitleNumberingEnabled(enabled)
+            WindowTitleApplier.apply(project, enabled)
             refreshButtonText()
         }
 
         refreshButtonText()
 
-        val buttonPanel = JPanel()
-        buttonPanel.isOpaque = false
-        buttonPanel.add(togglePanelButton)
-        buttonPanel.add(toggleTitleButton)
+        panel.add(toggleAllColorsButton)
+        panel.add(toggleAllTitlesButton)
+        panel.add(toggleCurrentColorButton)
+        panel.add(toggleCurrentTitleButton)
 
-        panel.add(buttonPanel, BorderLayout.CENTER)
-
-        val content = ContentFactory.getInstance()
-            .createContent(panel, "", false)
-
+        val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
     }
 }
