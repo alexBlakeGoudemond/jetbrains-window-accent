@@ -3,64 +3,34 @@
 [![Twitter Follow](https://img.shields.io/badge/follow-%40JBPlatform-1DA1F2?logo=twitter)](https://twitter.com/JBPlatform)
 [![Developers Forum](https://img.shields.io/badge/JetBrains%20Platform-Join-blue)][jb:forum]
 
-## Window Color Panel
-
-**Window Color Panel** helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and configurable settings.
-
-## What it offers
-
-- A **tool window** for quick access to the plugin’s features
-- A **settings page** for configuring the panel’s behavior and appearance
-- Visual cues that help you tell multiple open IDE windows apart
-- A simple workflow for checking and adjusting the plugin without leaving the IDE
-
-## Where to find the settings
-
-Open **Settings / Preferences** in the IDE and look under the plugin’s settings area.  
-From there, you can adjust how the window color panel behaves and how it is displayed.
-
-## Tool window
-
-The tool window provides quick access to window-related controls and status.  
-It is designed to make multi-window workflows easier by giving you a central place to review and manage the plugin’s visual behavior.
-
-## Screenshots
-
-Add screenshots here or keep them in a folder such as `screenshots/` or `docs/screenshots/` and upload them to the JetBrains Marketplace listing.
-
-Suggested screenshots:
-- The tool window open
-- The settings page
-- A before/after view showing the window distinction effect
-- Any important toggle or configuration screen
-
 ## Plugin template structure
 
 A generated project contains the following content structure:
-```
-├── .run/ Predefined Run/Debug Configurations 
-├── build/ Output build directory 
-├── gradle 
-│ ├── wrapper/ Gradle Wrapper 
-│ ├── libs.versions.toml Version catalog 
-├── src Plugin sources 
-│ ├── main 
-│ │ ├── kotlin/ Kotlin production sources 
-│ │ └── resources/ Resources - plugin.xml, icons, messages 
-├── .gitignore Git ignoring rules 
-├── build.gradle.kts Gradle build configuration 
-├── gradle.properties Gradle configuration properties 
-├── gradlew *nix Gradle Wrapper script 
-├── gradlew.bat Windows Gradle Wrapper script 
-├── README.md README 
-└── settings.gradle.kts Gradle project settings
-```
 
+```
+.
+├── .run/                   Predefined Run/Debug Configurations
+├── build/                  Output build directory
+├── gradle
+│   ├── wrapper/            Gradle Wrapper
+│   ├── libs.versions.toml  Version catalog
+├── src                     Plugin sources
+│   ├── main
+│   │   ├── kotlin/         Kotlin production sources
+│   │   └── resources/      Resources - plugin.xml, icons, messages
+├── .gitignore              Git ignoring rules
+├── build.gradle.kts        Gradle build configuration
+├── gradle.properties       Gradle configuration properties
+├── gradlew                 *nix Gradle Wrapper script
+├── gradlew.bat             Windows Gradle Wrapper script
+├── README.md               README
+└── settings.gradle.kts     Gradle project settings
+```
 
 In addition to the configuration files, the most crucial part is the `src` directory, which contains our implementation
 and the manifest for our plugin – [plugin.xml][file:plugin.xml].
 
-> [!NOTE]
+> NOTE
 > To use Java in your plugin, create the `/src/main/java` directory.
 
 ## Plugin configuration file
@@ -85,12 +55,12 @@ configurations* that expose corresponding Gradle tasks:
 | Run Tests          | Runs [`:test`][gradle:lifecycle-tasks] Gradle task.                                                                                                                                 |
 | Run Verifications  | Runs [`:verifyPlugin`][gh:intellij-platform-gradle-plugin-verifyPlugin] IntelliJ Platform Gradle Plugin task to check the plugin compatibility against the specified IntelliJ IDEs. |
 
-> [!NOTE]
+> NOTE
 > You can find the logs from the running task in the `idea.log` tab.
 
 ## Publishing the plugin
 
-> [!TIP]
+> TIP
 > Make sure to follow all guidelines listed in [Publishing a Plugin][docs:publishing] to follow all recommended and
 > required steps.
 
