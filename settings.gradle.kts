@@ -1,1 +1,1 @@
-rootProject.name = "MultipleWindowIdentifier"
+rootProject.name = "WindowColorPanel"
