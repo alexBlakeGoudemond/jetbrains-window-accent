@@ -43,9 +43,9 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
         toggleTitleButton.addActionListener {
             val enabled = settings.toggleTitleNumberingEnabled()
             if (enabled) {
-                WindowTitleApplier.apply(project)
+                WindowTitleApplier.applyToAllOpenProjects()
             } else {
-                WindowTitleApplier.remove(project)
+                WindowTitleApplier.removeFromAllOpenProjects()
             }
             refreshButtonText()
         }

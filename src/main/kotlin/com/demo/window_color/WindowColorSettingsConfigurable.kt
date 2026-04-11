@@ -3,6 +3,7 @@ package com.demo.window_color
 import com.demo.window_title.WindowTitleApplier
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
 import java.awt.*
 import javax.swing.*
@@ -115,10 +116,16 @@ class WindowColorSettingsConfigurable(
         settings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
 
         WindowColorApplier.apply(project)
+
         if (settings.isTitleNumberingEnabled()) {
-            WindowTitleApplier.apply(project)
+            WindowTitleApplier.applyToAllOpenProjects()
         } else {
-            WindowTitleApplier.remove(project)
+            WindowTitleApplier.removeFromAllOpenProjects()
+        }
+
+        ProjectManager.getInstance().openProjects.forEach { openProject ->
+            openProject.getService(WindowColorSettings::class.java)
+                .setTitleNumberingEnabled(settings.isTitleNumberingEnabled())
         }
     }
 

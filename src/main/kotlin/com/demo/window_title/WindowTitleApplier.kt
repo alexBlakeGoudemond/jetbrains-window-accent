@@ -2,6 +2,7 @@ package com.demo.window_title
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.Alarm
 import java.awt.Frame
@@ -37,6 +38,14 @@ object WindowTitleApplier {
         }
     }
 
+    fun applyToAllOpenProjects() {
+        ApplicationManager.getApplication().invokeLater {
+            ProjectManager.getInstance().openProjects.forEach { project ->
+                apply(project)
+            }
+        }
+    }
+
     fun remove(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
@@ -53,12 +62,18 @@ object WindowTitleApplier {
         }
     }
 
+    fun removeFromAllOpenProjects() {
+        ApplicationManager.getApplication().invokeLater {
+            ProjectManager.getInstance().openProjects.forEach { project ->
+                remove(project)
+            }
+        }
+    }
+
     private fun updateTitle(frame: Frame, number: Int) {
         val originalTitle = frame.title ?: return
 
-        // Remove existing prefix if present
         val cleanedTitle = originalTitle.replace(Regex("^\\[\\d+]\\s*"), "")
-
         val newTitle = "[$number] $cleanedTitle"
 
         if (frame.title != newTitle) {
@@ -90,7 +105,6 @@ object WindowTitleApplier {
                     updateTitle(frame, number)
                 }
 
-                // Re-run every 1.5 seconds (slightly more aggressive)
                 alarm.addRequest(this, 1500)
             }
         }
