@@ -18,8 +18,11 @@
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
-    <!-- Extensions defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <!--
+        Extensions defined by the plugin.
+        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html
+        NOTE: ToolWindow, StartupActivity (EntryPoint) and Settings are defined here
+     -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
                     factoryClass="com.demo.tool_window.WindowColorToolWindowFactory"
