@@ -186,9 +186,11 @@ class WindowColorSettingsConfigurable(
 
         val zoomRadius = 12
         val loupeSize = 180
+        val loupeMargin = 24
 
         val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
-        var cancelled = false
+        val displayPoint = Point(mousePoint)
+        val displayAlpha = 0.22
 
         fun toHex(color: Color): String = "#%02X%02X%02X".format(color.red, color.green, color.blue)
 
@@ -208,15 +210,27 @@ class WindowColorSettingsConfigurable(
 
                 g2.drawImage(screenshot, 0, 0, width, height, null)
 
-                val mx = mousePoint.x.coerceIn(0, screenshot.width - 1)
-                val my = mousePoint.y.coerceIn(0, screenshot.height - 1)
+                val mx = displayPoint.x.coerceIn(0, screenshot.width - 1)
+                val my = displayPoint.y.coerceIn(0, screenshot.height - 1)
 
                 val sourceX = (mx - zoomRadius).coerceIn(0, screenshot.width - zoomRadius * 2)
                 val sourceY = (my - zoomRadius).coerceIn(0, screenshot.height - zoomRadius * 2)
                 val sourceSize = zoomRadius * 2
 
-                val loupeX = (mx + 24).coerceAtMost(width - loupeSize - 20)
-                val loupeY = (my + 24).coerceAtMost(height - loupeSize - 20)
+                val placeRight = mx + loupeSize + loupeMargin <= width
+                val placeBelow = my + loupeSize + loupeMargin <= height
+
+                val loupeX = if (placeRight) {
+                    (mx + loupeMargin).coerceAtMost(width - loupeSize - 20)
+                } else {
+                    (mx - loupeSize - loupeMargin).coerceAtLeast(20)
+                }
+
+                val loupeY = if (placeBelow) {
+                    (my + loupeMargin).coerceAtMost(height - loupeSize - 20)
+                } else {
+                    (my - loupeSize - loupeMargin).coerceAtLeast(20)
+                }
 
                 val hoveredColor = Color(screenshot.getRGB(mx, my), true)
 
@@ -283,11 +297,15 @@ class WindowColorSettingsConfigurable(
         canvas.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 mousePoint.setLocation(e.x, e.y)
+                displayPoint.x += ((mousePoint.x - displayPoint.x) * displayAlpha).toInt()
+                displayPoint.y += ((mousePoint.y - displayPoint.y) * displayAlpha).toInt()
                 canvas.repaint()
             }
 
             override fun mouseDragged(e: MouseEvent) {
                 mousePoint.setLocation(e.x, e.y)
+                displayPoint.x += ((mousePoint.x - displayPoint.x) * displayAlpha).toInt()
+                displayPoint.y += ((mousePoint.y - displayPoint.y) * displayAlpha).toInt()
                 canvas.repaint()
             }
         })
@@ -301,7 +319,6 @@ class WindowColorSettingsConfigurable(
 
         overlay.rootPane.registerKeyboardAction(
             {
-                cancelled = true
                 closeOverlay(false)
             },
             KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -311,10 +328,6 @@ class WindowColorSettingsConfigurable(
         overlay.contentPane = canvas
         overlay.isVisible = true
         canvas.requestFocusInWindow()
-
-        if (cancelled) {
-            return
-        }
     }
 
 }
