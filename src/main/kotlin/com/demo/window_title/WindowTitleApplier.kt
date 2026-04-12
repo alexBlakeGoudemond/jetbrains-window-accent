@@ -30,6 +30,7 @@ object WindowTitleApplier {
     private val alarms = ConcurrentHashMap<Project, Alarm>()
 
     private val scopes = mutableMapOf<Project, CoroutineScope>()
+    private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
 
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean = true) {
         ApplicationManager.getApplication().invokeLater {
@@ -67,6 +68,11 @@ object WindowTitleApplier {
             val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
 
             alarms.remove(project)?.cancelAllRequests()
+            scopes.remove(project)?.cancel()
+
+            focusListeners.remove(project)?.let { listener ->
+                frame.removeWindowFocusListener(listener)
+            }
 
             val currentTitle = frame.title ?: return@invokeLater
             val cleanedTitle = currentTitle.replace(Regex("^\\[\\d+]\\s*"), "")
@@ -100,21 +106,30 @@ object WindowTitleApplier {
 
     fun reapplyOnFocus(project: Project) {
         val frame = WindowManager.getInstance().getFrame(project) ?: return
-
-        frame.addWindowFocusListener(object : WindowAdapter() {
+        val listener = object : WindowAdapter() {
             override fun windowGainedFocus(e: WindowEvent?) {
                 val number = projectNumbers[project] ?: return
                 updateWindowTitle(frame, number)
             }
-        })
+        }
+
+        focusListeners.remove(project)?.let { oldListener ->
+            frame.removeWindowFocusListener(oldListener)
+        }
+        focusListeners[project] = listener
+        frame.addWindowFocusListener(listener)
     }
 
     private fun startTitleEnforcer(project: Project) {
+        scopes.remove(project)?.cancel()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scopes[project] = scope
 
         Disposer.register(project) {
             scopes.remove(project)?.cancel()
+            focusListeners.remove(project)?.let { listener ->
+                WindowManager.getInstance().getFrame(project)?.removeWindowFocusListener(listener)
+            }
         }
 
         scope.launch {
