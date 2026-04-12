@@ -6,13 +6,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
 
 /**
- * This is the entry point of the plugin. We define it as the entry point in the `plugin.xml`
- * */
+ * Applies persisted window decorations when a project starts.
+ */
 class WindowColorPanelStartupActivity : ProjectActivity {
 
     override suspend fun execute(project: Project) {
         WindowColorApplier.applyToCurrentOpenProject(project)
         WindowTitleApplier.applyToCurrentOpenProject(project)
     }
-
 }

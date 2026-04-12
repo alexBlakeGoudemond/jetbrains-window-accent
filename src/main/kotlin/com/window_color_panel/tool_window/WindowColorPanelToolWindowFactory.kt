@@ -3,6 +3,7 @@ package com.window_color_panel.tool_window
 import com.window_color_panel.window_color.WindowColorApplier
 import com.window_color_panel.window_color.WindowColorSettings
 import com.window_color_panel.window_title.WindowTitleApplier
+import com.window_color_panel.window_title.WindowTitleNumberingSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -15,7 +16,8 @@ import javax.swing.JPanel
 class WindowColorPanelToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val settings = project.getService(WindowColorSettings::class.java)
+        val colorSettings = project.getService(WindowColorSettings::class.java)
+        val titleSettings = project.getService(WindowTitleNumberingSettings::class.java)
 
         val panel = JPanel(GridLayout(0, 1, 8, 8))
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
@@ -27,46 +29,46 @@ class WindowColorPanelToolWindowFactory : ToolWindowFactory {
 
         fun refreshButtonText() {
             toggleAllColorsButton.text =
-                if (settings.panelIsEnabled()) "Disable colors for all open windows"
+                if (colorSettings.panelIsEnabled()) "Disable colors for all open windows"
                 else "Enable colors for all open windows"
 
             toggleAllTitlesButton.text =
-                if (settings.isTitleNumberingEnabled()) "Disable title numbers for all open windows"
+                if (titleSettings.isTitleNumberingEnabled()) "Disable title numbers for all open windows"
                 else "Enable title numbers for all open windows"
 
             toggleCurrentColorButton.text =
-                if (settings.panelIsEnabled()) "Disable color for current window"
+                if (colorSettings.panelIsEnabled()) "Disable color for current window"
                 else "Enable color for current window"
 
             toggleCurrentTitleButton.text =
-                if (settings.isTitleNumberingEnabled()) "Disable title number for current window"
+                if (titleSettings.isTitleNumberingEnabled()) "Disable title number for current window"
                 else "Enable title number for current window"
         }
 
         toggleAllColorsButton.addActionListener {
-            val enabled = settings.panelIsDisabled()
-            settings.setPanelEnabled(enabled)
+            val enabled = colorSettings.panelIsDisabled()
+            colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
         toggleAllTitlesButton.addActionListener {
-            val enabled = settings.isTitleNumberingDisabled()
-            settings.setTitleNumberingEnabled(enabled)
+            val enabled = titleSettings.isTitleNumberingDisabled()
+            titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
         toggleCurrentColorButton.addActionListener {
-            val enabled = settings.panelIsDisabled()
-            settings.setPanelEnabled(enabled)
+            val enabled = colorSettings.panelIsDisabled()
+            colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
 
         toggleCurrentTitleButton.addActionListener {
-            val enabled = settings.isTitleNumberingDisabled()
-            settings.setTitleNumberingEnabled(enabled)
+            val enabled = titleSettings.isTitleNumberingDisabled()
+            titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToCurrentOpenProject(project, enabled)
             refreshButtonText()
         }
@@ -81,5 +83,4 @@ class WindowColorPanelToolWindowFactory : ToolWindowFactory {
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
     }
-
 }
