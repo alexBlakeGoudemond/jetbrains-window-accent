@@ -12,7 +12,7 @@ class WindowColorPanelStartupActivity : ProjectActivity {
 
     override suspend fun execute(project: Project) {
         WindowColorApplier.applyToCurrentOpenProject(project)
-        WindowTitleApplier.apply(project)
+        WindowTitleApplier.applyToCurrentOpenProject(project)
     }
 
 }

@@ -17,10 +17,8 @@ object WindowTitleApplier {
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
     private val alarms = ConcurrentHashMap<Project, Alarm>()
 
-    fun apply(project: Project, enabled: Boolean = true) {
-        val app = ApplicationManager.getApplication()
-
-        app.invokeLater {
+    fun applyToCurrentOpenProject (project: Project, enabled: Boolean = true) {
+        ApplicationManager.getApplication().invokeLater {
             if (enabled) {
                 applyInternal(project)
             } else {
@@ -32,17 +30,9 @@ object WindowTitleApplier {
     fun applyToAllOpenProjects(enabled: Boolean = true) {
         ApplicationManager.getApplication().invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
-                apply(project, enabled)
+                applyToCurrentOpenProject(project, enabled)
             }
         }
-    }
-
-    fun toggle(project: Project): Boolean {
-        val settings = project.getService(com.demo.window_color.WindowColorSettings::class.java)
-        val enabled = !settings.isTitleNumberingEnabled()
-        settings.setTitleNumberingEnabled(enabled)
-        apply(project, enabled)
-        return enabled
     }
 
     private fun applyInternal(project: Project) {

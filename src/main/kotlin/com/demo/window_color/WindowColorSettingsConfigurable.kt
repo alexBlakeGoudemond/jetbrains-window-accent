@@ -131,7 +131,7 @@ class WindowColorSettingsConfigurable(
         settings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
 
         WindowColorApplier.applyToCurrentOpenProject(project)
-        WindowTitleApplier.apply(project, settings.isTitleNumberingEnabled())
+        WindowTitleApplier.applyToCurrentOpenProject(project, settings.isTitleNumberingEnabled())
 
         ProjectManager.getInstance().openProjects.forEach { openProject ->
             openProject.getService(WindowColorSettings::class.java).apply {

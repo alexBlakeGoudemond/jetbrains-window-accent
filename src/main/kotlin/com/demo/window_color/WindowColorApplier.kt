@@ -1,5 +1,6 @@
 package com.demo.window_color
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
@@ -18,7 +19,7 @@ object WindowColorApplier {
     private const val PANEL_CLIENT_PROPERTY = "com.demo.windowColorPanel"
 
     fun applyToCurrentOpenProject(project: Project) {
-        SwingUtilities.invokeLater {
+        ApplicationManager.getApplication().invokeLater {
             applyColorToWindow(project)
         }
     }
