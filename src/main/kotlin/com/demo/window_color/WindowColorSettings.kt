@@ -62,19 +62,10 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
         state.panelEnabled = enabled
     }
 
-    fun togglePanelEnabled(): Boolean {
-        state.panelEnabled = !state.panelEnabled
-        return state.panelEnabled
-    }
-
     fun isTitleNumberingEnabled(): Boolean = state.titleNumberingEnabled
 
     fun setTitleNumberingEnabled(enabled: Boolean) {
         state.titleNumberingEnabled = enabled
     }
 
-    fun toggleTitleNumberingEnabled(): Boolean {
-        state.titleNumberingEnabled = !state.titleNumberingEnabled
-        return state.titleNumberingEnabled
-    }
 }

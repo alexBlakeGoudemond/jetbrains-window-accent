@@ -12,7 +12,7 @@ import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class WindowColorToolWindowFactory : ToolWindowFactory {
+class WindowColorPanelToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val settings = project.getService(WindowColorSettings::class.java)

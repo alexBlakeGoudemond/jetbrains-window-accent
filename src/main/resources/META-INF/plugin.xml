@@ -25,13 +25,13 @@
      -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
-                    factoryClass="com.demo.tool_window.WindowColorToolWindowFactory"
+                    factoryClass="com.demo.tool_window.WindowColorPanelToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"/>
         <postStartupActivity implementation="com.demo.WindowColorPanelStartupActivity"/>
 
         <projectConfigurable
                 id="com.demo.windowColorSettings"
-                instance="com.demo.window_color.WindowColorSettingsConfigurable"
+                instance="com.demo.settings.WindowColorPanelSettingsConfigurable"
                 parentId="appearance"
                 displayName="Window Color Panel"/>
     </extensions>

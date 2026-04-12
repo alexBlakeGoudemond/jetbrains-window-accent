@@ -50,20 +50,18 @@ object WindowTitleApplier {
         }
     }
 
-    private fun applyTitleToWindow(project: Project) {
-        val frame = WindowManager.getInstance().getFrame(project) ?: return
+    fun removeFromAllOpenProjects() {
+        ApplicationManager.getApplication().invokeLater {
+            ProjectManager.getInstance().openProjects.forEach { project ->
+                removeTitleFromWindow(project)
+            }
 
-        val number = getWindowProjectNumber(project)
-        updateWindowTitle(frame, number)
-        reapplyOnFocus(project)
-        startTitleEnforcer(project)
+            projectNumbers.clear()
+            counter.set(1)
+        }
     }
 
-    private fun getWindowProjectNumber(project: Project): Int = projectNumbers.computeIfAbsent(project) {
-        counter.getAndIncrement()
-    }
-
-    fun removeTitleFromWindow(project: Project) {
+    private fun removeTitleFromWindow(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
 
@@ -83,28 +81,7 @@ object WindowTitleApplier {
         }
     }
 
-    fun removeFromAllOpenProjects() {
-        ApplicationManager.getApplication().invokeLater {
-            ProjectManager.getInstance().openProjects.forEach { project ->
-                removeTitleFromWindow(project)
-            }
-
-            projectNumbers.clear()
-            counter.set(1)
-        }
-    }
-
-    private fun updateWindowTitle(frame: Frame, number: Int) {
-        val originalTitle = frame.title ?: return
-
-        val cleanedTitle = originalTitle.replace(Regex("^\\[\\d+]\\s*"), "")
-        val newTitle = "[$number] $cleanedTitle"
-        if (frame.title != newTitle) {
-            frame.title = newTitle
-        }
-    }
-
-    fun reapplyOnFocus(project: Project) {
+    private fun reapplyOnFocus(project: Project) {
         val frame = WindowManager.getInstance().getFrame(project) ?: return
         val listener = object : WindowAdapter() {
             override fun windowGainedFocus(e: WindowEvent?) {
@@ -120,6 +97,29 @@ object WindowTitleApplier {
         frame.addWindowFocusListener(listener)
     }
 
+    private fun getWindowProjectNumber(project: Project): Int = projectNumbers.computeIfAbsent(project) {
+        counter.getAndIncrement()
+    }
+
+    private fun applyTitleToWindow(project: Project) {
+        val frame = WindowManager.getInstance().getFrame(project) ?: return
+
+        val number = getWindowProjectNumber(project)
+        updateWindowTitle(frame, number)
+        reapplyOnFocus(project)
+        startTitleEnforcer(project)
+    }
+
+    private fun updateWindowTitle(frame: Frame, number: Int) {
+        val originalTitle = frame.title ?: return
+
+        val cleanedTitle = originalTitle.replace(Regex("^\\[\\d+]\\s*"), "")
+        val newTitle = "[$number] $cleanedTitle"
+        if (frame.title != newTitle) {
+            frame.title = newTitle
+        }
+    }
+
     private fun startTitleEnforcer(project: Project) {
         scopes.remove(project)?.cancel()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -131,18 +131,15 @@ object WindowTitleApplier {
                 WindowManager.getInstance().getFrame(project)?.removeWindowFocusListener(listener)
             }
         }
-
         scope.launch {
             while (isActive) {
                 val frame = WindowManager.getInstance().getFrame(project)
                 val number = projectNumbers[project]
-
                 if (frame != null && number != null) {
                     withContext(Dispatchers.EDT) {
                         updateWindowTitle(frame, number)
                     }
                 }
-
                 delay(1500.milliseconds)
             }
         }
