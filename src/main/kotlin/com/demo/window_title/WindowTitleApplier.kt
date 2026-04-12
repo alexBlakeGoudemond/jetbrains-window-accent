@@ -1,15 +1,27 @@
 package com.demo.window_title
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.Alarm
+import com.intellij.util.ui.accessibility.ScreenReader.isActive
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 object WindowTitleApplier {
 
@@ -17,12 +29,14 @@ object WindowTitleApplier {
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
     private val alarms = ConcurrentHashMap<Project, Alarm>()
 
-    fun applyToCurrentOpenProject (project: Project, enabled: Boolean = true) {
+    private val scopes = mutableMapOf<Project, CoroutineScope>()
+
+    fun applyToCurrentOpenProject(project: Project, enabled: Boolean = true) {
         ApplicationManager.getApplication().invokeLater {
             if (enabled) {
-                applyInternal(project)
+                applyTitleToWindow(project)
             } else {
-                remove(project)
+                removeTitleFromWindow(project)
             }
         }
     }
@@ -35,19 +49,20 @@ object WindowTitleApplier {
         }
     }
 
-    private fun applyInternal(project: Project) {
+    private fun applyTitleToWindow(project: Project) {
         val frame = WindowManager.getInstance().getFrame(project) ?: return
 
-        val number = projectNumbers.computeIfAbsent(project) {
-            counter.getAndIncrement()
-        }
-
-        updateTitle(frame, number)
+        val number = getWindowProjectNumber(project)
+        updateWindowTitle(frame, number)
         reapplyOnFocus(project)
         startTitleEnforcer(project)
     }
 
-    fun remove(project: Project) {
+    private fun getWindowProjectNumber(project: Project): Int = projectNumbers.computeIfAbsent(project) {
+        counter.getAndIncrement()
+    }
+
+    fun removeTitleFromWindow(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             val frame = WindowManager.getInstance().getFrame(project) ?: return@invokeLater
 
@@ -65,7 +80,7 @@ object WindowTitleApplier {
     fun removeFromAllOpenProjects() {
         ApplicationManager.getApplication().invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
-                remove(project)
+                removeTitleFromWindow(project)
             }
 
             projectNumbers.clear()
@@ -73,12 +88,11 @@ object WindowTitleApplier {
         }
     }
 
-    private fun updateTitle(frame: Frame, number: Int) {
+    private fun updateWindowTitle(frame: Frame, number: Int) {
         val originalTitle = frame.title ?: return
 
         val cleanedTitle = originalTitle.replace(Regex("^\\[\\d+]\\s*"), "")
         val newTitle = "[$number] $cleanedTitle"
-
         if (frame.title != newTitle) {
             frame.title = newTitle
         }
@@ -90,28 +104,33 @@ object WindowTitleApplier {
         frame.addWindowFocusListener(object : WindowAdapter() {
             override fun windowGainedFocus(e: WindowEvent?) {
                 val number = projectNumbers[project] ?: return
-                updateTitle(frame, number)
+                updateWindowTitle(frame, number)
             }
         })
     }
 
     private fun startTitleEnforcer(project: Project) {
-        val alarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
-        alarms[project] = alarm
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        scopes[project] = scope
 
-        val task = object : Runnable {
-            override fun run() {
+        Disposer.register(project) {
+            scopes.remove(project)?.cancel()
+        }
+
+        scope.launch {
+            while (isActive) {
                 val frame = WindowManager.getInstance().getFrame(project)
                 val number = projectNumbers[project]
 
                 if (frame != null && number != null) {
-                    updateTitle(frame, number)
+                    withContext(Dispatchers.EDT) {
+                        updateWindowTitle(frame, number)
+                    }
                 }
 
-                alarm.addRequest(this, 1500)
+                delay(1500.milliseconds)
             }
         }
-
-        alarm.addRequest(task, 1500)
     }
+
 }
