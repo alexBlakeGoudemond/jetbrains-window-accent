@@ -42,8 +42,8 @@ fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
                 val picked = screenshot.getRGB(mx, my)
                 windowColorPanelSettings.selectedColor = Color(picked, true)
                 windowColorPanelSettings.customColorCheckBox.isSelected = true
-                windowColorPanelSettings.updateEnabledState()
-                windowColorPanelSettings.updatePreview()
+                windowColorPanelSettings.syncEnabledState()
+                windowColorPanelSettings.syncPreview()
             }
         } finally {
             overlay.dispose()

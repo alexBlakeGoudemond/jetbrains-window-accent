@@ -217,14 +217,14 @@ class WindowColorPanelSettings(
         titleNumberingCheckBox.isSelected = titleNumberingSettings.isTitleNumberingEnabled()
     }
 
-    private fun syncEnabledState() {
+    fun syncEnabledState() {
         val customColorEnabled = customColorCheckBox.isSelected
         chooseColorButton.isEnabled = customColorEnabled
         dropperButton.isEnabled = customColorEnabled
         colorPreview.isEnabled = customColorEnabled
     }
 
-    private fun syncPreview() {
+    fun syncPreview() {
         val color = if (customColorCheckBox.isSelected) selectedColor else null
         colorPreview.background = color ?: panel.background
         previewLabel.text = if (color == null) {
