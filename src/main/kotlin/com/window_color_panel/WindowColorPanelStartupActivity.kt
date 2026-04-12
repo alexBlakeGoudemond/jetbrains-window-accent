@@ -1,7 +1,7 @@
-package com.demo
+package com.window_color_panel
 
-import com.demo.window_color.WindowColorApplier
-import com.demo.window_title.WindowTitleApplier
+import com.window_color_panel.window_color.WindowColorApplier
+import com.window_color_panel.window_title.WindowTitleApplier
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
 

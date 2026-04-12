@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>com.demo.WindowColorPanel</id>
+    <id>com.window_color_panel.WindowColorPanel</id>
 
     <!-- Public plugin name should be written in Title Case.
      Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
@@ -25,13 +25,13 @@
      -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
-                    factoryClass="com.demo.tool_window.WindowColorPanelToolWindowFactory"
+                    factoryClass="com.window_color_panel.tool_window.WindowColorPanelToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"/>
-        <postStartupActivity implementation="com.demo.WindowColorPanelStartupActivity"/>
+        <postStartupActivity implementation="com.window_color_panel.WindowColorPanelStartupActivity"/>
 
         <projectConfigurable
-                id="com.demo.windowColorSettings"
-                instance="com.demo.settings.WindowColorPanelSettingsConfigurable"
+                id="com.window_color_panel.windowColorSettings"
+                instance="com.window_color_panel.settings.WindowColorPanelSettingsConfigurable"
                 parentId="appearance"
                 displayName="Window Color Panel"/>
     </extensions>

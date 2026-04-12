@@ -1,4 +1,4 @@
-package com.demo.i18n
+package com.window_color_panel.i18n
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.Nls

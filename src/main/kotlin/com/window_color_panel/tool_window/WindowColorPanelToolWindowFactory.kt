@@ -1,8 +1,8 @@
-package com.demo.tool_window
+package com.window_color_panel.tool_window
 
-import com.demo.window_color.WindowColorApplier
-import com.demo.window_color.WindowColorSettings
-import com.demo.window_title.WindowTitleApplier
+import com.window_color_panel.window_color.WindowColorApplier
+import com.window_color_panel.window_color.WindowColorSettings
+import com.window_color_panel.window_title.WindowTitleApplier
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory

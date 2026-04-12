@@ -1,8 +1,8 @@
-package com.demo.settings
+package com.window_color_panel.settings
 
-import com.demo.window_color.WindowColorApplier
-import com.demo.window_color.WindowColorSettings
-import com.demo.window_title.WindowTitleApplier
+import com.window_color_panel.window_color.WindowColorApplier
+import com.window_color_panel.window_color.WindowColorSettings
+import com.window_color_panel.window_title.WindowTitleApplier
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project

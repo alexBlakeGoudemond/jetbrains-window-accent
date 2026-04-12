@@ -1,4 +1,4 @@
-package com.demo.window_title
+package com.window_color_panel.window_title
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
