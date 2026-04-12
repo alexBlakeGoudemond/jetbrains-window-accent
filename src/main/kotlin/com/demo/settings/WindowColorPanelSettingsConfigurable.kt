@@ -67,14 +67,15 @@ class WindowColorPanelSettingsConfigurable(
     override fun getDisplayName(): String = "Window Color Panel"
 
     override fun createComponent(): JComponent {
-        val gbcLabel = GridBagConstraints().apply {
+
+        val gridBagConstraintsLabel = GridBagConstraints().apply {
             gridx = 0
             gridy = 0
             anchor = GridBagConstraints.WEST
             insets = Insets(4, 4, 4, 8)
         }
 
-        val gbcField = GridBagConstraints().apply {
+        val gridBagConstraintsField = GridBagConstraints().apply {
             gridx = 1
             gridy = 0
             fill = GridBagConstraints.HORIZONTAL
@@ -83,44 +84,14 @@ class WindowColorPanelSettingsConfigurable(
             insets = Insets(4, 4, 4, 4)
         }
 
-        form.add(JBLabel("Panel side:"), gbcLabel)
-        form.add(sideCombo, gbcField)
-
-        gbcLabel.gridy = 1
-        gbcField.gridy = 1
-        form.add(JBLabel("Custom color:"), gbcLabel)
+        form.add(JBLabel("Panel side:"), gridBagConstraintsLabel)
+        form.add(sideCombo, gridBagConstraintsField)
 
         val colorRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
             add(colorPreview)
             add(chooseColorButton)
             add(dropperButton)
         }
-        form.add(colorRow, gbcField)
-
-        gbcLabel.gridy = 2
-        gbcField.gridy = 2
-        form.add(customColorCheckBox, gbcField)
-
-        gbcLabel.gridy = 3
-        gbcField.gridy = 3
-        form.add(JBLabel("Title numbering:"), gbcLabel)
-        form.add(titleNumberingCheckBox, gbcField)
-
-        gbcLabel.gridy = 4
-        gbcField.gridy = 4
-        form.add(JBLabel("Preview:"), gbcLabel)
-        form.add(previewLabel, gbcField)
-
-        colorPreview.preferredSize = Dimension(24, 24)
-        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
-
-        panel.add(form, BorderLayout.NORTH)
-
-        customColorCheckBox.addActionListener {
-            updateEnabledState()
-            updatePreview()
-        }
-
         chooseColorButton.addActionListener {
             val chosen = JColorChooser.showDialog(
                 panel,
@@ -132,12 +103,39 @@ class WindowColorPanelSettingsConfigurable(
                 updatePreview()
             }
         }
-
-        dropperButton.toolTipText = "Pick a color from the screen"
-        dropperButton.isFocusable = false
         dropperButton.addActionListener {
             pickColorFromScreenAsync()
         }
+        gridBagConstraintsLabel.gridy = 1
+        gridBagConstraintsField.gridy = 1
+        form.add(JBLabel("Custom color:"), gridBagConstraintsLabel)
+
+        form.add(colorRow, gridBagConstraintsField)
+        dropperButton.toolTipText = "Pick a color from the screen"
+        dropperButton.isFocusable = false
+
+        gridBagConstraintsLabel.gridy = 2
+        gridBagConstraintsField.gridy = 2
+        form.add(customColorCheckBox, gridBagConstraintsField)
+        customColorCheckBox.addActionListener {
+            updateEnabledState()
+            updatePreview()
+        }
+
+        gridBagConstraintsLabel.gridy = 3
+        gridBagConstraintsField.gridy = 3
+        form.add(JBLabel("Title numbering:"), gridBagConstraintsLabel)
+        form.add(titleNumberingCheckBox, gridBagConstraintsField)
+
+        gridBagConstraintsLabel.gridy = 4
+        gridBagConstraintsField.gridy = 4
+        form.add(JBLabel("Preview:"), gridBagConstraintsLabel)
+        form.add(previewLabel, gridBagConstraintsField)
+
+        colorPreview.preferredSize = Dimension(24, 24)
+        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+
+        panel.add(form, BorderLayout.NORTH)
 
         updateFromSettings()
         updateEnabledState()
@@ -149,9 +147,9 @@ class WindowColorPanelSettingsConfigurable(
     override fun isModified(): Boolean {
         val selectedSide = sideCombo.selectedItem as WindowColorSettings.Side
         return selectedSide != settings.getSide() ||
-            customColorCheckBox.isSelected != settings.isUseCustomColor() ||
-            selectedColor?.rgb != settings.getCustomColor()?.rgb ||
-            titleNumberingCheckBox.isSelected != settings.isTitleNumberingEnabled()
+                customColorCheckBox.isSelected != settings.isUseCustomColor() ||
+                selectedColor?.rgb != settings.getCustomColor()?.rgb ||
+                titleNumberingCheckBox.isSelected != settings.isTitleNumberingEnabled()
     }
 
     override fun apply() {
@@ -239,6 +237,7 @@ class WindowColorPanelSettingsConfigurable(
             setLocation(0, 0)
         }
 
+        // TODO BlakeGoudemond 2026/04/12 | refactor?
         val canvas = object : JComponent() {
             override fun paintComponent(g: Graphics) {
                 super.paintComponent(g)
