@@ -1,21 +1,11 @@
 package com.demo.settings
 
-import java.awt.Color
-import java.awt.Cursor
-import java.awt.Dialog
-import java.awt.Point
-import java.awt.Rectangle
-import java.awt.Robot
-import java.awt.Toolkit
+import java.awt.*
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
-import javax.swing.JComponent
-import javax.swing.JDialog
-import javax.swing.KeyStroke
-import javax.swing.SwingUtilities
-import javax.swing.WindowConstants
+import javax.swing.*
 
 fun pickColorFromScreenAsync(windowColorPanelSettingsConfigurable: WindowColorPanelSettingsConfigurable) {
     val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettingsConfigurable.panel) ?: return

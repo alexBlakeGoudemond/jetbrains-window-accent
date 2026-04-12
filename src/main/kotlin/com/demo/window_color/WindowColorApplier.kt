@@ -5,11 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Component
-import java.awt.Container
-import java.awt.Dimension
+import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
