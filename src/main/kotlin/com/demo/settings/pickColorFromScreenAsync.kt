@@ -25,10 +25,12 @@ fun pickColorFromScreenAsync(windowColorPanelSettingsConfigurable: WindowColorPa
     val screenshot = robot.createScreenCapture(Rectangle(screenSize))
 
     val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
-    var displayX = mousePoint.x.toDouble()
-    var displayY = mousePoint.y.toDouble()
-    val displayAlpha = 0.22
-    val paintCanvas = getPaintCanvas(screenshot, displayX, displayY)
+    val displayPoint = object {
+        var x = mousePoint.x.toDouble()
+        var y = mousePoint.y.toDouble()
+    }
+
+    val paintCanvas = getPaintCanvas(screenshot) { displayPoint.x to displayPoint.y }
 
     val overlay = JDialog(owner, Dialog.ModalityType.MODELESS).apply {
         isUndecorated = true
@@ -61,16 +63,13 @@ fun pickColorFromScreenAsync(windowColorPanelSettingsConfigurable: WindowColorPa
     paintCanvas.addMouseMotionListener(object : MouseMotionAdapter() {
         override fun mouseMoved(e: MouseEvent) {
             mousePoint.setLocation(e.x, e.y)
-            displayX += (mousePoint.x - displayX) * displayAlpha
-            displayY += (mousePoint.y - displayY) * displayAlpha
+            displayPoint.x += (mousePoint.x - displayPoint.x) * 0.22
+            displayPoint.y += (mousePoint.y - displayPoint.y) * 0.22
             paintCanvas.repaint()
         }
 
         override fun mouseDragged(e: MouseEvent) {
-            mousePoint.setLocation(e.x, e.y)
-            displayX += (mousePoint.x - displayX) * displayAlpha
-            displayY += (mousePoint.y - displayY) * displayAlpha
-            paintCanvas.repaint()
+            mouseMoved(e)
         }
     })
 

@@ -10,7 +10,10 @@ import java.awt.image.BufferedImage
 import javax.swing.JComponent
 import kotlin.math.roundToInt
 
-fun getPaintCanvas(screenshot: BufferedImage, displayX: Double, displayY: Double) = object : JComponent() {
+fun getPaintCanvas(
+    screenshot: BufferedImage,
+    displayPoint: () -> Pair<Double, Double>
+) = object : JComponent() {
 
     val zoomRadius = 12
     val loupeSize = 180
@@ -28,6 +31,7 @@ fun getPaintCanvas(screenshot: BufferedImage, displayX: Double, displayY: Double
         g2.color = Color(0, 0, 0, 60)
         g2.fillRect(0, 0, width, height)
 
+        val (displayX, displayY) = displayPoint()
         val mx = displayX.roundToInt().coerceIn(0, screenshot.width - 1)
         val my = displayY.roundToInt().coerceIn(0, screenshot.height - 1)
 
