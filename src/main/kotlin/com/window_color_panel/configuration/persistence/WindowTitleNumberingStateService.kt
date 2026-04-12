@@ -10,8 +10,8 @@ import com.intellij.openapi.components.Storage
  */
 @Service(Service.Level.PROJECT)
 @State(
-    name = "WindowTitleNumberingSettings",
-    storages = [Storage("windowTitleNumberingSettings.xml")]
+    name = "WindowTitleNumberingStateService",
+    storages = [Storage("windowTitleNumberingStateService.xml")]
 )
 class WindowTitleNumberingStateService : PersistentStateComponent<WindowTitleNumberingStateService.State> {
 

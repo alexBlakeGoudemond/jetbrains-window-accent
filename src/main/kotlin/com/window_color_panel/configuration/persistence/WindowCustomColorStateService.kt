@@ -13,8 +13,8 @@ import java.awt.Color
  */
 @Service(Service.Level.PROJECT)
 @State(
-    name = "WindowCustomColorSettings",
-    storages = [Storage("windowCustomColorSettings.xml")]
+    name = "WindowCustomColorStateService",
+    storages = [Storage("windowCustomColorStateService.xml")]
 )
 class WindowCustomColorStateService : PersistentStateComponent<WindowCustomColorStateService.State> {
 

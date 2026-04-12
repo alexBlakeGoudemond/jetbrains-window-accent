@@ -12,8 +12,8 @@ import com.intellij.openapi.components.Storage
  */
 @Service(Service.Level.PROJECT)
 @State(
-    name = "WindowColorSettings",
-    storages = [Storage("windowColorSettings.xml")]
+    name = "WindowPanelAppearanceStateService",
+    storages = [Storage("windowPanelAppearanceStateService.xml")]
 )
 class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAppearanceStateService.State> {
 
