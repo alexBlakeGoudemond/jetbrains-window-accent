@@ -8,9 +8,27 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
-import java.awt.*
-import javax.swing.*
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.FlowLayout
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.Insets
+import javax.swing.BorderFactory
+import javax.swing.JButton
+import javax.swing.JCheckBox
+import javax.swing.JColorChooser
+import javax.swing.JComboBox
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
 
+/**
+ * IntelliJ settings UI for configuring window color and title-numbering behavior.
+ *
+ * This component keeps the form state in sync with persisted project settings and
+ * applies changes to the current IDE window when the user clicks Apply.
+ */
 class WindowColorPanelSettings(
     private val project: Project
 ) : Configurable {
@@ -33,15 +51,30 @@ class WindowColorPanelSettings(
     override fun getDisplayName(): String = "Window Color Panel"
 
     override fun createComponent(): JComponent {
+        panel.removeAll()
+        panel.add(form, BorderLayout.NORTH)
 
-        val gridBagConstraintsLabel = GridBagConstraints().apply {
+        configureGrid()
+        addFields()
+        configureColorPreview()
+        bindActions()
+
+        syncFromSettings()
+        syncEnabledState()
+        syncPreview()
+
+        return panel
+    }
+
+    private fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
+        val labelConstraints = GridBagConstraints().apply {
             gridx = 0
             gridy = 0
             anchor = GridBagConstraints.WEST
             insets = Insets(4, 4, 4, 8)
         }
 
-        val gridBagConstraintsField = GridBagConstraints().apply {
+        val fieldConstraints = GridBagConstraints().apply {
             gridx = 1
             gridy = 0
             fill = GridBagConstraints.HORIZONTAL
@@ -50,23 +83,44 @@ class WindowColorPanelSettings(
             insets = Insets(4, 4, 4, 4)
         }
 
-        setupPanelSideSettings(gridBagConstraintsLabel, gridBagConstraintsField)
-        setupCustomColorSettings(gridBagConstraintsLabel, gridBagConstraintsField)
-        setupTitleNumberingSettings(gridBagConstraintsLabel, gridBagConstraintsField)
-
-        colorPreview.preferredSize = Dimension(24, 24)
-        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
-
-        panel.add(form, BorderLayout.NORTH)
-
-        updateFromSettings()
-        updateEnabledState()
-        updatePreview()
-
-        return panel
+        return labelConstraints to fieldConstraints
     }
 
-    private fun setupPanelSideSettings(
+    private fun addFields() {
+        val (labelConstraints, fieldConstraints) = configureGrid()
+
+        addPanelSideSettings(labelConstraints, fieldConstraints)
+        addCustomColorSettings(labelConstraints, fieldConstraints)
+        addTitleNumberingSettings(labelConstraints, fieldConstraints)
+    }
+
+    private fun configureColorPreview() {
+        colorPreview.preferredSize = java.awt.Dimension(24, 24)
+        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+    }
+
+    private fun bindActions() {
+        chooseColorButton.addActionListener { chooseCustomColor() }
+        dropperButton.addActionListener { showScreenColorPicker(this) }
+        customColorCheckBox.addActionListener {
+            syncEnabledState()
+            syncPreview()
+        }
+    }
+
+    private fun chooseCustomColor() {
+        val chosen = JColorChooser.showDialog(
+            panel,
+            "Choose custom color",
+            selectedColor ?: Color(0, 0, 255)
+        )
+        if (chosen != null) {
+            selectedColor = chosen
+            syncPreview()
+        }
+    }
+
+    private fun addPanelSideSettings(
         gridBagConstraintsLabel: GridBagConstraints,
         gridBagConstraintsField: GridBagConstraints
     ) {
@@ -74,7 +128,7 @@ class WindowColorPanelSettings(
         form.add(sideCombo, gridBagConstraintsField)
     }
 
-    private fun setupCustomColorSettings(
+    private fun addCustomColorSettings(
         gridBagConstraintsLabel: GridBagConstraints,
         gridBagConstraintsField: GridBagConstraints
     ) {
@@ -83,42 +137,26 @@ class WindowColorPanelSettings(
             add(chooseColorButton)
             add(dropperButton)
         }
-        chooseColorButton.addActionListener {
-            val chosen = JColorChooser.showDialog(
-                panel,
-                "Choose custom color",
-                selectedColor ?: Color(0, 0, 255)
-            )
-            if (chosen != null) {
-                selectedColor = chosen
-                updatePreview()
-            }
-        }
-        dropperButton.addActionListener {
-            showScreenColorPicker(this)
-        }
+
         gridBagConstraintsLabel.gridy = 1
         gridBagConstraintsField.gridy = 1
         form.add(JBLabel("Custom color:"), gridBagConstraintsLabel)
-
         form.add(colorRow, gridBagConstraintsField)
+
         dropperButton.toolTipText = "Pick a color from the screen"
         dropperButton.isFocusable = false
 
         gridBagConstraintsLabel.gridy = 2
         gridBagConstraintsField.gridy = 2
         form.add(customColorCheckBox, gridBagConstraintsField)
-        customColorCheckBox.addActionListener {
-            updateEnabledState()
-            updatePreview()
-        }
+
         gridBagConstraintsLabel.gridy = 3
         gridBagConstraintsField.gridy = 3
         form.add(JBLabel("Preview:"), gridBagConstraintsLabel)
         form.add(previewLabel, gridBagConstraintsField)
     }
 
-    private fun setupTitleNumberingSettings(
+    private fun addTitleNumberingSettings(
         gridBagConstraintsLabel: GridBagConstraints,
         gridBagConstraintsField: GridBagConstraints
     ) {
@@ -137,18 +175,39 @@ class WindowColorPanelSettings(
     }
 
     override fun apply() {
+        updateSettingsFromUi()
+
+        WindowColorApplier.applyToCurrentOpenProject(project)
+        applyTitleNumberingChanges()
+        copySettingsToAllOpenProjects()
+    }
+
+    override fun reset() {
+        syncFromSettings()
+        syncEnabledState()
+        syncPreview()
+    }
+
+    override fun disposeUIResources() {
+        // no-op
+    }
+
+    private fun updateSettingsFromUi() {
         settings.setSide(sideCombo.selectedItem as WindowColorSettings.Side)
         settings.setUseCustomColor(customColorCheckBox.isSelected)
         settings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
         settings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
+    }
 
-        WindowColorApplier.applyToCurrentOpenProject(project)
+    private fun applyTitleNumberingChanges() {
         if (settings.isTitleNumberingEnabled()) {
             WindowTitleApplier.applyToCurrentOpenProject(project, true)
         } else {
             WindowTitleApplier.removeFromAllOpenProjects()
         }
+    }
 
+    private fun copySettingsToAllOpenProjects() {
         ProjectManager.getInstance().openProjects.forEach { openProject ->
             openProject.getService(WindowColorSettings::class.java).apply {
                 setSide(settings.getSide())
@@ -160,30 +219,21 @@ class WindowColorPanelSettings(
         }
     }
 
-    override fun reset() {
-        updateFromSettings()
-        updateEnabledState()
-        updatePreview()
-    }
-
-    override fun disposeUIResources() {
-        // no-op
-    }
-
-    private fun updateFromSettings() {
+    private fun syncFromSettings() {
         sideCombo.selectedItem = settings.getSide()
         customColorCheckBox.isSelected = settings.isUseCustomColor()
         selectedColor = settings.getCustomColor()
         titleNumberingCheckBox.isSelected = settings.isTitleNumberingEnabled()
     }
 
-    fun updateEnabledState() {
-        chooseColorButton.isEnabled = customColorCheckBox.isSelected
-        dropperButton.isEnabled = customColorCheckBox.isSelected
-        colorPreview.isEnabled = customColorCheckBox.isSelected
+    private fun syncEnabledState() {
+        val customColorEnabled = customColorCheckBox.isSelected
+        chooseColorButton.isEnabled = customColorEnabled
+        dropperButton.isEnabled = customColorEnabled
+        colorPreview.isEnabled = customColorEnabled
     }
 
-    fun updatePreview() {
+    private fun syncPreview() {
         val color = if (customColorCheckBox.isSelected) selectedColor else null
         colorPreview.background = color ?: panel.background
         previewLabel.text = if (color == null) {
@@ -193,5 +243,4 @@ class WindowColorPanelSettings(
         }
         colorPreview.repaint()
     }
-
 }

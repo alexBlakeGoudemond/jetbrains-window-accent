@@ -6,6 +6,12 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import java.awt.Color
 
+/**
+ * Project-level persisted settings for the window color panel feature.
+ *
+ * This service stores the user's preferred side, custom color selection, and
+ * related feature toggles.
+ */
 @Service(Service.Level.PROJECT)
 @State(
     name = "WindowColorSettings",
@@ -69,5 +75,4 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
     fun setTitleNumberingEnabled(enabled: Boolean) {
         state.titleNumberingEnabled = enabled
     }
-
 }
