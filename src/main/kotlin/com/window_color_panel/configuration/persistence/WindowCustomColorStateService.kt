@@ -16,7 +16,7 @@ import java.awt.Color
     name = "WindowCustomColorSettings",
     storages = [Storage("windowCustomColorSettings.xml")]
 )
-class WindowCustomColorService : PersistentStateComponent<WindowCustomColorService.State> {
+class WindowCustomColorStateService : PersistentStateComponent<WindowCustomColorStateService.State> {
 
     data class State(
         var useCustomColor: Boolean = false,

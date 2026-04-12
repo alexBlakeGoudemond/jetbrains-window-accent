@@ -25,9 +25,9 @@ object WindowTitleApplier {
 
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
-    private val alarms = ConcurrentHashMap<Project, Alarm>()
-    private val scopes = mutableMapOf<Project, CoroutineScope>()
-    private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
+    private val projectAlarms = ConcurrentHashMap<Project, Alarm>()
+    private val projectScopes = mutableMapOf<Project, CoroutineScope>()
+    private val projectFocusListeners = ConcurrentHashMap<Project, WindowAdapter>()
 
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean = true) {
         ApplicationManager.getApplication().invokeLater {
@@ -117,15 +117,15 @@ object WindowTitleApplier {
         }
 
     private fun replaceFocusListener(project: Project, frame: Frame, listener: WindowAdapter) {
-        focusListeners.remove(project)?.let { oldListener ->
+        projectFocusListeners.remove(project)?.let { oldListener ->
             frame.removeWindowFocusListener(oldListener)
         }
-        focusListeners[project] = listener
+        projectFocusListeners[project] = listener
         frame.addWindowFocusListener(listener)
     }
 
     private fun removeFocusListener(project: Project, frame: Frame) {
-        focusListeners.remove(project)?.let { listener ->
+        projectFocusListeners.remove(project)?.let { listener ->
             frame.removeWindowFocusListener(listener)
         }
     }
@@ -134,7 +134,7 @@ object WindowTitleApplier {
         cancelTitleEnforcement(project)
 
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        scopes[project] = scope
+        projectScopes[project] = scope
 
         Disposer.register(project) {
             cancelTitleEnforcement(project)
@@ -159,8 +159,8 @@ object WindowTitleApplier {
     }
 
     private fun cancelTitleEnforcement(project: Project) {
-        alarms.remove(project)?.cancelAllRequests()
-        scopes.remove(project)?.cancel()
+        projectAlarms.remove(project)?.cancelAllRequests()
+        projectScopes.remove(project)?.cancel()
     }
 
     private fun cleanupFocusListener(project: Project) {

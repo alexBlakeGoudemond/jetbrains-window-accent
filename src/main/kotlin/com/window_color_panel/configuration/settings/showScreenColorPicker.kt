@@ -15,12 +15,12 @@ fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     val screenshot = robot.createScreenCapture(Rectangle(screenSize))
 
     val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
-    val trackedMousePoint = object {
+    val displayMousePoint = object {
         var x = mousePoint.x.toDouble()
         var y = mousePoint.y.toDouble()
     }
 
-    val paintCanvas = createMagnifierCanvas(screenshot) { trackedMousePoint.x to trackedMousePoint.y }
+    val paintCanvas = createMagnifierCanvas(screenshot) { displayMousePoint.x to displayMousePoint.y }
 
     val overlay = JDialog(owner, Dialog.ModalityType.MODELESS).apply {
         isUndecorated = true
@@ -53,8 +53,8 @@ fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     paintCanvas.addMouseMotionListener(object : MouseMotionAdapter() {
         override fun mouseMoved(e: MouseEvent) {
             mousePoint.setLocation(e.x, e.y)
-            trackedMousePoint.x += (mousePoint.x - trackedMousePoint.x) * 0.22
-            trackedMousePoint.y += (mousePoint.y - trackedMousePoint.y) * 0.22
+            displayMousePoint.x += (mousePoint.x - displayMousePoint.x) * 0.22
+            displayMousePoint.y += (mousePoint.y - displayMousePoint.y) * 0.22
             paintCanvas.repaint()
         }
 

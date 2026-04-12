@@ -8,7 +8,7 @@ import com.intellij.openapi.startup.ProjectActivity
 /**
  * Applies persisted window decorations when a project starts.
  */
-class WindowColorPanelStartupActivity : ProjectActivity {
+class PluginStartupActvity : ProjectActivity {
 
     override suspend fun execute(project: Project) {
         WindowColorApplier.applyToCurrentOpenProject(project)

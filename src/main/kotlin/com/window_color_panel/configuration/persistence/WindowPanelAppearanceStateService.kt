@@ -15,7 +15,7 @@ import com.intellij.openapi.components.Storage
     name = "WindowColorSettings",
     storages = [Storage("windowColorSettings.xml")]
 )
-class WindowPanelService : PersistentStateComponent<WindowPanelService.State> {
+class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAppearanceStateService.State> {
 
     data class State(
         var side: Side = Side.EAST,

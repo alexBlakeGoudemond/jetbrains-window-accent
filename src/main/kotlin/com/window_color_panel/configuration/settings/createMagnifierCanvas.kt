@@ -7,7 +7,7 @@ import kotlin.math.roundToInt
 
 fun createMagnifierCanvas(
     screenshot: BufferedImage,
-    trackedMousePoint: () -> Pair<Double, Double>
+    displayMousePoint: () -> Pair<Double, Double>
 ) = object : JComponent() {
 
     val zoomRadius = 12
@@ -26,7 +26,7 @@ fun createMagnifierCanvas(
         graphics.color = Color(0, 0, 0, 60)
         graphics.fillRect(0, 0, width, height)
 
-        val (displayX, displayY) = trackedMousePoint()
+        val (displayX, displayY) = displayMousePoint()
         val mouseX = displayX.roundToInt().coerceIn(0, screenshot.width - 1)
         val mouseY = displayY.roundToInt().coerceIn(0, screenshot.height - 1)
 

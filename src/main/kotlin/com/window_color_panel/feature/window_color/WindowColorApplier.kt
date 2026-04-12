@@ -5,8 +5,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
-import com.window_color_panel.configuration.persistence.WindowCustomColorService
-import com.window_color_panel.configuration.persistence.WindowPanelService
+import com.window_color_panel.configuration.persistence.WindowCustomColorStateService
+import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
@@ -36,25 +36,25 @@ object WindowColorApplier {
     fun applyToAllOpenProjects(enabled: Boolean) {
         SwingUtilities.invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
-                project.getService(WindowPanelService::class.java).setPanelEnabled(enabled)
+                project.getService(WindowPanelAppearanceStateService::class.java).setPanelEnabled(enabled)
                 applyColorToWindow(project)
             }
         }
     }
-
+ing
     private fun applyColorToWindow(project: Project) {
         val frame = WindowManager.getInstance().getFrame(project) ?: return
         val rootContentPane = frame.rootPane.contentPane
-        val panelSettings = project.getService(WindowPanelService::class.java)
-        val customColorSettings = project.getService(WindowCustomColorService::class.java)
-        val panelState = findExistingColoredPanel(rootContentPane)
+        val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
+        val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
+        val existingPanel = findExistingColoredPanel(rootContentPane)
 
         if (panelSettings.panelIsDisabled()) {
-            removeColoredPanel(panelState, rootContentPane)
+            removeColoredPanel(existingPanel, rootContentPane)
             return
         }
 
-        addOrReplaceColoredPanel(panelState, rootContentPane, panelSettings, customColorSettings, project)
+        addOrReplaceColoredPanel(existingPanel, rootContentPane, panelSettings, customColorSettings, project)
     }
 
     private fun findExistingColoredPanel(rootContentPane: Container): Component? {
@@ -66,8 +66,8 @@ object WindowColorApplier {
     private fun addOrReplaceColoredPanel(
         existingPanel: Component?,
         rootContentPane: Container,
-        panelSettings: WindowPanelService,
-        customColorSettings: WindowCustomColorService,
+        panelSettings: WindowPanelAppearanceStateService,
+        customColorSettings: WindowCustomColorStateService,
         project: Project
     ) {
         if (existingPanel != null) {
@@ -81,8 +81,8 @@ object WindowColorApplier {
     }
 
     private fun createColoredPanel(
-        panelSettings: WindowPanelService,
-        customColorSettings: WindowCustomColorService,
+        panelSettings: WindowPanelAppearanceStateService,
+        customColorSettings: WindowCustomColorStateService,
         project: Project
     ): JPanel {
         val panel = JPanel()
@@ -92,7 +92,7 @@ object WindowColorApplier {
         return panel
     }
 
-    private fun resolveColor(settings: WindowCustomColorService, project: Project): Color {
+    private fun resolveColor(settings: WindowCustomColorStateService, project: Project): Color {
         return if (settings.isUseCustomColor()) {
             settings.getCustomColor() ?: generateColor(project.name)
         } else {
@@ -100,9 +100,9 @@ object WindowColorApplier {
         }
     }
 
-    private fun panelDimension(side: WindowPanelService.Side): Dimension = when (side) {
-        WindowPanelService.Side.NORTH,
-        WindowPanelService.Side.SOUTH -> Dimension(0, PANEL_THICKNESS)
+    private fun panelDimension(side: WindowPanelAppearanceStateService.Side): Dimension = when (side) {
+        WindowPanelAppearanceStateService.Side.NORTH,
+        WindowPanelAppearanceStateService.Side.SOUTH -> Dimension(0, PANEL_THICKNESS)
 
         else -> Dimension(PANEL_THICKNESS, 0)
     }
@@ -114,11 +114,11 @@ object WindowColorApplier {
         rootContentPane.repaint()
     }
 
-    private fun borderLayoutConstraint(side: WindowPanelService.Side): String = when (side) {
-        WindowPanelService.Side.EAST -> BorderLayout.EAST
-        WindowPanelService.Side.WEST -> BorderLayout.WEST
-        WindowPanelService.Side.NORTH -> BorderLayout.NORTH
-        WindowPanelService.Side.SOUTH -> BorderLayout.SOUTH
+    private fun borderLayoutConstraint(side: WindowPanelAppearanceStateService.Side): String = when (side) {
+        WindowPanelAppearanceStateService.Side.EAST -> BorderLayout.EAST
+        WindowPanelAppearanceStateService.Side.WEST -> BorderLayout.WEST
+        WindowPanelAppearanceStateService.Side.NORTH -> BorderLayout.NORTH
+        WindowPanelAppearanceStateService.Side.SOUTH -> BorderLayout.SOUTH
     }
 
     private fun generateColor(seed: String): Color {

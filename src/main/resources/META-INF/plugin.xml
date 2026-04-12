@@ -27,7 +27,7 @@
         <toolWindow id="MyToolWindow"
                     factoryClass="com.window_color_panel.configuration.tool_window.WindowColorPanelToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"/>
-        <postStartupActivity implementation="com.window_color_panel.WindowColorPanelStartupActivity"/>
+        <postStartupActivity implementation="com.window_color_panel.PluginStartupActvity"/>
 
         <projectConfigurable
                 id="com.window_color_panel.windowColorSettings"

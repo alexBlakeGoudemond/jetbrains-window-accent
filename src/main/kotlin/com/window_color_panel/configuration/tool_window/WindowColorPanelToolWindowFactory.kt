@@ -1,9 +1,9 @@
 package com.window_color_panel.configuration.tool_window
 
-import com.window_color_panel.configuration.persistence.WindowPanelService
+import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_color_panel.feature.window_color.WindowColorApplier
 import com.window_color_panel.feature.window_title.WindowTitleApplier
-import com.window_color_panel.window_title.WindowTitleNumberingService
+import com.window_color_panel.window_title.WindowTitleNumberingStateService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -16,8 +16,8 @@ import javax.swing.JPanel
 class WindowColorPanelToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val colorSettings = project.getService(WindowPanelService::class.java)
-        val titleSettings = project.getService(WindowTitleNumberingService::class.java)
+        val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
+        val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
 
         val panel = JPanel(GridLayout(0, 1, 8, 8))
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
