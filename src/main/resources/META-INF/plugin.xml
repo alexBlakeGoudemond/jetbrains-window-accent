@@ -31,7 +31,7 @@
 
         <projectConfigurable
                 id="com.window_color_panel.windowColorSettings"
-                instance="com.window_color_panel.settings.WindowColorPanelSettingsConfigurable"
+                instance="com.window_color_panel.settings.WindowColorPanelSettings"
                 parentId="appearance"
                 displayName="Window Color Panel"/>
     </extensions>

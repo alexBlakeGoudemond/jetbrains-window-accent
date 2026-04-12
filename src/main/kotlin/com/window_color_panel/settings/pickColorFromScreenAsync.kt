@@ -7,8 +7,8 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.*
 
-fun pickColorFromScreenAsync(windowColorPanelSettingsConfigurable: WindowColorPanelSettingsConfigurable) {
-    val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettingsConfigurable.panel) ?: return
+fun pickColorFromScreenAsync(windowColorPanelSettings: WindowColorPanelSettings) {
+    val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettings.panel) ?: return
 
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val robot = Robot()
@@ -40,10 +40,10 @@ fun pickColorFromScreenAsync(windowColorPanelSettingsConfigurable: WindowColorPa
                 val mx = mousePoint.x.coerceIn(0, screenshot.width - 1)
                 val my = mousePoint.y.coerceIn(0, screenshot.height - 1)
                 val picked = screenshot.getRGB(mx, my)
-                windowColorPanelSettingsConfigurable.selectedColor = Color(picked, true)
-                windowColorPanelSettingsConfigurable.customColorCheckBox.isSelected = true
-                windowColorPanelSettingsConfigurable.updateEnabledState()
-                windowColorPanelSettingsConfigurable.updatePreview()
+                windowColorPanelSettings.selectedColor = Color(picked, true)
+                windowColorPanelSettings.customColorCheckBox.isSelected = true
+                windowColorPanelSettings.updateEnabledState()
+                windowColorPanelSettings.updatePreview()
             }
         } finally {
             overlay.dispose()

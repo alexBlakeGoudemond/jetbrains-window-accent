@@ -11,7 +11,7 @@ import com.intellij.ui.components.JBLabel
 import java.awt.*
 import javax.swing.*
 
-class WindowColorPanelSettingsConfigurable(
+class WindowColorPanelSettings(
     private val project: Project
 ) : Configurable {
 
