@@ -1,4 +1,4 @@
-package com.window_color_panel.window_title
+package com.window_color_panel.configuration.persistence
 
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
@@ -6,7 +6,11 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 
 /**
- * Project-level persisted settings for title numbering behavior.
+ * Project-level persisted state for window title numbering.
+ *
+ * This service stores whether title numbering is enabled for the project.
+ * The title applier uses this state to decide whether to prefix IDE window
+ * titles, and the settings UI uses it to reflect and update the current value.
  */
 @Service(Service.Level.PROJECT)
 @State(
@@ -16,7 +20,7 @@ import com.intellij.openapi.components.Storage
 class WindowTitleNumberingStateService : PersistentStateComponent<WindowTitleNumberingStateService.State> {
 
     data class State(
-        var titleNumberingEnabled: Boolean = false
+        var titleNumberingEnabled: Boolean = true
     )
 
     private var state = State()

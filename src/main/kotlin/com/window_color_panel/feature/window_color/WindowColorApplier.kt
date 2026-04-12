@@ -17,10 +17,11 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
 /**
- * Applies, updates, and removes the colored window panel for IDE projects.
+ * Applies and maintains the colored window panel for IDE projects.
  *
- * This object delegates color resolution and layout decisions to smaller helpers so the
- * window-management flow stays easy to follow.
+ * This object is responsible for the runtime behavior of the feature:
+ * it resolves the desired color, creates the panel, places it in the correct
+ * position, and removes or reapplies it when settings change.
  */
 object WindowColorApplier {
 
@@ -43,19 +44,22 @@ object WindowColorApplier {
     }
 
     private fun applyColorToWindow(project: Project) {
-        val frame = WindowManager.getInstance().getFrame(project) ?: return
+        val frame = getProjectFrame(project) ?: return
         val rootContentPane = frame.rootPane.contentPane
-        val panelAppearanceSettings = project.getService(WindowPanelAppearanceStateService::class.java)
+        val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
         val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
         val existingPanel = findExistingColoredPanel(rootContentPane)
 
-        if (panelAppearanceSettings.panelIsDisabled()) {
+        if (panelSettings.panelIsDisabled()) {
             removeColoredPanel(existingPanel, rootContentPane)
             return
         }
 
-        addOrReplaceColoredPanel(existingPanel, rootContentPane, panelAppearanceSettings, customColorSettings, project)
+        addOrReplaceColoredPanel(existingPanel, rootContentPane, panelSettings, customColorSettings, project)
     }
+
+    private fun getProjectFrame(project: Project) =
+        WindowManager.getInstance().getFrame(project)
 
     private fun findExistingColoredPanel(rootContentPane: Container): Component? {
         return rootContentPane.components.firstOrNull {
@@ -66,7 +70,7 @@ object WindowColorApplier {
     private fun addOrReplaceColoredPanel(
         existingPanel: Component?,
         rootContentPane: Container,
-        panelAppearanceSettings: WindowPanelAppearanceStateService,
+        panelSettings: WindowPanelAppearanceStateService,
         customColorSettings: WindowCustomColorStateService,
         project: Project
     ) {
@@ -74,27 +78,30 @@ object WindowColorApplier {
             rootContentPane.remove(existingPanel)
         }
 
-        val panel = createColoredPanel(panelAppearanceSettings, customColorSettings, project)
-        rootContentPane.add(panel, borderLayoutConstraint(panelAppearanceSettings.getSide()))
+        val panel = createColoredPanel(panelSettings, customColorSettings, project)
+        rootContentPane.add(panel, borderLayoutConstraint(panelSettings.getSide()))
         rootContentPane.revalidate()
         rootContentPane.repaint()
     }
 
     private fun createColoredPanel(
-        panelAppearanceSettings: WindowPanelAppearanceStateService,
+        panelSettings: WindowPanelAppearanceStateService,
         customColorSettings: WindowCustomColorStateService,
         project: Project
     ): JPanel {
-        val panel = JPanel()
-        panel.putClientProperty(PANEL_CLIENT_PROPERTY, true)
-        panel.background = resolveColor(customColorSettings, project)
-        panel.preferredSize = panelDimension(panelAppearanceSettings.getSide())
-        return panel
+        return JPanel().apply {
+            putClientProperty(PANEL_CLIENT_PROPERTY, true)
+            background = resolveColor(customColorSettings, project)
+            preferredSize = panelDimension(panelSettings.getSide())
+        }
     }
 
-    private fun resolveColor(settings: WindowCustomColorStateService, project: Project): Color {
-        return if (settings.isUseCustomColor()) {
-            settings.getCustomColor() ?: generateColor(project.name)
+    private fun resolveColor(
+        customColorSettings: WindowCustomColorStateService,
+        project: Project
+    ): Color {
+        return if (customColorSettings.isUseCustomColor()) {
+            customColorSettings.getCustomColor() ?: generateColor(project.name)
         } else {
             generateColor(project.name)
         }

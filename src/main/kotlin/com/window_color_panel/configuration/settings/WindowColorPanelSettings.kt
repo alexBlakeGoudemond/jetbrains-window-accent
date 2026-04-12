@@ -4,7 +4,7 @@ import com.window_color_panel.configuration.persistence.WindowCustomColorStateSe
 import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_color_panel.feature.window_color.WindowColorApplier
 import com.window_color_panel.feature.window_title.WindowTitleApplier
-import com.window_color_panel.window_title.WindowTitleNumberingStateService
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project

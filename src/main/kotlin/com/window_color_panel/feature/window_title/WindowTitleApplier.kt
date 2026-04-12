@@ -7,7 +7,15 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.Alarm
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -18,16 +26,17 @@ import kotlin.time.Duration.Companion.milliseconds
 /**
  * Applies and maintains a numeric prefix in IDE window titles.
  *
- * The prefix is assigned per open project and is re-applied when focus changes or
- * when the title is modified by the IDE or another component.
+ * The prefix is assigned per open project and is restored when focus changes
+ * or when the IDE rewrites the title. This class manages the lifecycle of the
+ * title decoration for the current project session.
  */
 object WindowTitleApplier {
 
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
-    private val projectAlarms = ConcurrentHashMap<Project, Alarm>()
-    private val projectScopes = mutableMapOf<Project, CoroutineScope>()
-    private val projectFocusListeners = ConcurrentHashMap<Project, WindowAdapter>()
+    private val alarms = ConcurrentHashMap<Project, Alarm>()
+    private val scopes = mutableMapOf<Project, CoroutineScope>()
+    private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
 
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean = true) {
         ApplicationManager.getApplication().invokeLater {
@@ -117,15 +126,15 @@ object WindowTitleApplier {
         }
 
     private fun replaceFocusListener(project: Project, frame: Frame, listener: WindowAdapter) {
-        projectFocusListeners.remove(project)?.let { oldListener ->
+        focusListeners.remove(project)?.let { oldListener ->
             frame.removeWindowFocusListener(oldListener)
         }
-        projectFocusListeners[project] = listener
+        focusListeners[project] = listener
         frame.addWindowFocusListener(listener)
     }
 
     private fun removeFocusListener(project: Project, frame: Frame) {
-        projectFocusListeners.remove(project)?.let { listener ->
+        focusListeners.remove(project)?.let { listener ->
             frame.removeWindowFocusListener(listener)
         }
     }
@@ -134,7 +143,7 @@ object WindowTitleApplier {
         cancelTitleEnforcement(project)
 
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        projectScopes[project] = scope
+        scopes[project] = scope
 
         Disposer.register(project) {
             cancelTitleEnforcement(project)
@@ -159,8 +168,8 @@ object WindowTitleApplier {
     }
 
     private fun cancelTitleEnforcement(project: Project) {
-        projectAlarms.remove(project)?.cancelAllRequests()
-        projectScopes.remove(project)?.cancel()
+        alarms.remove(project)?.cancelAllRequests()
+        scopes.remove(project)?.cancel()
     }
 
     private fun cleanupFocusListener(project: Project) {

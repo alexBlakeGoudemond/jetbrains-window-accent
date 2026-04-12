@@ -7,9 +7,11 @@ import com.intellij.openapi.components.Storage
 import java.awt.Color
 
 /**
- * Project-level persisted settings for custom window color selection.
+ * Project-level persisted state for the user's custom window color selection.
  *
- * Stores whether a custom color is in use and the selected color value.
+ * This service stores whether custom coloring is enabled and, when it is, the
+ * selected RGB color value. It is read by the settings UI and used by runtime
+ * window-color application logic.
  */
 @Service(Service.Level.PROJECT)
 @State(

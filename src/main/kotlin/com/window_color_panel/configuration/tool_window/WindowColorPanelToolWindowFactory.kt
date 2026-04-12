@@ -3,7 +3,7 @@ package com.window_color_panel.configuration.tool_window
 import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_color_panel.feature.window_color.WindowColorApplier
 import com.window_color_panel.feature.window_title.WindowTitleApplier
-import com.window_color_panel.window_title.WindowTitleNumberingStateService
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
