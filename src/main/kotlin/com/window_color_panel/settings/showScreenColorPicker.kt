@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.*
 
-fun pickColorFromScreenAsync(windowColorPanelSettings: WindowColorPanelSettings) {
+fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettings.panel) ?: return
 
     val screenSize = Toolkit.getDefaultToolkit().screenSize
@@ -15,12 +15,12 @@ fun pickColorFromScreenAsync(windowColorPanelSettings: WindowColorPanelSettings)
     val screenshot = robot.createScreenCapture(Rectangle(screenSize))
 
     val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
-    val displayPoint = object {
+    val trackedMousePoint = object {
         var x = mousePoint.x.toDouble()
         var y = mousePoint.y.toDouble()
     }
 
-    val paintCanvas = getPaintCanvas(screenshot) { displayPoint.x to displayPoint.y }
+    val paintCanvas = createMagnifierCanvas(screenshot) { trackedMousePoint.x to trackedMousePoint.y }
 
     val overlay = JDialog(owner, Dialog.ModalityType.MODELESS).apply {
         isUndecorated = true
@@ -53,8 +53,8 @@ fun pickColorFromScreenAsync(windowColorPanelSettings: WindowColorPanelSettings)
     paintCanvas.addMouseMotionListener(object : MouseMotionAdapter() {
         override fun mouseMoved(e: MouseEvent) {
             mousePoint.setLocation(e.x, e.y)
-            displayPoint.x += (mousePoint.x - displayPoint.x) * 0.22
-            displayPoint.y += (mousePoint.y - displayPoint.y) * 0.22
+            trackedMousePoint.x += (mousePoint.x - trackedMousePoint.x) * 0.22
+            trackedMousePoint.y += (mousePoint.y - trackedMousePoint.y) * 0.22
             paintCanvas.repaint()
         }
 

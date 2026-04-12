@@ -95,7 +95,7 @@ class WindowColorPanelSettings(
             }
         }
         dropperButton.addActionListener {
-            pickColorFromScreenAsync(this)
+            showScreenColorPicker(this)
         }
         gridBagConstraintsLabel.gridy = 1
         gridBagConstraintsField.gridy = 1
