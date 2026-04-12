@@ -1,8 +1,8 @@
-package com.window_color_panel.tool_window
+package com.window_color_panel.configuration.tool_window
 
-import com.window_color_panel.settings.state.WindowPanelService
-import com.window_color_panel.window_color.WindowColorApplier
-import com.window_color_panel.window_title.WindowTitleApplier
+import com.window_color_panel.configuration.persistence.WindowPanelService
+import com.window_color_panel.feature.window_color.WindowColorApplier
+import com.window_color_panel.feature.window_title.WindowTitleApplier
 import com.window_color_panel.window_title.WindowTitleNumberingService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow

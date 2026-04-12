@@ -1,4 +1,4 @@
-package com.window_color_panel.settings.state
+package com.window_color_panel.configuration.persistence
 
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service

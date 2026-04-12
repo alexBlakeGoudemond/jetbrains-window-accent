@@ -1,9 +1,9 @@
-package com.window_color_panel.settings
+package com.window_color_panel.configuration.settings
 
-import com.window_color_panel.settings.state.WindowCustomColorService
-import com.window_color_panel.settings.state.WindowPanelService
-import com.window_color_panel.window_color.WindowColorApplier
-import com.window_color_panel.window_title.WindowTitleApplier
+import com.window_color_panel.configuration.persistence.WindowCustomColorService
+import com.window_color_panel.configuration.persistence.WindowPanelService
+import com.window_color_panel.feature.window_color.WindowColorApplier
+import com.window_color_panel.feature.window_title.WindowTitleApplier
 import com.window_color_panel.window_title.WindowTitleNumberingService
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable

@@ -1,12 +1,12 @@
-package com.window_color_panel.window_color
+package com.window_color_panel.feature.window_color
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
-import com.window_color_panel.settings.state.WindowCustomColorService
-import com.window_color_panel.settings.state.WindowPanelService
+import com.window_color_panel.configuration.persistence.WindowCustomColorService
+import com.window_color_panel.configuration.persistence.WindowPanelService
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component

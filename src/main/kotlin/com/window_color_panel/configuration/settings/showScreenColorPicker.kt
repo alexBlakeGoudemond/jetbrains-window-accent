@@ -1,4 +1,4 @@
-package com.window_color_panel.settings
+package com.window_color_panel.configuration.settings
 
 import java.awt.*
 import java.awt.event.KeyEvent
