@@ -44,32 +44,28 @@ class WindowColorPanelToolWindowFactory : ToolWindowFactory {
         }
 
         toggleAllColorsButton.addActionListener {
-            val enabled = !settings.panelIsEnabled()
+            val enabled = settings.panelIsDisabled()
             settings.setPanelEnabled(enabled)
             WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
         toggleAllTitlesButton.addActionListener {
-            val enabled = !settings.isTitleNumberingEnabled()
+            val enabled = settings.isTitleNumberingDisabled()
             settings.setTitleNumberingEnabled(enabled)
-            if (enabled) {
-                WindowTitleApplier.applyToAllOpenProjects(true)
-            } else {
-                WindowTitleApplier.removeFromAllOpenProjects()
-            }
+            WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
         toggleCurrentColorButton.addActionListener {
-            val enabled = !settings.panelIsEnabled()
+            val enabled = settings.panelIsDisabled()
             settings.setPanelEnabled(enabled)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
 
         toggleCurrentTitleButton.addActionListener {
-            val enabled = !settings.isTitleNumberingEnabled()
+            val enabled = settings.isTitleNumberingDisabled()
             settings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToCurrentOpenProject(project, enabled)
             refreshButtonText()
@@ -85,4 +81,5 @@ class WindowColorPanelToolWindowFactory : ToolWindowFactory {
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
     }
+
 }

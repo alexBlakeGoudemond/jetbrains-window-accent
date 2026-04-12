@@ -64,6 +64,8 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
 
     fun isTitleNumberingEnabled(): Boolean = state.titleNumberingEnabled
 
+    fun isTitleNumberingDisabled(): Boolean = !isTitleNumberingEnabled()
+
     fun setTitleNumberingEnabled(enabled: Boolean) {
         state.titleNumberingEnabled = enabled
     }
