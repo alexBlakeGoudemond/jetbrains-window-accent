@@ -53,7 +53,11 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
         toggleAllTitlesButton.addActionListener {
             val enabled = !settings.isTitleNumberingEnabled()
             settings.setTitleNumberingEnabled(enabled)
-            WindowTitleApplier.applyToAllOpenProjects(enabled)
+            if (enabled) {
+                WindowTitleApplier.applyToAllOpenProjects(true)
+            } else {
+                WindowTitleApplier.removeFromAllOpenProjects()
+            }
             refreshButtonText()
         }
 

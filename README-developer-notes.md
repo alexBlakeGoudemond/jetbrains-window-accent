@@ -63,24 +63,3 @@ Use IntelliJ’s read/write locks
 Depend on modality state correctness
 
 Using SwingUtilities.invokeLater can break assumptions those plugins rely on.
-
-#### ⚠️ by switching to ApplicationManager.getApplication().invokeLater:
-
-1. Running at the wrong time
-    - Your code might execute:
-      - During indexing (aka “dumb mode”)
-      - While another plugin holds a write lock
-    - IntelliJ-aware scheduling avoids this
-2. Modality conflicts
-   - If a dialog is open, Swing doesn’t care
-   - IntelliJ does care
-   - Kubernetes plugins often open dialogs / tool windows
-3. Project lifecycle issues
-   - Your code might run after:
-     - Project is closed
-     - Resources are disposed
-   - IntelliJ’s invokeLater can prevent that
-4. Threading contract violations
-   - IntelliJ enforces stricter rules than Swing
-   - Other plugins assume those rules are followed
-   - Violating them → weird cross-plugin bugs
