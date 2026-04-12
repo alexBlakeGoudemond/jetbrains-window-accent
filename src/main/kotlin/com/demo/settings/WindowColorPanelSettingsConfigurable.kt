@@ -84,9 +84,34 @@ class WindowColorPanelSettingsConfigurable(
             insets = Insets(4, 4, 4, 4)
         }
 
+        setupPanelSideSettings(gridBagConstraintsLabel, gridBagConstraintsField)
+        setupCustomColorSettings(gridBagConstraintsLabel, gridBagConstraintsField)
+        setupTitleNumberingSettings(gridBagConstraintsLabel, gridBagConstraintsField)
+
+        colorPreview.preferredSize = Dimension(24, 24)
+        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+
+        panel.add(form, BorderLayout.NORTH)
+
+        updateFromSettings()
+        updateEnabledState()
+        updatePreview()
+
+        return panel
+    }
+
+    private fun setupPanelSideSettings(
+        gridBagConstraintsLabel: GridBagConstraints,
+        gridBagConstraintsField: GridBagConstraints
+    ) {
         form.add(JBLabel("Panel side:"), gridBagConstraintsLabel)
         form.add(sideCombo, gridBagConstraintsField)
+    }
 
+    private fun setupCustomColorSettings(
+        gridBagConstraintsLabel: GridBagConstraints,
+        gridBagConstraintsField: GridBagConstraints
+    ) {
         val colorRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
             add(colorPreview)
             add(chooseColorButton)
@@ -121,27 +146,20 @@ class WindowColorPanelSettingsConfigurable(
             updateEnabledState()
             updatePreview()
         }
-
         gridBagConstraintsLabel.gridy = 3
         gridBagConstraintsField.gridy = 3
-        form.add(JBLabel("Title numbering:"), gridBagConstraintsLabel)
-        form.add(titleNumberingCheckBox, gridBagConstraintsField)
-
-        gridBagConstraintsLabel.gridy = 4
-        gridBagConstraintsField.gridy = 4
         form.add(JBLabel("Preview:"), gridBagConstraintsLabel)
         form.add(previewLabel, gridBagConstraintsField)
+    }
 
-        colorPreview.preferredSize = Dimension(24, 24)
-        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
-
-        panel.add(form, BorderLayout.NORTH)
-
-        updateFromSettings()
-        updateEnabledState()
-        updatePreview()
-
-        return panel
+    private fun setupTitleNumberingSettings(
+        gridBagConstraintsLabel: GridBagConstraints,
+        gridBagConstraintsField: GridBagConstraints
+    ) {
+        gridBagConstraintsLabel.gridy = 4
+        gridBagConstraintsField.gridy = 4
+        form.add(JBLabel("Title numbering:"), gridBagConstraintsLabel)
+        form.add(titleNumberingCheckBox, gridBagConstraintsField)
     }
 
     override fun isModified(): Boolean {
