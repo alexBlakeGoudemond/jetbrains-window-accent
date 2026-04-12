@@ -1,8 +1,9 @@
-package com.demo.tool_window
+package com.window_color_panel.configuration.tool_window
 
-import com.demo.window_color.WindowColorApplier
-import com.demo.window_color.WindowColorSettings
-import com.demo.window_title.WindowTitleApplier
+import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
+import com.window_color_panel.feature.window_color.WindowColorApplier
+import com.window_color_panel.feature.window_title.WindowTitleApplier
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -12,10 +13,11 @@ import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class WindowColorToolWindowFactory : ToolWindowFactory {
+class WindowColorPanelToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val settings = project.getService(WindowColorSettings::class.java)
+        val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
+        val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
 
         val panel = JPanel(GridLayout(0, 1, 8, 8))
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
@@ -27,47 +29,47 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
 
         fun refreshButtonText() {
             toggleAllColorsButton.text =
-                if (settings.isPanelEnabled()) "Disable colors for all open windows"
+                if (colorSettings.panelIsEnabled()) "Disable colors for all open windows"
                 else "Enable colors for all open windows"
 
             toggleAllTitlesButton.text =
-                if (settings.isTitleNumberingEnabled()) "Disable title numbers for all open windows"
+                if (titleSettings.isTitleNumberingEnabled()) "Disable title numbers for all open windows"
                 else "Enable title numbers for all open windows"
 
             toggleCurrentColorButton.text =
-                if (settings.isPanelEnabled()) "Disable color for current window"
+                if (colorSettings.panelIsEnabled()) "Disable color for current window"
                 else "Enable color for current window"
 
             toggleCurrentTitleButton.text =
-                if (settings.isTitleNumberingEnabled()) "Disable title number for current window"
+                if (titleSettings.isTitleNumberingEnabled()) "Disable title number for current window"
                 else "Enable title number for current window"
         }
 
         toggleAllColorsButton.addActionListener {
-            val enabled = !settings.isPanelEnabled()
-            settings.setPanelEnabled(enabled)
+            val enabled = colorSettings.panelIsDisabled()
+            colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
         toggleAllTitlesButton.addActionListener {
-            val enabled = !settings.isTitleNumberingEnabled()
-            settings.setTitleNumberingEnabled(enabled)
+            val enabled = titleSettings.isTitleNumberingDisabled()
+            titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
         toggleCurrentColorButton.addActionListener {
-            val enabled = !settings.isPanelEnabled()
-            settings.setPanelEnabled(enabled)
-            WindowColorApplier.apply(project)
+            val enabled = colorSettings.panelIsDisabled()
+            colorSettings.setPanelEnabled(enabled)
+            WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
 
         toggleCurrentTitleButton.addActionListener {
-            val enabled = !settings.isTitleNumberingEnabled()
-            settings.setTitleNumberingEnabled(enabled)
-            WindowTitleApplier.apply(project, enabled)
+            val enabled = titleSettings.isTitleNumberingDisabled()
+            titleSettings.setTitleNumberingEnabled(enabled)
+            WindowTitleApplier.applyToCurrentOpenProject(project, enabled)
             refreshButtonText()
         }
 
