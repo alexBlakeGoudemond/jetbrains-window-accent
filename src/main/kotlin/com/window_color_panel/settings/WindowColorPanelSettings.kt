@@ -1,10 +1,10 @@
 package com.window_color_panel.settings
 
+import com.window_color_panel.settings.state.WindowCustomColorService
+import com.window_color_panel.settings.state.WindowPanelService
 import com.window_color_panel.window_color.WindowColorApplier
-import com.window_color_panel.window_color.WindowColorSettings
-import com.window_color_panel.window_color.WindowCustomColorSettings
 import com.window_color_panel.window_title.WindowTitleApplier
-import com.window_color_panel.window_title.WindowTitleNumberingSettings
+import com.window_color_panel.window_title.WindowTitleNumberingService
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
@@ -36,13 +36,13 @@ class WindowColorPanelSettings(
 
     val panel = JPanel(BorderLayout())
 
-    private val windowColorSettings = project.getService(WindowColorSettings::class.java)
-    private val customColorSettings = project.getService(WindowCustomColorSettings::class.java)
-    private val titleNumberingSettings = project.getService(WindowTitleNumberingSettings::class.java)
+    private val windowPanelService = project.getService(WindowPanelService::class.java)
+    private val customColorSettings = project.getService(WindowCustomColorService::class.java)
+    private val titleNumberingSettings = project.getService(WindowTitleNumberingService::class.java)
 
     private val form = JPanel(GridBagLayout())
 
-    private val sideCombo = JComboBox(WindowColorSettings.Side.entries.toTypedArray())
+    private val sideCombo = JComboBox(WindowPanelService.Side.entries.toTypedArray())
     val customColorCheckBox = JCheckBox("Use custom color")
     private val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
     private val colorPreview = JPanel()
@@ -171,8 +171,8 @@ class WindowColorPanelSettings(
     }
 
     override fun isModified(): Boolean {
-        val selectedSide = sideCombo.selectedItem as WindowColorSettings.Side
-        return selectedSide != windowColorSettings.getSide() ||
+        val selectedSide = sideCombo.selectedItem as WindowPanelService.Side
+        return selectedSide != windowPanelService.getSide() ||
                 customColorCheckBox.isSelected != customColorSettings.isUseCustomColor() ||
                 selectedColor?.rgb != customColorSettings.getCustomColor()?.rgb ||
                 titleNumberingCheckBox.isSelected != titleNumberingSettings.isTitleNumberingEnabled()
@@ -196,7 +196,7 @@ class WindowColorPanelSettings(
     }
 
     private fun updateSettingsFromUi() {
-        windowColorSettings.setSide(sideCombo.selectedItem as WindowColorSettings.Side)
+        windowPanelService.setSide(sideCombo.selectedItem as WindowPanelService.Side)
         customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
         customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
         titleNumberingSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
@@ -211,7 +211,7 @@ class WindowColorPanelSettings(
     }
 
     private fun syncFromSettings() {
-        sideCombo.selectedItem = windowColorSettings.getSide()
+        sideCombo.selectedItem = windowPanelService.getSide()
         customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
         selectedColor = customColorSettings.getCustomColor()
         titleNumberingCheckBox.isSelected = titleNumberingSettings.isTitleNumberingEnabled()
