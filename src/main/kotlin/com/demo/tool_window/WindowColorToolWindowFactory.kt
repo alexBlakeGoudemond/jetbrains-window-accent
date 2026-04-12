@@ -27,7 +27,7 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
 
         fun refreshButtonText() {
             toggleAllColorsButton.text =
-                if (settings.isPanelEnabled()) "Disable colors for all open windows"
+                if (settings.panelIsEnabled()) "Disable colors for all open windows"
                 else "Enable colors for all open windows"
 
             toggleAllTitlesButton.text =
@@ -35,7 +35,7 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
                 else "Enable title numbers for all open windows"
 
             toggleCurrentColorButton.text =
-                if (settings.isPanelEnabled()) "Disable color for current window"
+                if (settings.panelIsEnabled()) "Disable color for current window"
                 else "Enable color for current window"
 
             toggleCurrentTitleButton.text =
@@ -44,7 +44,7 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
         }
 
         toggleAllColorsButton.addActionListener {
-            val enabled = !settings.isPanelEnabled()
+            val enabled = !settings.panelIsEnabled()
             settings.setPanelEnabled(enabled)
             WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
@@ -58,9 +58,9 @@ class WindowColorToolWindowFactory : ToolWindowFactory {
         }
 
         toggleCurrentColorButton.addActionListener {
-            val enabled = !settings.isPanelEnabled()
+            val enabled = !settings.panelIsEnabled()
             settings.setPanelEnabled(enabled)
-            WindowColorApplier.apply(project)
+            WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
 

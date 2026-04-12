@@ -11,7 +11,7 @@ import com.intellij.openapi.startup.ProjectActivity
 class WindowColorPanelStartupActivity : ProjectActivity {
 
     override suspend fun execute(project: Project) {
-        WindowColorApplier.apply(project)
+        WindowColorApplier.applyToCurrentOpenProject(project)
         WindowTitleApplier.apply(project)
     }
 

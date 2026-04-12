@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
 import java.awt.*
-import java.awt.event.AWTEventListener
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -131,7 +130,7 @@ class WindowColorSettingsConfigurable(
         settings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
         settings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
 
-        WindowColorApplier.apply(project)
+        WindowColorApplier.applyToCurrentOpenProject(project)
         WindowTitleApplier.apply(project, settings.isTitleNumberingEnabled())
 
         ProjectManager.getInstance().openProjects.forEach { openProject ->
@@ -140,7 +139,7 @@ class WindowColorSettingsConfigurable(
                 setUseCustomColor(settings.isUseCustomColor())
                 setCustomColor(settings.getCustomColor())
                 setTitleNumberingEnabled(settings.isTitleNumberingEnabled())
-                setPanelEnabled(settings.isPanelEnabled())
+                setPanelEnabled(settings.panelIsEnabled())
             }
         }
     }

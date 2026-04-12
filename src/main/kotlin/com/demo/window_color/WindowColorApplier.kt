@@ -6,6 +6,8 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Component
+import java.awt.Container
 import java.awt.Dimension
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -15,9 +17,9 @@ object WindowColorApplier {
 
     private const val PANEL_CLIENT_PROPERTY = "com.demo.windowColorPanel"
 
-    fun apply(project: Project) {
+    fun applyToCurrentOpenProject(project: Project) {
         SwingUtilities.invokeLater {
-            applyInternal(project)
+            applyColorToWindow(project)
         }
     }
 
@@ -25,59 +27,68 @@ object WindowColorApplier {
         SwingUtilities.invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 project.getService(WindowColorSettings::class.java).setPanelEnabled(enabled)
-                applyInternal(project)
+                applyColorToWindow(project)
             }
         }
     }
 
-    fun toggle(project: Project): Boolean {
-        val settings = project.getService(WindowColorSettings::class.java)
-        settings.setPanelEnabled(!settings.isPanelEnabled())
-        apply(project)
-        return settings.isPanelEnabled()
-    }
-
-    private fun applyInternal(project: Project) {
+    private fun applyColorToWindow(project: Project) {
         val frame = WindowManager.getInstance().getFrame(project) ?: return
-        val root = frame.rootPane
+        val rootContentPane = frame.rootPane.contentPane
         val settings = project.getService(WindowColorSettings::class.java)
-
-        val existingPanel = root.contentPane.components
+        val existingPanel = rootContentPane.components
             .firstOrNull { (it as? JComponent)?.getClientProperty(PANEL_CLIENT_PROPERTY) == true }
 
-        if (!settings.isPanelEnabled()) {
-            if (existingPanel != null) {
-                root.contentPane.remove(existingPanel)
-                root.contentPane.revalidate()
-                root.contentPane.repaint()
-            }
+        if (settings.panelIsDisabled()) {
+            removeColoredPanelFromWindow(existingPanel, rootContentPane)
             return
         }
+        addColoredPanelToWindow(existingPanel, rootContentPane, settings, project)
+    }
 
+    private fun addColoredPanelToWindow(
+        existingPanel: Component?,
+        rootContentPane: Container,
+        settings: WindowColorSettings,
+        project: Project
+    ) {
         if (existingPanel != null) {
-            root.contentPane.remove(existingPanel)
+            rootContentPane.remove(existingPanel)
         }
+        val color = getDesiredColor(settings, project)
+        val panel = JPanel()
+        panel.putClientProperty(PANEL_CLIENT_PROPERTY, true)
+        panel.background = color
+        val panelSide = settings.getSide()
+        panel.preferredSize = getPanelDimension(panelSide)
 
+        rootContentPane.add(panel, borderLayoutConstraint(panelSide))
+        rootContentPane.revalidate()
+        rootContentPane.repaint()
+    }
+
+    private fun getPanelDimension(panelSide: WindowColorSettings.Side): Dimension = when (panelSide) {
+        WindowColorSettings.Side.NORTH,
+        WindowColorSettings.Side.SOUTH -> Dimension(0, 20)
+
+        else -> Dimension(20, 0)
+    }
+
+    private fun getDesiredColor(settings: WindowColorSettings, project: Project): Color {
         val color = if (settings.isUseCustomColor()) {
             settings.getCustomColor() ?: generateColor(project.name)
         } else {
             generateColor(project.name)
         }
+        return color
+    }
 
-        val panel = JPanel()
-        panel.putClientProperty(PANEL_CLIENT_PROPERTY, true)
-        panel.background = color
-
-        val side = settings.getSide()
-        panel.preferredSize = when (side) {
-            WindowColorSettings.Side.NORTH,
-            WindowColorSettings.Side.SOUTH -> Dimension(0, 20)
-            else -> Dimension(20, 0)
+    private fun removeColoredPanelFromWindow(existingPanel: Component?, rootContentPane: Container) {
+        if (existingPanel != null) {
+            rootContentPane.remove(existingPanel)
+            rootContentPane.revalidate()
+            rootContentPane.repaint()
         }
-
-        root.contentPane.add(panel, borderLayoutConstraint(side))
-        root.contentPane.revalidate()
-        root.contentPane.repaint()
     }
 
     private fun borderLayoutConstraint(side: WindowColorSettings.Side): String {
@@ -89,6 +100,7 @@ object WindowColorApplier {
         }
     }
 
+    // TODO BlakeGoudemond 2026/04/12 | consider modelling light mode vs dark mode colors
     private fun generateColor(seed: String): Color {
         val hash = seed.hashCode()
         val r = (hash shr 16) and 0xFF
@@ -96,4 +108,5 @@ object WindowColorApplier {
         val b = hash and 0xFF
         return JBColor(Color(r, g, b, 180), Color(r, g, b, 180))
     }
+
 }

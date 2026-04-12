@@ -54,7 +54,9 @@ class WindowColorSettings : PersistentStateComponent<WindowColorSettings.State> 
 
     fun getCustomColor(): Color? = state.customColorRgb?.let { Color(it, true) }
 
-    fun isPanelEnabled(): Boolean = state.panelEnabled
+    fun panelIsEnabled(): Boolean = state.panelEnabled
+
+    fun panelIsDisabled(): Boolean = !panelIsEnabled()
 
     fun setPanelEnabled(enabled: Boolean) {
         state.panelEnabled = enabled
