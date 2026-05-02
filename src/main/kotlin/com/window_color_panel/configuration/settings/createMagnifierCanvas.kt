@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage
 import javax.swing.JComponent
 import kotlin.math.roundToInt
 
+fun toHex(color: Color): String = "#%02X%02X%02X".format(color.red, color.green, color.blue)
+
 fun createMagnifierCanvas(
     screenshot: BufferedImage,
     displayMousePoint: () -> Pair<Double, Double>
@@ -13,8 +15,6 @@ fun createMagnifierCanvas(
     val zoomRadius = 12
     val loupeSize = 180
     val loupeMargin = 24
-
-    fun toHex(color: Color): String = "#%02X%02X%02X".format(color.red, color.green, color.blue)
 
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)

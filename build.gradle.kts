@@ -23,8 +23,12 @@ repositories {
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("platformVersion"))
-        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("junit:junit:4.13.2")
 }
 
 intellijPlatform {
@@ -40,6 +44,15 @@ intellijPlatform {
 }
 
 tasks {
+    test {
+        useJUnitPlatform()
+    }
+    instrumentCode {
+        enabled = false
+    }
+    instrumentTestCode {
+        enabled = false
+    }
     wrapper {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
