@@ -7,6 +7,7 @@ import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
 
+// TODO BlakeGoudemond 2026/05/03 | Code coverage for this test is 0%
 @DisplayName("showScreenColorPicker Tests")
 class ShowScreenColorPickerTest {
 

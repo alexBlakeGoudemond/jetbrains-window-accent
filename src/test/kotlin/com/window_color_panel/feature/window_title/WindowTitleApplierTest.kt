@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
+// TODO BlakeGoudemond 2026/05/03 | Code coverage for this test is 25%
 @DisplayName("WindowTitleApplier Tests")
 class WindowTitleApplierTest {
 

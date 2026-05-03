@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.awt.Color
 
+// TODO BlakeGoudemond 2026/05/03 | Code coverage for this test is 0%
 @DisplayName("WindowColorPanelSettings Tests")
 class WindowColorPanelSettingsTest {
 
