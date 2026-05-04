@@ -7,11 +7,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import com.window_color_panel.configuration.persistence.WindowCustomColorStateService
 import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Component
-import java.awt.Container
-import java.awt.Dimension
+import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities

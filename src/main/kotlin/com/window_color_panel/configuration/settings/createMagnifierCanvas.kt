@@ -83,7 +83,13 @@ fun createMagnifierCanvas(
         graphics.drawString("Click to select · Esc to cancel", magnifyingX + 18, magnifyingY + loupeSize + 20)
     }
 
-    private fun setupMagnifyingLens(graphics: Graphics2D, mouseX: Int, mouseY: Int, magnifyingX: Int, magnifyingY: Int) {
+    private fun setupMagnifyingLens(
+        graphics: Graphics2D,
+        mouseX: Int,
+        mouseY: Int,
+        magnifyingX: Int,
+        magnifyingY: Int
+    ) {
         val sourceX = (mouseX - zoomRadius).coerceIn(0, screenshot.width - zoomRadius * 2)
         val sourceY = (mouseY - zoomRadius).coerceIn(0, screenshot.height - zoomRadius * 2)
         val sourceSize = zoomRadius * 2

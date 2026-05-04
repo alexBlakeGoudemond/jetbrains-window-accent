@@ -36,7 +36,10 @@ class WindowTitleApplierTest {
         // Test edge cases
         assertEquals("", method.invoke(WindowTitleApplier, ""))
         assertEquals("No prefix here", method.invoke(WindowTitleApplier, "No prefix here"))
-        assertEquals("[2] Multiple [1] [2] prefixes", method.invoke(WindowTitleApplier, "[1] [2] Multiple [1] [2] prefixes"))
+        assertEquals(
+            "[2] Multiple [1] [2] prefixes",
+            method.invoke(WindowTitleApplier, "[1] [2] Multiple [1] [2] prefixes")
+        )
         assertEquals("[Not a number] Text", method.invoke(WindowTitleApplier, "[Not a number] Text"))
         assertEquals("[1a] Text", method.invoke(WindowTitleApplier, "[1a] Text"))
     }

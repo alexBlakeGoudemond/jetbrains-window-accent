@@ -55,7 +55,10 @@ class WindowColorApplierTest {
     @Test
     @DisplayName("Should calculate correct panel dimensions")
     fun testPanelDimension() {
-        val method = WindowColorApplier::class.java.getDeclaredMethod("panelDimension", WindowPanelAppearanceStateService.Side::class.java)
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "panelDimension",
+            WindowPanelAppearanceStateService.Side::class.java
+        )
         method.isAccessible = true
 
         // Test NORTH and SOUTH (horizontal panels)
@@ -80,13 +83,22 @@ class WindowColorApplierTest {
     @Test
     @DisplayName("Should map sides to correct border layout constraints")
     fun testBorderLayoutConstraint() {
-        val method = WindowColorApplier::class.java.getDeclaredMethod("borderLayoutConstraint", WindowPanelAppearanceStateService.Side::class.java)
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "borderLayoutConstraint",
+            WindowPanelAppearanceStateService.Side::class.java
+        )
         method.isAccessible = true
 
         assertEquals(BorderLayout.EAST, method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.EAST))
         assertEquals(BorderLayout.WEST, method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.WEST))
-        assertEquals(BorderLayout.NORTH, method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.NORTH))
-        assertEquals(BorderLayout.SOUTH, method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.SOUTH))
+        assertEquals(
+            BorderLayout.NORTH,
+            method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.NORTH)
+        )
+        assertEquals(
+            BorderLayout.SOUTH,
+            method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.SOUTH)
+        )
     }
 
     @Test
@@ -163,7 +175,10 @@ class WindowColorApplierTest {
     @Test
     @DisplayName("Should maintain panel thickness constant")
     fun testPanelThicknessConstant() {
-        val method = WindowColorApplier::class.java.getDeclaredMethod("panelDimension", WindowPanelAppearanceStateService.Side::class.java)
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "panelDimension",
+            WindowPanelAppearanceStateService.Side::class.java
+        )
         method.isAccessible = true
 
         val thickness = 20
@@ -182,7 +197,10 @@ class WindowColorApplierTest {
     @Test
     @DisplayName("Should handle all enum sides")
     fun testAllEnumSides() {
-        val method = WindowColorApplier::class.java.getDeclaredMethod("borderLayoutConstraint", WindowPanelAppearanceStateService.Side::class.java)
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "borderLayoutConstraint",
+            WindowPanelAppearanceStateService.Side::class.java
+        )
         method.isAccessible = true
 
         // Test all enum values are handled

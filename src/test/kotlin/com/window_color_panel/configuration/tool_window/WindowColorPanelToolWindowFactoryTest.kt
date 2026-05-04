@@ -88,18 +88,22 @@ class WindowColorPanelToolWindowFactoryTest {
         // Test the logic for determining button text based on title service state
 
         // Simulate enabled state
-        val enabledText = if (true) "Disable title numbers for all open windows" else "Enable title numbers for all open windows"
+        val enabledText =
+            if (true) "Disable title numbers for all open windows" else "Enable title numbers for all open windows"
         assertEquals("Disable title numbers for all open windows", enabledText)
 
         // Simulate disabled state
-        val disabledText = if (false) "Disable title numbers for all open windows" else "Enable title numbers for all open windows"
+        val disabledText =
+            if (false) "Disable title numbers for all open windows" else "Enable title numbers for all open windows"
         assertEquals("Enable title numbers for all open windows", disabledText)
 
         // Test current window button text
-        val currentEnabledText = if (true) "Disable title number for current window" else "Enable title number for current window"
+        val currentEnabledText =
+            if (true) "Disable title number for current window" else "Enable title number for current window"
         assertEquals("Disable title number for current window", currentEnabledText)
 
-        val currentDisabledText = if (false) "Disable title number for current window" else "Enable title number for current window"
+        val currentDisabledText =
+            if (false) "Disable title number for current window" else "Enable title number for current window"
         assertEquals("Enable title number for current window", currentDisabledText)
     }
 

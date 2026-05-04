@@ -1,6 +1,6 @@
 package com.window_color_panel.configuration.settings
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.awt.Color

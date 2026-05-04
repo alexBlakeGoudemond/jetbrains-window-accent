@@ -12,7 +12,7 @@ class MyMessageBundleTest {
         // but it's a good starting point for a JetBrains plugin test.
         assertNotNull(MyMessageBundle)
     }
-    
+
     @Test
     fun `test message retrieval`() {
         // Since we don't have the properties file easily accessible in pure unit test without platform,

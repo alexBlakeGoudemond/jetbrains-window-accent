@@ -1,28 +1,16 @@
 package com.window_color_panel.configuration.settings
 
-import com.window_color_panel.configuration.persistence.WindowCustomColorStateService
-import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
-import com.window_color_panel.feature.window_color.WindowColorApplier
-import com.window_color_panel.feature.window_title.WindowTitleApplier
-import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.FlowLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import java.awt.Insets
-import javax.swing.BorderFactory
-import javax.swing.JButton
-import javax.swing.JCheckBox
-import javax.swing.JColorChooser
-import javax.swing.JComboBox
-import javax.swing.JComponent
-import javax.swing.JLabel
-import javax.swing.JPanel
+import com.window_color_panel.configuration.persistence.WindowCustomColorStateService
+import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
+import com.window_color_panel.feature.window_color.WindowColorApplier
+import com.window_color_panel.feature.window_title.WindowTitleApplier
+import java.awt.*
+import javax.swing.*
 
 /**
  * IntelliJ settings UI for configuring window color and title-numbering behavior.

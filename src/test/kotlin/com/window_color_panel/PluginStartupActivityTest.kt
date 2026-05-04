@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.junit.jupiter.MockitoExtension
@@ -24,7 +23,8 @@ class PluginStartupActivityTest {
 
         Mockito.mockStatic(ApplicationManager::class.java).use { applicationManagerMock ->
             val mockApplication = mock(com.intellij.openapi.application.Application::class.java)
-            applicationManagerMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }.thenReturn(mockApplication)
+            applicationManagerMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }
+                .thenReturn(mockApplication)
 
             Mockito.doNothing().`when`(mockApplication).invokeLater(Mockito.any(Runnable::class.java))
 
