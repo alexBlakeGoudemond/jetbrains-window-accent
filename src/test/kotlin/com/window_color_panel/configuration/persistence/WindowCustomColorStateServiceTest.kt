@@ -17,30 +17,26 @@ class WindowCustomColorStateServiceTest {
     }
 
     @Test
-    @DisplayName("Initial state should have custom color disabled and no color set")
-    fun testInitialState() {
+    fun `initial state has no custom color`() {
         assertFalse(service.isUseCustomColor())
         assertNull(service.getCustomColor())
     }
 
     @Test
-    @DisplayName("Should be able to enable custom color")
-    fun testSetUseCustomColorTrue() {
+    fun `can use custom color`() {
         service.setUseCustomColor(true)
         assertTrue(service.isUseCustomColor())
     }
 
     @Test
-    @DisplayName("Should be able to disable custom color")
-    fun testSetUseCustomColorFalse() {
+    fun `can disable custom color`() {
         service.setUseCustomColor(true)
         service.setUseCustomColor(false)
         assertFalse(service.isUseCustomColor())
     }
 
     @Test
-    @DisplayName("Should persist custom color value")
-    fun testSetAndGetCustomColor() {
+    fun `can save custom color`() {
         val customColor = Color(255, 128, 64)
         service.setCustomColor(customColor)
 
@@ -50,16 +46,14 @@ class WindowCustomColorStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle null color")
-    fun testSetCustomColorNull() {
+    fun `supports null colour`() {
         service.setCustomColor(Color.RED)
         service.setCustomColor(null)
         assertNull(service.getCustomColor())
     }
 
     @Test
-    @DisplayName("Should preserve RGB values including alpha channel")
-    fun testCustomColorPreservesAlpha() {
+    fun `can set custom colour with alpha channel`() {
         val colorWithAlpha = Color(100, 150, 200, 128)
         service.setCustomColor(colorWithAlpha)
 
@@ -69,8 +63,7 @@ class WindowCustomColorStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should correctly load state")
-    fun testLoadState() {
+    fun `can load custom colour`() {
         val newState = WindowCustomColorStateService.State(
             useCustomColor = true,
             customColorRgb = Color.BLUE.rgb
@@ -82,8 +75,7 @@ class WindowCustomColorStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should correctly return current state")
-    fun testGetState() {
+    fun `can retrieve custom colour`() {
         val color = Color(50, 100, 150)
         service.setUseCustomColor(true)
         service.setCustomColor(color)
@@ -94,34 +86,27 @@ class WindowCustomColorStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle state transitions correctly")
-    fun testStateTransitions() {
-        // Start disabled
+    fun `can transition between colours`() {
         assertFalse(service.isUseCustomColor())
-
-        // Enable and set color
         service.setUseCustomColor(true)
-        val color1 = Color(100, 100, 100)
-        service.setCustomColor(color1)
 
+        val gray = Color(100, 100, 100)
+        service.setCustomColor(gray)
+        assertEquals(gray.rgb, service.getCustomColor()?.rgb)
         assertTrue(service.isUseCustomColor())
-        assertEquals(color1.rgb, service.getCustomColor()?.rgb)
 
-        // Change color while enabled
-        val color2 = Color(200, 200, 200)
-        service.setCustomColor(color2)
-        assertEquals(color2.rgb, service.getCustomColor()?.rgb)
+        val white = Color(200, 200, 200)
+        service.setCustomColor(white)
+        assertEquals(white.rgb, service.getCustomColor()?.rgb)
+        assertTrue(service.isUseCustomColor())
 
-        // Disable
         service.setUseCustomColor(false)
         assertFalse(service.isUseCustomColor())
-        // Color should still be stored even though disabled
-        assertEquals(color2.rgb, service.getCustomColor()?.rgb)
+        assertEquals(white.rgb, service.getCustomColor()?.rgb)
     }
 
     @Test
-    @DisplayName("Should handle multiple color changes")
-    fun testMultipleColorChanges() {
+    fun `can set multiple custom colours`() {
         val colors = listOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
 
         for (color in colors) {
