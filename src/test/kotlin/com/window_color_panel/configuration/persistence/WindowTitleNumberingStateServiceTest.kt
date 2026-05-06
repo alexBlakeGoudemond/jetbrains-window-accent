@@ -16,30 +16,26 @@ class WindowTitleNumberingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Initial state should have title numbering enabled")
-    fun testInitialState() {
+    fun `initial title numbering is enabled`() {
         assertTrue(service.isTitleNumberingEnabled())
         assertFalse(service.isTitleNumberingDisabled())
     }
 
     @Test
-    @DisplayName("Should be able to enable title numbering")
-    fun testSetTitleNumberingEnabledTrue() {
+    fun `can enable title numbering`() {
         service.setTitleNumberingEnabled(false)
         service.setTitleNumberingEnabled(true)
         assertTrue(service.isTitleNumberingEnabled())
     }
 
     @Test
-    @DisplayName("Should be able to disable title numbering")
-    fun testSetTitleNumberingEnabledFalse() {
+    fun `can disable title numbering`() {
         service.setTitleNumberingEnabled(false)
         assertFalse(service.isTitleNumberingEnabled())
     }
 
     @Test
-    @DisplayName("isTitleNumberingEnabled should return opposite of isTitleNumberingDisabled")
-    fun testTitleNumberingEnabledDisabledInverse() {
+    fun `isTitleNumberingEnabled opposite of isTitleNumberingDisabled`() {
         service.setTitleNumberingEnabled(true)
         assertTrue(service.isTitleNumberingEnabled())
         assertFalse(service.isTitleNumberingDisabled())
@@ -50,63 +46,52 @@ class WindowTitleNumberingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should correctly load state with enabled")
-    fun testLoadStateEnabled() {
+    fun `title numbering loaded when enabled`() {
         val newState = WindowTitleNumberingStateService.State(titleNumberingEnabled = true)
         service.loadState(newState)
         assertTrue(service.isTitleNumberingEnabled())
     }
 
     @Test
-    @DisplayName("Should correctly load state with disabled")
-    fun testLoadStateDisabled() {
+    fun `title numbering missing when disabled`() {
         val newState = WindowTitleNumberingStateService.State(titleNumberingEnabled = false)
         service.loadState(newState)
         assertFalse(service.isTitleNumberingEnabled())
     }
 
     @Test
-    @DisplayName("Should correctly return current state when enabled")
-    fun testGetStateEnabled() {
+    fun `when title numbering is enabled, can get state`() {
         service.setTitleNumberingEnabled(true)
         val state = service.getState()
         assertTrue(state.titleNumberingEnabled)
     }
 
     @Test
-    @DisplayName("Should correctly return current state when disabled")
-    fun testGetStateDisabled() {
+    fun `when title numbering is disabled, can get state`() {
         service.setTitleNumberingEnabled(false)
         val state = service.getState()
         assertFalse(state.titleNumberingEnabled)
     }
 
     @Test
-    @DisplayName("Should handle multiple state changes")
-    fun testMultipleStateChanges() {
-        // Start enabled
+    fun `can transition between title numbering`() {
         assertTrue(service.isTitleNumberingEnabled())
 
-        // Disable
         service.setTitleNumberingEnabled(false)
         assertFalse(service.isTitleNumberingEnabled())
 
-        // Enable
         service.setTitleNumberingEnabled(true)
         assertTrue(service.isTitleNumberingEnabled())
 
-        // Disable again
         service.setTitleNumberingEnabled(false)
         assertFalse(service.isTitleNumberingEnabled())
 
-        // Enable again
         service.setTitleNumberingEnabled(true)
         assertTrue(service.isTitleNumberingEnabled())
     }
 
     @Test
-    @DisplayName("Should handle rapid state toggles")
-    fun testRapidToggles() {
+    fun `toggling title numbering rapidly works`() {
         repeat(10) { index ->
             val shouldBeEnabled = index % 2 == 0
             service.setTitleNumberingEnabled(shouldBeEnabled)
@@ -115,8 +100,7 @@ class WindowTitleNumberingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should preserve state after getting it")
-    fun testStatePreservationAfterGet() {
+    fun `title numbering is preserved after retrieving more than once`() {
         service.setTitleNumberingEnabled(false)
         val state1 = service.getState()
         val state2 = service.getState()
@@ -126,8 +110,7 @@ class WindowTitleNumberingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Load and get state should be consistent")
-    fun testLoadAndGetConsistency() {
+    fun `loading title numbering same as retrieving`() {
         val stateToLoad = WindowTitleNumberingStateService.State(titleNumberingEnabled = false)
         service.loadState(stateToLoad)
 
@@ -136,8 +119,7 @@ class WindowTitleNumberingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Setting same state multiple times should work correctly")
-    fun testSettingSameStateMultipleTimes() {
+    fun `setting title numbering multiple times works`() {
         service.setTitleNumberingEnabled(true)
         service.setTitleNumberingEnabled(true)
         service.setTitleNumberingEnabled(true)
@@ -152,5 +134,6 @@ class WindowTitleNumberingStateServiceTest {
         assertFalse(service.isTitleNumberingEnabled())
         assertTrue(service.isTitleNumberingDisabled())
     }
+
 }
 
