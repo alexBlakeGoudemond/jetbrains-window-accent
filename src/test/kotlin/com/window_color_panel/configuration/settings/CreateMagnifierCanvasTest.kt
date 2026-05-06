@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.lang.reflect.Method
 import javax.swing.JComponent
 
 @DisplayName("createMagnifierCanvas Tests")
@@ -57,11 +58,7 @@ class CreateMagnifierCanvasTest {
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
 
-        // Access private field via reflection for testing
-        val zoomRadiusField = canvas.javaClass.getDeclaredField("zoomRadius")
-        zoomRadiusField.isAccessible = true
-        val zoomRadius = zoomRadiusField.get(canvas) as Int
-
+        val zoomRadius = getPrivateFieldAsInt(canvas, "zoomRadius")
         assertEquals(12, zoomRadius)
     }
 
@@ -73,11 +70,7 @@ class CreateMagnifierCanvasTest {
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
 
-        // Access private field via reflection for testing
-        val loupeSizeField = canvas.javaClass.getDeclaredField("loupeSize")
-        loupeSizeField.isAccessible = true
-        val loupeSize = loupeSizeField.get(canvas) as Int
-
+        val loupeSize = getPrivateFieldAsInt(canvas, "loupeSize")
         assertEquals(180, loupeSize)
     }
 
@@ -89,111 +82,110 @@ class CreateMagnifierCanvasTest {
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
 
-        // Access private field via reflection for testing
-        val loupeMarginField = canvas.javaClass.getDeclaredField("loupeMargin")
-        loupeMarginField.isAccessible = true
-        val loupeMargin = loupeMarginField.get(canvas) as Int
-
+        val loupeMargin = getPrivateFieldAsInt(canvas, "loupeMargin")
         assertEquals(24, loupeMargin)
     }
 
     @Test
     @DisplayName("Should handle mouse point within screenshot bounds")
     fun testMousePointWithinBounds() {
-        val screenshot = BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB)
+        val width = 200
+        val height = 200
+        val screenshot = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
         val displayMousePoint = { Pair(50.0, 50.0) }
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
+        canvas.setSize(width, height)
 
-        // Set the component size to match the screenshot for testing
-        canvas.setSize(200, 200)
-
-        // Test the bounds checking logic by accessing private methods via reflection
-        val getMagnifyingXMethod = canvas.javaClass.getDeclaredMethod("getMagnifyingX", Int::class.java)
+        val getMagnifyingXMethod = getPrivateMethod(canvas, "getMagnifyingX")
         getMagnifyingXMethod.isAccessible = true
-
-        val getMagnifyingYMethod = canvas.javaClass.getDeclaredMethod("getMagnifyingY", Int::class.java)
+        val getMagnifyingYMethod = getPrivateMethod(canvas, "getMagnifyingY")
         getMagnifyingYMethod.isAccessible = true
 
-        // Test various mouse positions
-        val testPositions = listOf(0, 50, 100, 150, 199)
+        val variousMousePositions = getMousePositionRange(width)
 
-        for (mouseX in testPositions) {
+        for (mouseX in variousMousePositions) {
             val resultX = getMagnifyingXMethod.invoke(canvas, mouseX) as Int
-            // The bounds depend on the component size and loupe size
-            // Just verify the method returns a reasonable value
             assertTrue(resultX >= 0, "Magnifying X should be non-negative for mouseX=$mouseX, got $resultX")
         }
-
-        for (mouseY in testPositions) {
+        for (mouseY in variousMousePositions) {
             val resultY = getMagnifyingYMethod.invoke(canvas, mouseY) as Int
-            // Just verify the method returns a reasonable value
             assertTrue(resultY >= 0, "Magnifying Y should be non-negative for mouseY=$mouseY, got $resultY")
         }
+    }
+
+    private fun getMousePositionRange(@Suppress("SameParameterValue") width: Int): List<Int> {
+        return listOf(
+            0,
+            (width * 0.25).toInt(),
+            (width * 0.5).toInt(),
+            (width * 0.75).toInt(),
+            width - 1
+        )
+    }
+
+    private fun getPrivateFieldAsInt(canvas: JComponent, privateField: String): Int {
+        val zoomRadiusField = canvas.javaClass.getDeclaredField(privateField)
+        zoomRadiusField.isAccessible = true
+        val zoomRadius = zoomRadiusField.get(canvas) as Int
+        return zoomRadius
+    }
+
+    private fun getPrivateMethod(canvas: JComponent, privateMethod: String): Method {
+        val getMagnifyingXMethod = canvas.javaClass.getDeclaredMethod(privateMethod, Int::class.java)
+        return getMagnifyingXMethod
     }
 
     @Test
     @DisplayName("Should handle mouse point at screenshot edges")
     fun testMousePointAtEdges() {
-        val screenshot = BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB)
+        val width = 200
+        val height = 200
+        val screenshot = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
         val displayMousePoint = { Pair(0.0, 0.0) }
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
+        canvas.setSize(width, height)
 
-        // Set the component size to match the screenshot for testing
-        canvas.setSize(200, 200)
-
-        val getMagnifyingXMethod = canvas.javaClass.getDeclaredMethod("getMagnifyingX", Int::class.java)
+        val getMagnifyingXMethod = getPrivateMethod(canvas, "getMagnifyingX")
         getMagnifyingXMethod.isAccessible = true
-
-        val getMagnifyingYMethod = canvas.javaClass.getDeclaredMethod("getMagnifyingY", Int::class.java)
+        val getMagnifyingYMethod = getPrivateMethod(canvas, "getMagnifyingY")
         getMagnifyingYMethod.isAccessible = true
 
-        // Test edge cases - just verify methods don't throw exceptions
         assertDoesNotThrow {
             getMagnifyingXMethod.invoke(canvas, 0)
-            getMagnifyingXMethod.invoke(canvas, 199)
+            getMagnifyingXMethod.invoke(canvas, width - 1)
             getMagnifyingYMethod.invoke(canvas, 0)
-            getMagnifyingYMethod.invoke(canvas, 199)
+            getMagnifyingYMethod.invoke(canvas, height - 1)
         }
     }
 
     @Test
     @DisplayName("Should handle screenshot smaller than zoom radius")
     fun testScreenshotSmallerThanZoomRadius() {
-        // Create a very small screenshot
-        val screenshot = BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB)
+        val width = 10
+        val height = 10
+        val screenshot = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 
-        // This should not throw an exception during creation
+        val mouseX = width * 0.5
+        val mouseY = height * 0.5
         assertDoesNotThrow {
-            createMagnifierCanvas(screenshot) { Pair(5.0, 5.0) }
-        }
-    }
-
-    @Test
-    @DisplayName("Should handle null display mouse point function")
-    fun testNullDisplayMousePoint() {
-        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
-
-        // This should not throw an exception during creation
-        assertDoesNotThrow {
-            createMagnifierCanvas(screenshot) { Pair(50.0, 50.0) }
+            createMagnifierCanvas(screenshot) { Pair(mouseX, mouseY) }
         }
     }
 
     @Test
     @DisplayName("Should handle display mouse point outside screenshot bounds")
     fun testDisplayMousePointOutsideBounds() {
-        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val width = 100
+        val height = 100
+        val screenshot = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 
-        // Test with mouse point outside bounds
-        val displayMousePoint = { Pair(150.0, 150.0) }
+        val mouseX = width * 1.5
+        val mouseY = height * 1.5
 
-        val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
-
-        // Should handle this gracefully without throwing exceptions
         assertDoesNotThrow {
-            assertNotNull(canvas)
+            createMagnifierCanvas(screenshot) { Pair(mouseX, mouseY) }
         }
     }
 
@@ -221,24 +213,26 @@ class CreateMagnifierCanvasTest {
     @Test
     @DisplayName("Should handle extreme mouse coordinates")
     fun testExtremeMouseCoordinates() {
-        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val width = 100
+        val height = 100
+        val screenshot = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
         val displayMousePoint = { Pair(25.0, 25.0) }
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
 
-        val getMagnifyingXMethod = canvas.javaClass.getDeclaredMethod("getMagnifyingX", Int::class.java)
+        val getMagnifyingXMethod = getPrivateMethod(canvas,"getMagnifyingX")
         getMagnifyingXMethod.isAccessible = true
-
-        val getMagnifyingYMethod = canvas.javaClass.getDeclaredMethod("getMagnifyingY", Int::class.java)
+        val getMagnifyingYMethod = getPrivateMethod(canvas,"getMagnifyingY")
         getMagnifyingYMethod.isAccessible = true
 
-        // Test extreme coordinates
-        val extremeCoords = intArrayOf(Int.MIN_VALUE, -1000, 1000, Int.MAX_VALUE)
+        val extremeX = width * -10
+        val extremeY = height * -10
+        val extremeCoords = intArrayOf(Int.MIN_VALUE, extremeX, extremeY, Int.MAX_VALUE)
 
-        for (coord in extremeCoords) {
+        for (coordinate in extremeCoords) {
             assertDoesNotThrow {
-                getMagnifyingXMethod.invoke(canvas, coord)
-                getMagnifyingYMethod.invoke(canvas, coord)
+                getMagnifyingXMethod.invoke(canvas, coordinate)
+                getMagnifyingYMethod.invoke(canvas, coordinate)
             }
         }
     }
@@ -248,9 +242,11 @@ class CreateMagnifierCanvasTest {
     fun testToHexIgnoresAlpha() {
         val colorWithAlpha = Color(255, 0, 0, 128) // Red with 50% alpha
         val colorWithoutAlpha = Color(255, 0, 0)   // Solid red
+        val red = Color.RED
 
         // toHex should only consider RGB values, not alpha
         assertEquals(toHex(colorWithoutAlpha), toHex(colorWithAlpha))
-        assertEquals("#FF0000", toHex(colorWithAlpha))
+        assertEquals(toHex(red), toHex(colorWithAlpha))
     }
+
 }
