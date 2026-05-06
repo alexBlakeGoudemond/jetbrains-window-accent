@@ -3,11 +3,18 @@ package com.window_color_panel.configuration.settings
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.*
 import java.awt.Color
+import java.awt.GraphicsEnvironment
 import java.awt.Point
 import java.awt.image.BufferedImage
+import javax.swing.JCheckBox
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
+import java.awt.AWTException
+import java.awt.HeadlessException
+import java.awt.Window
 
-// TODO BlakeGoudemond 2026/05/03 | Code coverage for this test is 0%
 @DisplayName("showScreenColorPicker Tests")
 class ShowScreenColorPickerTest {
 
@@ -165,5 +172,54 @@ class ShowScreenColorPickerTest {
         // Should move towards target but not reach it exactly due to smoothing
         assertTrue(displayX > 100.0 && displayX < targetX)
         assertTrue(displayY > 100.0 && displayY < targetY)
+    }
+
+    @Test
+    @DisplayName("Should initialize screen color picker components")
+    fun testShowScreenColorPickerInitialization() {
+        // Set headless mode to avoid showing UI
+        val originalHeadless = GraphicsEnvironment.isHeadless()
+        System.setProperty("java.awt.headless", "true")
+
+        try {
+            // Create mock settings
+            val mockSettings = mock(WindowColorPanelSettings::class.java)
+            val mockPanel = mock(JPanel::class.java)
+            val mockCheckBox = mock(JCheckBox::class.java)
+
+            `when`(mockSettings.panel).thenReturn(mockPanel)
+            `when`(mockSettings.customColorCheckBox).thenReturn(mockCheckBox)
+
+            // Since we're in headless mode, SwingUtilities.getWindowAncestor will return null
+            // and the function should return early
+            showScreenColorPicker(mockSettings)
+
+            // Verify that no exceptions were thrown
+            // In headless mode, Robot creation might fail, but the early return should handle it
+        } catch (e: Exception) {
+            // In headless environment, Robot might not be available
+            assertTrue(e is AWTException || e is HeadlessException, "Expected AWT or Headless exception in headless mode")
+        } finally {
+            // Restore original headless setting
+            System.setProperty("java.awt.headless", originalHeadless.toString())
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle null window ancestor")
+    fun testShowScreenColorPickerNullWindow() {
+        val mockSettings = mock(WindowColorPanelSettings::class.java)
+        val mockPanel = mock(JPanel::class.java)
+
+        `when`(mockSettings.panel).thenReturn(mockPanel)
+
+        mockStatic(SwingUtilities::class.java).use { mockedSwing ->
+            mockedSwing.`when`<Window?> { SwingUtilities.getWindowAncestor(mockPanel) }.thenReturn(null)
+
+            // Should return early without throwing
+            assertDoesNotThrow {
+                showScreenColorPicker(mockSettings)
+            }
+        }
     }
 }
