@@ -4,6 +4,10 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 @DisplayName("WindowPanelAppearanceStateService Tests")
 class WindowPanelAppearanceStateServiceTest {
@@ -16,46 +20,33 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Initial state should have panel on EAST side and enabled")
-    fun testInitialState() {
+    fun `Initial panel is EAST and enabled`() {
         assertEquals(WindowPanelAppearanceStateService.Side.EAST, service.getSide())
         assertTrue(service.panelIsEnabled())
         assertFalse(service.panelIsDisabled())
     }
 
-    // todo - paramaterized test? with 4 Directions below
-    @Test
-    @DisplayName("Should set side to WEST")
-    fun testSetSideWest() {
-        service.setSide(WindowPanelAppearanceStateService.Side.WEST)
-        assertEquals(WindowPanelAppearanceStateService.Side.WEST, service.getSide())
+    @ParameterizedTest
+    @MethodSource("cardinalDirections")
+    fun `can set color side`(side: WindowPanelAppearanceStateService.Side) {
+        service.setSide(side)
+        assertEquals(side, service.getSide())
+    }
+
+    companion object {
+        @JvmStatic
+        fun cardinalDirections(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(WindowPanelAppearanceStateService.Side.EAST),
+                Arguments.of(WindowPanelAppearanceStateService.Side.WEST),
+                Arguments.of(WindowPanelAppearanceStateService.Side.NORTH),
+                Arguments.of(WindowPanelAppearanceStateService.Side.SOUTH)
+            )
+        }
     }
 
     @Test
-    @DisplayName("Should set side to NORTH")
-    fun testSetSideNorth() {
-        service.setSide(WindowPanelAppearanceStateService.Side.NORTH)
-        assertEquals(WindowPanelAppearanceStateService.Side.NORTH, service.getSide())
-    }
-
-    @Test
-    @DisplayName("Should set side to SOUTH")
-    fun testSetSideSouth() {
-        service.setSide(WindowPanelAppearanceStateService.Side.SOUTH)
-        assertEquals(WindowPanelAppearanceStateService.Side.SOUTH, service.getSide())
-    }
-
-    @Test
-    @DisplayName("Should set side to EAST")
-    fun testSetSideEast() {
-        service.setSide(WindowPanelAppearanceStateService.Side.WEST)
-        service.setSide(WindowPanelAppearanceStateService.Side.EAST)
-        assertEquals(WindowPanelAppearanceStateService.Side.EAST, service.getSide())
-    }
-
-    @Test
-    @DisplayName("Should enable panel")
-    fun testSetPanelEnabled() {
+    fun `can enable panel`() {
         service.setPanelEnabled(false)
         assertFalse(service.panelIsEnabled())
         assertTrue(service.panelIsDisabled())
@@ -66,16 +57,14 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should disable panel")
-    fun testSetPanelDisabled() {
+    fun `can disable panel`() {
         service.setPanelEnabled(false)
         assertFalse(service.panelIsEnabled())
         assertTrue(service.panelIsDisabled())
     }
 
     @Test
-    @DisplayName("panelIsEnabled should return opposite of panelIsDisabled")
-    fun testPanelEnabledDisabledInverse() {
+    fun `panelIsEnabled opposite of panelIsDisabled`() {
         service.setPanelEnabled(true)
         assertTrue(service.panelIsEnabled())
         assertFalse(service.panelIsDisabled())
@@ -86,8 +75,7 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should correctly load state")
-    fun testLoadState() {
+    fun `can load panel direction`() {
         val newState = WindowPanelAppearanceStateService.State(
             side = WindowPanelAppearanceStateService.Side.NORTH,
             panelEnabled = false
@@ -99,8 +87,7 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should correctly return current state")
-    fun testGetState() {
+    fun `can return panel direction`() {
         service.setSide(WindowPanelAppearanceStateService.Side.SOUTH)
         service.setPanelEnabled(false)
 
@@ -110,17 +97,13 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle state transitions correctly")
-    fun testStateTransitions() {
-        // Start at EAST and enabled
-        assertEquals(WindowPanelAppearanceStateService.Side.EAST, service.getSide())
+    fun `can transition between panel directions`() {
         assertTrue(service.panelIsEnabled())
+        assertEquals(WindowPanelAppearanceStateService.Side.EAST, service.getSide())
 
-        // Change to WEST
         service.setSide(WindowPanelAppearanceStateService.Side.WEST)
         assertEquals(WindowPanelAppearanceStateService.Side.WEST, service.getSide())
 
-        // Disable panel
         service.setPanelEnabled(false)
         assertFalse(service.panelIsEnabled())
         assertEquals(WindowPanelAppearanceStateService.Side.WEST, service.getSide())
@@ -137,8 +120,7 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should cycle through all sides")
-    fun testAllSides() {
+    fun `can set multiple directions`() {
         val sides = listOf(
             WindowPanelAppearanceStateService.Side.EAST,
             WindowPanelAppearanceStateService.Side.WEST,
@@ -153,8 +135,7 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should preserve panel enabled state when changing sides")
-    fun testPanelStatePreservedWhenChangingSides() {
+    fun `panel is enabled when changing directions`() {
         service.setPanelEnabled(false)
 
         service.setSide(WindowPanelAppearanceStateService.Side.NORTH)
@@ -165,8 +146,7 @@ class WindowPanelAppearanceStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should preserve side when changing panel enabled state")
-    fun testSidePreservedWhenChangingPanelState() {
+    fun `direction is preserved when changing panel enabled state`() {
         service.setSide(WindowPanelAppearanceStateService.Side.NORTH)
 
         service.setPanelEnabled(false)
@@ -175,5 +155,6 @@ class WindowPanelAppearanceStateServiceTest {
         service.setPanelEnabled(true)
         assertEquals(WindowPanelAppearanceStateService.Side.NORTH, service.getSide())
     }
+
 }
 
