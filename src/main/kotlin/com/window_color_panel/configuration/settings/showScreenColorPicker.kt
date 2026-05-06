@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.*
 
+// TODO BlakeGoudemond 2026/05/06 | hard to test with code coverage, consider refactoring to separate the UI logic from the color picking logic
 fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettings.panel) ?: return
 

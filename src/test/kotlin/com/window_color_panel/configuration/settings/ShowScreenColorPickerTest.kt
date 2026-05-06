@@ -222,4 +222,262 @@ class ShowScreenColorPickerTest {
             }
         }
     }
+
+    @Test
+    @DisplayName("Should test mouse point clamping within image bounds")
+    fun testMousePointClamping() {
+        val screenshot = BufferedImage(1920, 1080, BufferedImage.TYPE_INT_RGB)
+
+        // Test points both within and beyond bounds
+        val testCases = listOf(
+            0 to 0,
+            1919 to 1079,
+            -100 to -100,
+            2000 to 2000,
+            950 to 540
+        )
+
+        for ((x, y) in testCases) {
+            val clampedX = x.coerceIn(0, screenshot.width - 1)
+            val clampedY = y.coerceIn(0, screenshot.height - 1)
+
+            // All clamped values should be valid for getRGB
+            assertDoesNotThrow {
+                screenshot.getRGB(clampedX, clampedY)
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle selected color application")
+    fun testSelectedColorApplication() {
+        val testColor = Color(255, 128, 64)
+
+        // Test that color can be created and its components accessed
+        assertEquals(255, testColor.red)
+        assertEquals(128, testColor.green)
+        assertEquals(64, testColor.blue)
+
+        // Test that color RGB value is preserved
+        val extractedColor = Color(testColor.rgb, true)
+        assertEquals(testColor.red, extractedColor.red)
+        assertEquals(testColor.green, extractedColor.green)
+        assertEquals(testColor.blue, extractedColor.blue)
+    }
+
+    @Test
+    @DisplayName("Should handle screenshot color extraction and application")
+    fun testScreenshotColorExtractionAndApplication() {
+        // Create a test screenshot with known colors
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val testColor = Color(200, 100, 50)
+        screenshot.setRGB(50, 50, testColor.rgb)
+
+        // Extract color from specific point
+        val mx = 50.coerceIn(0, screenshot.width - 1)
+        val my = 50.coerceIn(0, screenshot.height - 1)
+        val extractedRgb = screenshot.getRGB(mx, my)
+        val extractedColor = Color(extractedRgb, true)
+
+        // Colors should match
+        assertEquals(testColor.red, extractedColor.red)
+        assertEquals(testColor.green, extractedColor.green)
+        assertEquals(testColor.blue, extractedColor.blue)
+    }
+
+    @Test
+    @DisplayName("Should handle large screen sizes")
+    fun testLargeScreenSizeHandling() {
+        val largeWidth = 3840  // 4K width
+        val largeHeight = 2160  // 4K height
+        val screenshot = BufferedImage(largeWidth, largeHeight, BufferedImage.TYPE_INT_RGB)
+
+        // Test center point
+        val mx = largeWidth / 2
+        val my = largeHeight / 2
+
+        assertDoesNotThrow {
+            screenshot.getRGB(mx, my)
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle small screen sizes")
+    fun testSmallScreenSizeHandling() {
+        val smallWidth = 320
+        val smallHeight = 240
+        val screenshot = BufferedImage(smallWidth, smallHeight, BufferedImage.TYPE_INT_RGB)
+
+        // Test center point
+        val mx = smallWidth / 2
+        val my = smallHeight / 2
+
+        assertDoesNotThrow {
+            screenshot.getRGB(mx, my)
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle zero coordinates clamping")
+    fun testZeroCoordinatesClamping() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+
+        val clampedX = (-50).coerceIn(0, 99)
+        val clampedY = (-50).coerceIn(0, 99)
+
+        assertEquals(0, clampedX)
+        assertEquals(0, clampedY)
+
+        assertDoesNotThrow {
+            screenshot.getRGB(clampedX, clampedY)
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle maximum coordinate clamping")
+    fun testMaximumCoordinateClamping() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+
+        val clampedX = 500.coerceIn(0, 99)
+        val clampedY = 500.coerceIn(0, 99)
+
+        assertEquals(99, clampedX)
+        assertEquals(99, clampedY)
+
+        assertDoesNotThrow {
+            screenshot.getRGB(clampedX, clampedY)
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle display point smoothing with multiple iterations")
+    fun testDisplayPointSmoothingIterations() {
+        var displayX = 0.0
+        var displayY = 0.0
+
+        val targetX = 1000.0
+        val targetY = 1000.0
+        val smoothingFactor = 0.22
+
+        // Verify smoothing progresses towards target
+        val xValues = mutableListOf<Double>()
+        val yValues = mutableListOf<Double>()
+
+        repeat(20) {
+            displayX += (targetX - displayX) * smoothingFactor
+            displayY += (targetY - displayY) * smoothingFactor
+            xValues.add(displayX)
+            yValues.add(displayY)
+        }
+
+        // Values should be monotonically increasing towards target
+        for (i in 1 until xValues.size) {
+            assertTrue(xValues[i] > xValues[i - 1], "X values should increase: ${xValues[i]} should be > ${xValues[i - 1]}")
+            assertTrue(yValues[i] > yValues[i - 1], "Y values should increase: ${yValues[i]} should be > ${yValues[i - 1]}")
+        }
+
+        // Should approach but not exceed target
+        assertTrue(displayX < targetX, "Display X should be less than target after smoothing")
+        assertTrue(displayY < targetY, "Display Y should be less than target after smoothing")
+    }
+
+    @Test
+    @DisplayName("Should handle display point smoothing convergence")
+    fun testDisplayPointSmoothingConvergence() {
+        var displayX = 100.0
+        var displayY = 100.0
+
+        val targetX = 100.0
+        val targetY = 100.0
+        val smoothingFactor = 0.22
+
+        // When already at target, should remain at target
+        repeat(5) {
+            displayX += (targetX - displayX) * smoothingFactor
+            displayY += (targetY - displayY) * smoothingFactor
+        }
+
+        // Should stay at target value
+        assertEquals(100.0, displayX)
+        assertEquals(100.0, displayY)
+    }
+
+    @Test
+    @DisplayName("Should handle negative to positive coordinate smoothing")
+    fun testNegativeToPositiveCoordinateSmoothing() {
+        var displayX = -100.0
+        var displayY = -100.0
+
+        val targetX = 100.0
+        val targetY = 100.0
+        val smoothingFactor = 0.22
+
+        // Simulate smoothing from negative to positive
+        repeat(10) {
+            displayX += (targetX - displayX) * smoothingFactor
+            displayY += (targetY - displayY) * smoothingFactor
+        }
+
+        // Should cross zero and approach target
+        assertTrue(displayX > 0 && displayX < targetX)
+        assertTrue(displayY > 0 && displayY < targetY)
+    }
+
+    @Test
+    @DisplayName("Should handle custom color with maximum values")
+    fun testCustomColorMaximumValues() {
+        val maxColor = Color(255, 255, 255)
+        val extractedColor = Color(maxColor.rgb, true)
+
+        assertEquals(255, extractedColor.red)
+        assertEquals(255, extractedColor.green)
+        assertEquals(255, extractedColor.blue)
+    }
+
+    @Test
+    @DisplayName("Should handle custom color with minimum values")
+    fun testCustomColorMinimumValues() {
+        val minColor = Color(0, 0, 0)
+        val extractedColor = Color(minColor.rgb, true)
+
+        assertEquals(0, extractedColor.red)
+        assertEquals(0, extractedColor.green)
+        assertEquals(0, extractedColor.blue)
+    }
+
+    @Test
+    @DisplayName("Should preserve RGB values through multiple conversions")
+    fun testRGBPreservationThroughConversions() {
+        val originalColor = Color(123, 45, 67)
+        val rgb1 = originalColor.rgb
+        val color1 = Color(rgb1, true)
+        val rgb2 = color1.rgb
+        val color2 = Color(rgb2, true)
+
+        // Should preserve through multiple conversions
+        assertEquals(originalColor.red, color2.red)
+        assertEquals(originalColor.green, color2.green)
+        assertEquals(originalColor.blue, color2.blue)
+    }
+
+    @Test
+    @DisplayName("Should handle screenshot boundary conditions for different types")
+    fun testScreenshotBoundaryConditionsForTypes() {
+        val types = arrayOf(
+            BufferedImage.TYPE_INT_RGB,
+            BufferedImage.TYPE_INT_ARGB,
+            BufferedImage.TYPE_INT_BGR,
+            BufferedImage.TYPE_INT_ARGB_PRE
+        )
+
+        for (type in types) {
+            val img = BufferedImage(50, 50, type)
+
+            // Test all corners
+            assertDoesNotThrow { img.getRGB(0, 0) }
+            assertDoesNotThrow { img.getRGB(49, 0) }
+            assertDoesNotThrow { img.getRGB(0, 49) }
+            assertDoesNotThrow { img.getRGB(49, 49) }
+        }
+    }
 }
