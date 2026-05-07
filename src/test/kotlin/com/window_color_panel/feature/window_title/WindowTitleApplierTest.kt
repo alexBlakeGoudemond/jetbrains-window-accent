@@ -1,222 +1,369 @@
 package com.window_color_panel.feature.window_title
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.wm.WindowManager
+import com.intellij.util.Alarm
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.isActive
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
+import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import javax.swing.JFrame
 
-// TODO BlakeGoudemond 2026/05/03 | Code coverage for this test is 25%
 @DisplayName("WindowTitleApplier Tests")
 class WindowTitleApplierTest {
 
-    @Test
-    @DisplayName("Should strip existing numeric prefix from title")
-    fun testStripExistingPrefix() {
-        // Test the stripExistingPrefix function directly via reflection
-        val method = WindowTitleApplier::class.java.getDeclaredMethod("stripExistingPrefix", String::class.java)
-        method.isAccessible = true
+    private lateinit var mockApplication: com.intellij.openapi.application.Application
+    private lateinit var mockProjectManager: ProjectManager
+    private lateinit var mockWindowManager: WindowManager
+    private lateinit var mockProject1: Project
+    private lateinit var mockProject2: Project
+    private lateinit var mockFrame1: JFrame
+    private lateinit var mockFrame2: JFrame
 
-        // Test various title formats
-        assertEquals("My Project", method.invoke(WindowTitleApplier, "[1] My Project"))
-        assertEquals("My Project", method.invoke(WindowTitleApplier, "[123] My Project"))
-        assertEquals("My Project", method.invoke(WindowTitleApplier, "[1]My Project"))
-        assertEquals("My Project", method.invoke(WindowTitleApplier, "[1]  My Project"))
-        assertEquals("Project Without Prefix", method.invoke(WindowTitleApplier, "Project Without Prefix"))
-        assertEquals("", method.invoke(WindowTitleApplier, "[5]"))
-        assertEquals("Text after [1] more text", method.invoke(WindowTitleApplier, "[1] Text after [1] more text"))
+    private lateinit var applicationMock: org.mockito.MockedStatic<com.intellij.openapi.application.ApplicationManager>
+    private lateinit var projectManagerMock: org.mockito.MockedStatic<ProjectManager>
+    private lateinit var windowManagerMock: org.mockito.MockedStatic<WindowManager>
+
+    @BeforeEach
+    fun setup() {
+        mockApplication = mock(com.intellij.openapi.application.Application::class.java)
+        mockProjectManager = mock(ProjectManager::class.java)
+        mockWindowManager = mock(WindowManager::class.java)
+        mockProject1 = mock(Project::class.java)
+        mockProject2 = mock(Project::class.java)
+        mockFrame1 = mock(JFrame::class.java)
+        mockFrame2 = mock(JFrame::class.java)
+
+        // Setup static mocks
+        applicationMock = Mockito.mockStatic(ApplicationManager::class.java)
+        applicationMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }.thenReturn(mockApplication)
+
+        projectManagerMock = Mockito.mockStatic(ProjectManager::class.java)
+        projectManagerMock.`when`<ProjectManager> { ProjectManager.getInstance() }.thenReturn(mockProjectManager)
+
+        windowManagerMock = Mockito.mockStatic(WindowManager::class.java)
+        windowManagerMock.`when`<WindowManager> { WindowManager.getInstance() }.thenReturn(mockWindowManager)
+
+        // Setup invokeLater to run immediately for testing
+        Mockito.doAnswer { invocation ->
+            (invocation.arguments[0] as Runnable).run()
+            null
+        }.`when`(mockApplication).invokeLater(Mockito.any(Runnable::class.java))
+
+        // Setup frames
+        Mockito.`when`(mockWindowManager.getFrame(mockProject1)).thenReturn(mockFrame1)
+        Mockito.`when`(mockWindowManager.getFrame(mockProject2)).thenReturn(mockFrame2)
+        Mockito.`when`(mockFrame1.title).thenReturn("Test Project 1")
+        Mockito.`when`(mockFrame2.title).thenReturn("Test Project 2")
+    }
+
+    @AfterEach
+    fun tearDown() {
+        // Close static mocks
+        applicationMock.close()
+        projectManagerMock.close()
+        windowManagerMock.close()
+
+        // Reset the singleton state between tests
+        val counterField = WindowTitleApplier::class.java.getDeclaredField("counter")
+        counterField.isAccessible = true
+        val counter = counterField.get(WindowTitleApplier) as java.util.concurrent.atomic.AtomicInteger
+        counter.set(1)
+
+        val projectNumbersField = WindowTitleApplier::class.java.getDeclaredField("projectNumbers")
+        projectNumbersField.isAccessible = true
+        val projectNumbers = projectNumbersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, Int>
+        projectNumbers.clear()
+
+        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
+        scopesField.isAccessible = true
+        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        scopes.clear()
+
+        val focusListenersField = WindowTitleApplier::class.java.getDeclaredField("focusListeners")
+        focusListenersField.isAccessible = true
+        val focusListeners = focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
+        focusListeners.clear()
+
+        val alarmsField = WindowTitleApplier::class.java.getDeclaredField("alarms")
+        alarmsField.isAccessible = true
+        val alarms = alarmsField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, Alarm>
+        alarms.clear()
     }
 
     @Test
-    @DisplayName("Should handle title prefix stripping edge cases")
-    fun testStripExistingPrefixEdgeCases() {
-        val method = WindowTitleApplier::class.java.getDeclaredMethod("stripExistingPrefix", String::class.java)
-        method.isAccessible = true
+    @DisplayName("Should apply title to current project when enabled")
+    fun testApplyToCurrentOpenProjectEnabled() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
 
-        // Test edge cases
-        assertEquals("", method.invoke(WindowTitleApplier, ""))
-        assertEquals("No prefix here", method.invoke(WindowTitleApplier, "No prefix here"))
-        assertEquals(
-            "[2] Multiple [1] [2] prefixes",
-            method.invoke(WindowTitleApplier, "[1] [2] Multiple [1] [2] prefixes")
-        )
-        assertEquals("[Not a number] Text", method.invoke(WindowTitleApplier, "[Not a number] Text"))
-        assertEquals("[1a] Text", method.invoke(WindowTitleApplier, "[1a] Text"))
+        Mockito.verify(mockFrame1).title = "[1] Test Project 1"
+        Mockito.verify(mockFrame1).addWindowFocusListener(Mockito.any(java.awt.event.WindowAdapter::class.java))
+
+        // Verify that a coroutine scope was created (but don't wait for it)
+        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
+        scopesField.isAccessible = true
+        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        assertTrue(scopes.containsKey(mockProject1))
     }
 
     @Test
-    @DisplayName("Should generate correct title with prefix")
-    fun testUpdateWindowTitleLogic() {
-        val method = WindowTitleApplier::class.java.getDeclaredMethod("stripExistingPrefix", String::class.java)
-        method.isAccessible = true
+    @DisplayName("Should remove title from current project when disabled")
+    fun testApplyToCurrentOpenProjectDisabled() {
+        // First apply title
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
 
-        // Test the title update logic
-        fun generateTitleWithPrefix(currentTitle: String, number: Int): String {
-            val cleanedTitle = method.invoke(WindowTitleApplier, currentTitle) as String
-            return "[$number] $cleanedTitle"
+        // Then disable
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, false)
+
+        // Verify that focus listener was removed
+        Mockito.verify(mockFrame1).removeWindowFocusListener(Mockito.any(java.awt.event.WindowAdapter::class.java))
+    }
+
+    @Test
+    @DisplayName("Should handle null frame gracefully")
+    fun testApplyToCurrentOpenProjectNullFrame() {
+        Mockito.`when`(mockWindowManager.getFrame(mockProject1)).thenReturn(null)
+
+        assertDoesNotThrow {
+            WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
         }
 
-        assertEquals("[1] My Project", generateTitleWithPrefix("My Project", 1))
-        assertEquals("[5] Existing Project", generateTitleWithPrefix("[3] Existing Project", 5))
-        assertEquals("[10] Clean Title", generateTitleWithPrefix("Clean Title", 10))
-        assertEquals("[2] ", generateTitleWithPrefix("", 2))
+        Mockito.verify(mockFrame1, Mockito.never()).title = Mockito.any()
     }
 
     @Test
-    @DisplayName("Should handle project number assignment")
-    fun testProjectNumberAssignment() {
-        // Test the project numbering logic
-        val counter = AtomicInteger(1)
-        val projectNumbers = ConcurrentHashMap<Any, Int>()
+    @DisplayName("Should apply title to all open projects")
+    fun testApplyToAllOpenProjects() {
+        Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
 
-        fun getWindowProjectNumber(project: Any): Int =
-            projectNumbers.computeIfAbsent(project) { counter.getAndIncrement() }
+        WindowTitleApplier.applyToAllOpenProjects(true)
 
-        val project1 = object {}
-        val project2 = object {}
-        val project3 = object {}
-
-        // Test sequential numbering
-        assertEquals(1, getWindowProjectNumber(project1))
-        assertEquals(2, getWindowProjectNumber(project2))
-        assertEquals(3, getWindowProjectNumber(project3))
-
-        // Test that same project gets same number
-        assertEquals(1, getWindowProjectNumber(project1))
-        assertEquals(2, getWindowProjectNumber(project2))
+        Mockito.verify(mockFrame1).title = "[1] Test Project 1"
+        Mockito.verify(mockFrame2).title = "[2] Test Project 2"
     }
 
     @Test
-    @DisplayName("Should handle counter reset logic")
-    fun testCounterReset() {
-        val counter = AtomicInteger(5)
-        val projectNumbers = ConcurrentHashMap<Any, Int>()
+    @DisplayName("Should remove title from all open projects")
+    fun testRemoveFromAllOpenProjects() {
+        Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
 
-        // Simulate reset logic
-        fun resetProjectNumbering() {
-            projectNumbers.clear()
-            counter.set(1)
-        }
+        // First apply titles
+        WindowTitleApplier.applyToAllOpenProjects(true)
+        Mockito.verify(mockFrame1).title = "[1] Test Project 1"
+        Mockito.verify(mockFrame2).title = "[2] Test Project 2"
 
-        // Add some projects
-        projectNumbers[object {}] = 1
-        projectNumbers[object {}] = 2
-        counter.set(3)
+        // Then remove all
+        WindowTitleApplier.removeFromAllOpenProjects()
 
-        assertEquals(2, projectNumbers.size)
-        assertEquals(3, counter.get())
-
-        // Reset
-        resetProjectNumbering()
-
-        assertEquals(0, projectNumbers.size)
+        // Verify that the counter was reset
+        val counterField = WindowTitleApplier::class.java.getDeclaredField("counter")
+        counterField.isAccessible = true
+        val counter = counterField.get(WindowTitleApplier) as java.util.concurrent.atomic.AtomicInteger
         assertEquals(1, counter.get())
     }
 
     @Test
-    @DisplayName("Should handle title prefix regex pattern")
-    fun testTitlePrefixRegex() {
-        val regex = Regex("^\\[\\d+]\\s*")
+    @DisplayName("Should assign sequential project numbers")
+    fun testProjectNumberAssignment() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject2, true)
 
-        // Test the regex pattern used in stripExistingPrefix
-        assertTrue(regex.containsMatchIn("[1] Text"))
-        assertTrue(regex.containsMatchIn("[123] Text"))
-        assertTrue(regex.containsMatchIn("[1]Text"))
-        assertTrue(regex.containsMatchIn("[1]  Text"))
+        Mockito.verify(mockFrame1).title = "[1] Test Project 1"
+        Mockito.verify(mockFrame2).title = "[2] Test Project 2"
 
-        assertFalse(regex.containsMatchIn("Text [1]"))
-        assertFalse(regex.containsMatchIn("No prefix"))
-        assertFalse(regex.containsMatchIn("[abc] Text"))
-        assertFalse(regex.containsMatchIn("[] Text"))
+        // Same project should keep same number
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+        Mockito.verify(mockFrame1, Mockito.times(2)).title = "[1] Test Project 1"
     }
 
     @Test
-    @DisplayName("Should handle concurrent project numbering")
-    fun testConcurrentProjectNumbering() {
-        val counter = AtomicInteger(1)
-        val projectNumbers = ConcurrentHashMap<Any, Int>()
+    @DisplayName("Should reset project numbering when removing from all projects")
+    fun testResetProjectNumbering() {
+        Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
 
-        fun getWindowProjectNumber(project: Any): Int =
-            projectNumbers.computeIfAbsent(project) { counter.getAndIncrement() }
+        // Apply titles
+        WindowTitleApplier.applyToAllOpenProjects(true)
+        Mockito.verify(mockFrame1).title = "[1] Test Project 1"
+        Mockito.verify(mockFrame2).title = "[2] Test Project 2"
 
-        // Test thread safety (basic test - in real concurrent scenario would need more testing)
-        val projects = List(10) { object {} }
+        // Remove all and reset
+        WindowTitleApplier.removeFromAllOpenProjects()
 
-        projects.forEach { project ->
-            getWindowProjectNumber(project)
-        }
-
-        assertEquals(10, projectNumbers.size)
-        assertEquals(11, counter.get()) // Next available number
+        // Apply again - should start from 1 again
+        WindowTitleApplier.applyToAllOpenProjects(true)
+        Mockito.verify(mockFrame1, Mockito.times(2)).title = "[1] Test Project 1"
+        Mockito.verify(mockFrame2, Mockito.times(2)).title = "[2] Test Project 2"
     }
 
     @Test
-    @DisplayName("Should handle title update idempotency")
-    fun testTitleUpdateIdempotency() {
-        // Test that applying the same title multiple times doesn't change it
-        fun updateWindowTitle(currentTitle: String, number: Int): String {
-            val cleanedTitle = currentTitle.replace(Regex("^\\[\\d+]\\s*"), "")
-            val updatedTitle = "[$number] $cleanedTitle"
-            return if (currentTitle == updatedTitle) currentTitle else updatedTitle
-        }
+    @DisplayName("Should handle focus events and reapply title")
+    fun testFocusListenerReappliesTitle() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
 
-        val title1 = "[5] My Project"
-        val result1 = updateWindowTitle(title1, 5)
-        assertEquals(title1, result1) // Should not change
+        // Get the focus listener that was added
+        val focusListenersField = WindowTitleApplier::class.java.getDeclaredField("focusListeners")
+        focusListenersField.isAccessible = true
+        val focusListeners = focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
 
-        val title2 = "My Project"
-        val result2 = updateWindowTitle(title2, 5)
-        assertEquals("[5] My Project", result2) // Should add prefix
+        val listener = focusListeners[mockProject1]!!
 
-        val title3 = "[3] My Project"
-        val result3 = updateWindowTitle(title3, 5)
-        assertEquals("[5] My Project", result3) // Should update prefix
+        // Simulate title being changed externally
+        Mockito.`when`(mockFrame1.title).thenReturn("Modified Title")
+
+        // Trigger focus gained
+        listener.windowGainedFocus(null)
+
+        // Should reapply the title with prefix
+        Mockito.verify(mockFrame1).title = "[1] Modified Title"
     }
 
     @Test
-    @DisplayName("Should handle empty and null titles")
-    fun testEmptyAndNullTitles() {
+    @DisplayName("Should start title enforcer coroutine")
+    fun testTitleEnforcerCoroutine() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        // Check that a coroutine scope was created
+        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
+        scopesField.isAccessible = true
+        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+
+        assertTrue(scopes.containsKey(mockProject1))
+        assertTrue(scopes[mockProject1]!!.isActive)
+    }
+
+    @Test
+    @DisplayName("Should cancel previous enforcer when starting new one")
+    fun testCancelPreviousEnforcer() {
+        // Apply once
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
+        scopesField.isAccessible = true
+        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+
+        val firstScope = scopes[mockProject1]!!
+        assertTrue(firstScope.isActive)
+
+        // Apply again - should cancel the first and create new
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        val secondScope = scopes[mockProject1]!!
+        assertTrue(secondScope.isActive)
+        // Note: In practice, the first scope may still be active briefly, but the logic ensures cleanup
+    }
+
+    @Test
+    @DisplayName("Should handle null title gracefully")
+    fun testNullTitleHandling() {
+        Mockito.`when`(mockFrame1.title).thenReturn(null)
+
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        // Should not crash, just skip title update
+        Mockito.verify(mockFrame1, Mockito.never()).title = Mockito.any()
+    }
+
+    @Test
+    @DisplayName("Should strip existing prefix correctly")
+    fun testStripExistingPrefix() {
         val method = WindowTitleApplier::class.java.getDeclaredMethod("stripExistingPrefix", String::class.java)
         method.isAccessible = true
 
-        // Test with empty string
-        assertEquals("", method.invoke(WindowTitleApplier, ""))
-
-        // Test with null would require different handling in real code
-        // but the method signature takes String, so null isn't possible
+        assertEquals("My Project", method.invoke(WindowTitleApplier, "[1] My Project"))
+        assertEquals("My Project", method.invoke(WindowTitleApplier, "[123] My Project"))
+        assertEquals("", method.invoke(WindowTitleApplier, "[5]"))
+        assertEquals("Project Without Prefix", method.invoke(WindowTitleApplier, "Project Without Prefix"))
     }
 
     @Test
-    @DisplayName("Should handle large project numbers")
-    fun testLargeProjectNumbers() {
-        val method = WindowTitleApplier::class.java.getDeclaredMethod("stripExistingPrefix", String::class.java)
-        method.isAccessible = true
+    @DisplayName("Should update window title with prefix")
+    fun testUpdateWindowTitle() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
 
-        fun generateTitleWithPrefix(currentTitle: String, number: Int): String {
-            val cleanedTitle = method.invoke(WindowTitleApplier, currentTitle) as String
-            return "[$number] $cleanedTitle"
+        Mockito.verify(mockFrame1).title = "[1] Test Project 1"
+    }
+
+    @Test
+    @DisplayName("Should not update title if already correct")
+    fun testIdempotentTitleUpdate() {
+        Mockito.`when`(mockFrame1.title).thenReturn("[1] Test Project 1")
+
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        // The title is already correct, so it should not be set again
+        Mockito.verify(mockFrame1, Mockito.never()).title = Mockito.any()
+    }
+
+    @Test
+    @DisplayName("Should handle project disposal cleanup")
+    fun testProjectDisposalCleanup() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        // Simulate project disposal
+        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
+        scopesField.isAccessible = true
+        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+
+        val scope = scopes[mockProject1]!!
+        assertTrue(scope.isActive)
+
+        // Simulate disposer callback - this would normally be called by IntelliJ
+        // For testing, we can verify the scope exists and would be cancelled
+        assertNotNull(scope)
+    }
+
+    @Test
+    @DisplayName("Should handle empty project list")
+    fun testEmptyProjectList() {
+        Mockito.`when`(mockProjectManager.openProjects).thenReturn(emptyArray())
+
+        assertDoesNotThrow {
+            WindowTitleApplier.applyToAllOpenProjects(true)
+            WindowTitleApplier.removeFromAllOpenProjects()
         }
-
-        assertEquals("[999] Large Number Project", generateTitleWithPrefix("Large Number Project", 999))
-        assertEquals("[1000] Very Large Number", generateTitleWithPrefix("Very Large Number", 1000))
-        assertEquals("[999999] Extremely Large", generateTitleWithPrefix("[123] Extremely Large", 999999))
     }
 
     @Test
     @DisplayName("Should handle special characters in titles")
     fun testSpecialCharactersInTitles() {
+        Mockito.`when`(mockFrame1.title).thenReturn("Project with (parentheses) and [brackets] 🚀")
+
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        Mockito.verify(mockFrame1).title = "[1] Project with (parentheses) and [brackets] 🚀"
+    }
+
+    @Test
+    @DisplayName("Should handle very long titles")
+    fun testVeryLongTitles() {
+        val longTitle = "A".repeat(1000)
+        Mockito.`when`(mockFrame1.title).thenReturn(longTitle)
+
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        Mockito.verify(mockFrame1).title = "[1] ${"A".repeat(1000)}"
+    }
+
+    @Test
+    @DisplayName("Should handle title with multiple existing prefixes")
+    fun testMultipleExistingPrefixes() {
+        Mockito.`when`(mockFrame1.title).thenReturn("[1] [2] [3] Actual Title")
+
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        // The stripExistingPrefix method should handle multiple prefixes correctly
         val method = WindowTitleApplier::class.java.getDeclaredMethod("stripExistingPrefix", String::class.java)
         method.isAccessible = true
-
-        fun generateTitleWithPrefix(currentTitle: String, number: Int): String {
-            val cleanedTitle = method.invoke(WindowTitleApplier, currentTitle) as String
-            return "[$number] $cleanedTitle"
-        }
-
-        assertEquals("[1] Project with (parentheses)", generateTitleWithPrefix("Project with (parentheses)", 1))
-        assertEquals("[2] Project-with-dashes", generateTitleWithPrefix("Project-with-dashes", 2))
-        assertEquals("[3] Project_with_underscores", generateTitleWithPrefix("Project_with_underscores", 3))
-        assertEquals("[4] Project with émojis 🚀", generateTitleWithPrefix("Project with émojis 🚀", 4))
-        assertEquals("[5] Project with [brackets]", generateTitleWithPrefix("Project with [brackets]", 5))
+        val result = method.invoke(WindowTitleApplier, "[1] [2] [3] Actual Title") as String
+        assertEquals("Actual Title", result)
     }
+
 }

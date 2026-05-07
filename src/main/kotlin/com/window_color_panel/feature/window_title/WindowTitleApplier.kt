@@ -102,7 +102,7 @@ object WindowTitleApplier {
     }
 
     private fun stripExistingPrefix(title: String): String =
-        title.replace(Regex("^\\[\\d+]\\s*"), "")
+        title.replace(Regex("^(\\[\\d+]\\s*)+"), "")
 
     private fun reapplyOnFocus(project: Project, frame: Frame) {
         val listener = createFocusListener(project, frame)
@@ -140,22 +140,6 @@ object WindowTitleApplier {
         Disposer.register(project) {
             cancelTitleEnforcement(project)
             cleanupFocusListener(project)
-        }
-
-        scope.launch {
-            while (isActive) {
-                enforceTitleOnEdt(project)
-                delay(1500.milliseconds)
-            }
-        }
-    }
-
-    private suspend fun enforceTitleOnEdt(project: Project) {
-        val frame = getProjectFrame(project) ?: return
-        val number = projectNumbers[project] ?: return
-
-        withContext(Dispatchers.EDT) {
-            updateWindowTitle(frame, number)
         }
     }
 
