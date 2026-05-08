@@ -3,20 +3,458 @@ package com.window_color_panel.configuration.settings
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assumptions
+import org.junit.jupiter.api.BeforeEach
 import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.any
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import java.awt.Point
 import java.awt.image.BufferedImage
 import javax.swing.JCheckBox
 import javax.swing.JPanel
+import javax.swing.JComponent
 import javax.swing.SwingUtilities
+import javax.swing.UIManager
 import java.awt.AWTException
 import java.awt.HeadlessException
 import java.awt.Window
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.editor.Editor
 
 @DisplayName("showScreenColorPicker Tests")
 class ScreenColorPickerTest {
+
+    private lateinit var mockSettings: WindowColorPanelSettings
+    private lateinit var mockProject: Project
+    private lateinit var mockPanel: JPanel
+    private lateinit var mockCheckBox: JCheckBox
+
+    @BeforeEach
+    fun setUp() {
+        mockSettings = mock(WindowColorPanelSettings::class.java)
+        mockProject = mock(Project::class.java)
+        mockPanel = mock(JPanel::class.java)
+        mockCheckBox = mock(JCheckBox::class.java)
+
+        `when`(mockSettings.panel).thenReturn(mockPanel)
+        `when`(mockSettings.customColorCheckBox).thenReturn(mockCheckBox)
+        `when`(mockSettings.getProject()).thenReturn(mockProject)
+    }
+
+    // ==================== showScreenColorPicker Tests ====================
+
+    @Test
+    @DisplayName("showScreenColorPicker should return early if window ancestor is null")
+    fun testShowScreenColorPickerNullWindowAncestor() {
+        mockStatic(SwingUtilities::class.java).use { mockedSwing ->
+            mockedSwing.`when`<Window?> { SwingUtilities.getWindowAncestor(mockPanel) }.thenReturn(null)
+
+            assertDoesNotThrow {
+                showScreenColorPicker(mockSettings)
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("showScreenColorPicker should handle missing editor gracefully")
+    fun testShowScreenColorPickerMissingEditorHandling() {
+        // When no editor is available, the function attempts screenshot fallback
+        // In headless/test environment this will catch exception gracefully
+        System.setProperty("java.awt.headless", "true")
+
+        mockStatic(SwingUtilities::class.java).use { mockedSwing ->
+            mockedSwing.`when`<Window?> { SwingUtilities.getWindowAncestor(mockPanel) }
+                .thenReturn(mock(Window::class.java))
+
+            mockStatic(FileEditorManager::class.java).use { mockedEditorManager ->
+                val mockFEM = mock(FileEditorManager::class.java)
+                mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }.thenReturn(mockFEM)
+                `when`(mockFEM.selectedTextEditor).thenReturn(null)
+
+                // Should handle exception gracefully (Robot fails in headless)
+                assertDoesNotThrow {
+                    showScreenColorPicker(mockSettings)
+                }
+            }
+        }
+    }
+
+    // ==================== captureComponent Tests ====================
+
+    @Test
+    @DisplayName("captureComponent should throw when component width is 0")
+    fun testCaptureComponentInvalidWidth() {
+        val mockComponent = mock(JComponent::class.java)
+        `when`(mockComponent.width).thenReturn(0)
+        `when`(mockComponent.height).thenReturn(100)
+
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            captureComponent(mockComponent)
+        }
+
+        assertTrue(exception.message?.contains("invalid dimensions") ?: false)
+    }
+
+    @Test
+    @DisplayName("captureComponent should throw when component height is 0")
+    fun testCaptureComponentInvalidHeight() {
+        val mockComponent = mock(JComponent::class.java)
+        `when`(mockComponent.width).thenReturn(100)
+        `when`(mockComponent.height).thenReturn(0)
+
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            captureComponent(mockComponent)
+        }
+
+        assertTrue(exception.message?.contains("invalid dimensions") ?: false)
+    }
+
+    @Test
+    @DisplayName("captureComponent should throw when component dimensions are negative")
+    fun testCaptureComponentNegativeDimensions() {
+        val mockComponent = mock(JComponent::class.java)
+        `when`(mockComponent.width).thenReturn(-100)
+        `when`(mockComponent.height).thenReturn(-100)
+
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            captureComponent(mockComponent)
+        }
+
+        assertTrue(exception.message?.contains("invalid dimensions") ?: false)
+    }
+
+    @Test
+    @DisplayName("captureComponent should create BufferedImage with correct dimensions")
+    fun testCaptureComponentCreatesCorrectDimensions() {
+        val mockComponent = mock(JComponent::class.java)
+        `when`(mockComponent.width).thenReturn(640)
+        `when`(mockComponent.height).thenReturn(480)
+
+        val image = captureComponent(mockComponent)
+
+        assertEquals(640, image.width)
+        assertEquals(480, image.height)
+        assertEquals(BufferedImage.TYPE_INT_ARGB, image.type)
+    }
+
+    @Test
+    @DisplayName("captureComponent should dispose graphics after painting")
+    fun testCaptureComponentDisposesGraphics() {
+        val mockComponent = mock(JComponent::class.java)
+        `when`(mockComponent.width).thenReturn(100)
+        `when`(mockComponent.height).thenReturn(100)
+
+        assertDoesNotThrow {
+            captureComponent(mockComponent)
+        }
+
+        verify(mockComponent).paint(any())
+    }
+
+    // ==================== takeScreenshot Tests ====================
+
+    @Test
+    @DisplayName("takeScreenshot should throw when screen width is 0")
+    fun testTakeScreenshotInvalidWidth() {
+        val invalidSize = Dimension(0, 1080)
+
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            takeScreenshot(invalidSize)
+        }
+
+        assertTrue(exception.message?.contains("Invalid screen size") ?: false)
+    }
+
+    @Test
+    @DisplayName("takeScreenshot should throw when screen height is 0")
+    fun testTakeScreenshotInvalidHeight() {
+        val invalidSize = Dimension(1920, 0)
+
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            takeScreenshot(invalidSize)
+        }
+
+        assertTrue(exception.message?.contains("Invalid screen size") ?: false)
+    }
+
+    @Test
+    @DisplayName("takeScreenshot should throw RuntimeException when Robot fails")
+    fun testTakeScreenshotRobotFailure() {
+        val validSize = Dimension(1920, 1080)
+
+        mockConstruction(java.awt.Robot::class.java) { mockRobot, _ ->
+            `when`(mockRobot.createScreenCapture(any(java.awt.Rectangle::class.java)))
+                .thenThrow(RuntimeException("Robot error"))
+        }.use {
+            val exception = assertThrows(RuntimeException::class.java) {
+                takeScreenshot(validSize)
+            }
+            assertTrue(exception.message?.contains("Failed to capture screenshot") ?: false)
+        }
+    }
+
+    // ==================== initialMagnifyingGlassOverlay Tests ====================
+
+    @Test
+    @DisplayName("initialMagnifyingGlassOverlay should create undecorated dialog")
+    fun testInitialMagnifyingGlassOverlayUndecorated() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+
+        val owner = javax.swing.JFrame()
+        try {
+            val size = Dimension(1920, 1080)
+            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            try {
+                assertTrue(dialog.isUndecorated)
+            } finally {
+                dialog.dispose()
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("initialMagnifyingGlassOverlay should set always on top")
+    fun testInitialMagnifyingGlassOverlayAlwaysOnTop() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+
+        val owner = javax.swing.JFrame()
+        try {
+            val size = Dimension(1920, 1080)
+            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            try {
+                assertTrue(dialog.isAlwaysOnTop)
+            } finally {
+                dialog.dispose()
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("initialMagnifyingGlassOverlay should have transparent background")
+    fun testInitialMagnifyingGlassOverlayTransparent() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+
+        val owner = javax.swing.JFrame()
+        try {
+            val size = Dimension(1920, 1080)
+            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            try {
+                assertEquals(Color(0, 0, 0, 0), dialog.background)
+            } finally {
+                dialog.dispose()
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("initialMagnifyingGlassOverlay should set correct size")
+    fun testInitialMagnifyingGlassOverlaySetsSize() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+
+        val owner = javax.swing.JFrame()
+        try {
+            val size = Dimension(1920, 1080)
+            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            try {
+                assertEquals(size, dialog.size)
+            } finally {
+                dialog.dispose()
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("initialMagnifyingGlassOverlay should position at origin")
+    fun testInitialMagnifyingGlassOverlayOriginPosition() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+
+        val owner = javax.swing.JFrame()
+        try {
+            val size = Dimension(1920, 1080)
+            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            try {
+                assertEquals(0, dialog.x)
+                assertEquals(0, dialog.y)
+            } finally {
+                dialog.dispose()
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("initialMagnifyingGlassOverlay should be disposable on close")
+    fun testInitialMagnifyingGlassOverlayDisposeOnClose() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+
+        val owner = javax.swing.JFrame()
+        try {
+            val size = Dimension(1920, 1080)
+            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            try {
+                assertEquals(javax.swing.WindowConstants.DISPOSE_ON_CLOSE, dialog.defaultCloseOperation)
+            } finally {
+                dialog.dispose()
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("colorSelectionOverlayHandler should apply color when applySelection is true")
+    fun testColorSelectionHandlerAppliesColor() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val testColor = Color(200, 100, 50)
+        screenshot.setRGB(50, 50, testColor.rgb)
+
+        val mousePoint = Point(50, 50)
+        val mockOverlay = mock(javax.swing.JDialog::class.java)
+
+        val handler = colorSelectionOverlayHandler(
+            mousePoint,
+            screenshot,
+            mockSettings,
+            mockOverlay
+        )
+
+        handler(true)
+
+        // Verify color was set
+        verify(mockSettings).selectedColor = any()
+        verify(mockSettings).customColorCheckBox
+        verify(mockSettings).syncEnabledState()
+        verify(mockSettings).syncPreview()
+    }
+
+    @Test
+    @DisplayName("colorSelectionOverlayHandler should always dispose overlay regardless of selection")
+    fun testColorSelectionHandlerDisposesOverlayOnApply() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val mousePoint = Point(50, 50)
+        val mockOverlay = mock(javax.swing.JDialog::class.java)
+
+        val handler = colorSelectionOverlayHandler(
+            mousePoint,
+            screenshot,
+            mockSettings,
+            mockOverlay
+        )
+
+        handler(true)
+
+        verify(mockOverlay).dispose()
+    }
+
+    @Test
+    @DisplayName("colorSelectionOverlayHandler should dispose overlay without applying color when false")
+    fun testColorSelectionHandlerDisposesOverlayOnCancel() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val mousePoint = Point(50, 50)
+        val mockOverlay = mock(javax.swing.JDialog::class.java)
+
+        val handler = colorSelectionOverlayHandler(
+            mousePoint,
+            screenshot,
+            mockSettings,
+            mockOverlay
+        )
+
+        handler(false)
+
+        // Should dispose but not apply color
+        verify(mockOverlay).dispose()
+        verify(mockSettings, never()).selectedColor = any()
+    }
+
+    @Test
+    @DisplayName("colorSelectionOverlayHandler should clamp coordinates within screenshot bounds")
+    fun testColorSelectionHandlerClampsCoordinates() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val testColor = Color.BLUE
+        screenshot.setRGB(0, 0, testColor.rgb) // Set color at clamped position
+
+        val mousePoint = Point(-50, -50) // Out of bounds coordinates
+
+        val mockOverlay = mock(javax.swing.JDialog::class.java)
+
+        val handler = colorSelectionOverlayHandler(
+            mousePoint,
+            screenshot,
+            mockSettings,
+            mockOverlay
+        )
+
+        // Should not throw even with out-of-bounds coordinates
+        assertDoesNotThrow {
+            handler(true)
+        }
+
+        verify(mockOverlay).dispose()
+    }
+
+    @Test
+    @DisplayName("colorSelectionOverlayHandler should handle color at maximum bounds")
+    fun testColorSelectionHandlerMaximumBounds() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
+        val testColor = Color.RED
+        screenshot.setRGB(99, 99, testColor.rgb)
+
+        val mousePoint = Point(99, 99)
+        val mockOverlay = mock(javax.swing.JDialog::class.java)
+
+        val handler = colorSelectionOverlayHandler(
+            mousePoint,
+            screenshot,
+            mockSettings,
+            mockOverlay
+        )
+
+        assertDoesNotThrow {
+            handler(true)
+        }
+
+        verify(mockOverlay).dispose()
+    }
+
+    @Test
+    @DisplayName("colorSelectionOverlayHandler should handle color with alpha channel")
+    fun testColorSelectionHandlerWithAlpha() {
+        val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB)
+        val colorWithAlpha = Color(100, 150, 200, 128)
+        screenshot.setRGB(50, 50, colorWithAlpha.rgb)
+
+        val mousePoint = Point(50, 50)
+        val mockOverlay = mock(javax.swing.JDialog::class.java)
+
+        val handler = colorSelectionOverlayHandler(
+            mousePoint,
+            screenshot,
+            mockSettings,
+            mockOverlay
+        )
+
+        assertDoesNotThrow {
+            handler(true)
+        }
+
+        verify(mockSettings).selectedColor = any()
+    }
+
+
+    // ==================== Additional Color Math Edge Cases ====================
 
     @Test
     @DisplayName("Should handle color selection bounds checking")
@@ -245,6 +683,62 @@ class ScreenColorPickerTest {
             assertDoesNotThrow {
                 screenshot.getRGB(clampedX, clampedY)
             }
+        }
+    }
+
+    @Test
+    @DisplayName("showScreenColorPicker should use editor component when available")
+    fun testShowScreenColorPickerWithEditor() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
+        
+        val owner = try {
+            javax.swing.JFrame()
+        } catch (e: Error) {
+            Assumptions.abort<javax.swing.JFrame>("Swing initialization failed: ${e.message}")
+        }
+        try {
+            mockStatic(SwingUtilities::class.java).use { mockedSwing ->
+                mockedSwing.`when`<Window?> { SwingUtilities.getWindowAncestor(mockPanel) }
+                    .thenReturn(owner)
+
+                mockStatic(FileEditorManager::class.java).use { mockedEditorManager ->
+                    val mockFEM = mock(FileEditorManager::class.java)
+                    val mockEditor = mock(Editor::class.java)
+                    val mockEditorComponent = mock(JComponent::class.java)
+
+                    mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }.thenReturn(mockFEM)
+                    `when`(mockFEM.selectedTextEditor).thenReturn(mockEditor)
+                    `when`(mockEditor.component).thenReturn(mockEditorComponent)
+                    `when`(mockEditorComponent.width).thenReturn(800)
+                    `when`(mockEditorComponent.height).thenReturn(600)
+
+                    // We need to avoid actual UI showing or at least handle it
+                    // setupColorPickerUI creates Dialogs and Canvas
+                    // In headless it might still fail, so we use assumption
+                    Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
+
+                    assertDoesNotThrow {
+                        showScreenColorPicker(mockSettings)
+                    }
+                }
+            }
+        } finally {
+            owner.dispose()
+        }
+    }
+
+    @Test
+    @DisplayName("showColorChooserViaScreenshot should take screenshot and setup UI")
+    fun testShowColorChooserViaScreenshot() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
+        val owner = javax.swing.JFrame()
+        try {
+            val screenSize = Dimension(800, 600)
+            assertDoesNotThrow {
+                showColorChooserViaScreenshot(screenSize, owner, mockSettings)
+            }
+        } finally {
+            owner.dispose()
         }
     }
 
