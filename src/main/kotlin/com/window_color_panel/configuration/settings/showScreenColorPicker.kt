@@ -21,73 +21,35 @@ fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     val editorComponent = FileEditorManager.getInstance(windowColorPanelSettings.getProject())
         .selectedTextEditor
         ?.component
-    if (editorComponent == null) {
+    if (editorComponent != null) {
+        showColorChooserViaGraphicsComponent(editorComponent, owner, windowColorPanelSettings)
+    } else {
         // Fallback to full screen capture if no editor is available
-        // Note: This uses Robot which may be restricted in plugin sandbox
         try {
-            return showScreenColorPickerWithScreenshot(windowColorPanelSettings, screenSize)
+            return showColorChooserViaScreenshot(screenSize, owner, windowColorPanelSettings)
         } catch (_: Exception) {
             return
         }
     }
+}
 
+private fun showColorChooserViaScreenshot(
+    screenSize: Dimension,
+    owner: Window,
+    windowColorPanelSettings: WindowColorPanelSettings
+) {
+    val screenshot = takeScreenshot(screenSize)
+    setupColorPickerUI(owner, screenshot, screenSize, windowColorPanelSettings)
+}
+
+private fun showColorChooserViaGraphicsComponent(
+    editorComponent: JComponent,
+    owner: Window,
+    windowColorPanelSettings: WindowColorPanelSettings
+) {
     val screenshot = captureComponent(editorComponent)
-
     val componentSize = Dimension(editorComponent.width, editorComponent.height)
-    val mousePoint = Point(componentSize.width / 2, componentSize.height / 2)
-    val displayMousePoint = object {
-        var x = mousePoint.x.toDouble()
-        var y = mousePoint.y.toDouble()
-    }
-
-    val magnifierCanvas = createMagnifierCanvas(screenshot) { displayMousePoint.x to displayMousePoint.y }
-    magnifierCanvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
-    magnifierCanvas.isFocusable = true
-
-    val overlayHandler = initialMagnifyingGlassOverlay(owner, componentSize)
-    val colorSelectionHandler: (Boolean) -> Unit =
-        colorSelectionOverlayHandler(mousePoint, screenshot, windowColorPanelSettings, overlayHandler)
-    overlayHandler.contentPane = magnifierCanvas
-    overlayHandler.isVisible = true
-
-    // TODO BlakeGoudemond 2026/05/08 | extract outside this function - make standalone
-    fun mouseMotionLocationHandler(): MouseMotionAdapter = object : MouseMotionAdapter() {
-        override fun mouseMoved(e: MouseEvent) {
-            mousePoint.setLocation(e.x, e.y)
-            displayMousePoint.x += (mousePoint.x - displayMousePoint.x) * 0.22
-            displayMousePoint.y += (mousePoint.y - displayMousePoint.y) * 0.22
-            magnifierCanvas.repaint()
-        }
-
-        override fun mouseDragged(e: MouseEvent) {
-            mouseMoved(e)
-        }
-    }
-
-    // TODO BlakeGoudemond 2026/05/08 | extract outside this function - make standalone
-    fun onMousePressedSetLocation(): MouseAdapter = object : MouseAdapter() {
-        override fun mousePressed(e: MouseEvent) {
-            mousePoint.setLocation(e.x, e.y)
-            colorSelectionHandler(true)
-        }
-    }
-
-    // TODO BlakeGoudemond 2026/05/08 | extract outside this function - make standalone
-    fun magnifyAgainOnClose() {
-        overlayHandler.rootPane.registerKeyboardAction(
-            {
-                colorSelectionHandler(false)
-            },
-            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-            JComponent.WHEN_IN_FOCUSED_WINDOW
-        )
-    }
-
-    magnifierCanvas.addMouseMotionListener(mouseMotionLocationHandler())
-    magnifierCanvas.addMouseListener(onMousePressedSetLocation())
-    magnifierCanvas.requestFocusInWindow()
-
-    magnifyAgainOnClose()
+    setupColorPickerUI(owner, screenshot, componentSize, windowColorPanelSettings)
 }
 
 fun initialMagnifyingGlassOverlay(owner: Window, screenSize: Dimension?): JDialog =
@@ -126,7 +88,9 @@ fun colorSelectionOverlayHandler(
 
 /**
  * Prefer captureComponent if possible
+ * todo - improve kdoc if possible
  * */
+// Note: This uses Robot which may be restricted in plugin sandbox
 fun takeScreenshot(screenSize: Dimension): BufferedImage {
     // Note: Robot usage may be restricted in JetBrains plugin sandbox. Ensure permissions are granted.
     if (screenSize.width <= 0 || screenSize.height <= 0) {
@@ -162,14 +126,13 @@ fun captureComponent(component: JComponent): BufferedImage {
     return image
 }
 
-private fun showScreenColorPickerWithScreenshot(
-    windowColorPanelSettings: WindowColorPanelSettings,
-    screenSize: Dimension
+private fun setupColorPickerUI(
+    owner: Window,
+    screenshot: BufferedImage,
+    captureArea: Dimension,
+    windowColorPanelSettings: WindowColorPanelSettings
 ) {
-    val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettings.panel) ?: return
-    val screenshot = takeScreenshot(screenSize)
-
-    val mousePoint = Point(screenSize.width / 2, screenSize.height / 2)
+    val mousePoint = Point(captureArea.width / 2, captureArea.height / 2)
     val displayMousePoint = object {
         var x = mousePoint.x.toDouble()
         var y = mousePoint.y.toDouble()
@@ -179,7 +142,7 @@ private fun showScreenColorPickerWithScreenshot(
     magnifierCanvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
     magnifierCanvas.isFocusable = true
 
-    val overlayHandler = initialMagnifyingGlassOverlay(owner, screenSize)
+    val overlayHandler = initialMagnifyingGlassOverlay(owner, captureArea)
     val colorSelectionHandler: (Boolean) -> Unit =
         colorSelectionOverlayHandler(mousePoint, screenshot, windowColorPanelSettings, overlayHandler)
     overlayHandler.contentPane = magnifierCanvas
@@ -221,4 +184,5 @@ private fun showScreenColorPickerWithScreenshot(
 
     magnifyAgainOnClose()
 }
+
 
