@@ -40,6 +40,8 @@ class WindowColorPanelSettings(
 
     var selectedColor: Color? = null
 
+    fun getProject(): Project = project
+
     override fun getDisplayName(): String = "Window Color Panel"
 
     override fun createComponent(): JComponent {

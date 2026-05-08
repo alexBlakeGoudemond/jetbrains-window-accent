@@ -1,65 +1,97 @@
 # README Developer Notes
 
+## Threading & UI Updates
+
 ### SwingUtilities.invokeLater vs ApplicationManager.getApplication().invokeLater
 
-Both methods schedule code to run later on the UI thread, but they operate at different abstraction levels:
+Both methods schedule code to run on the Event Dispatch Thread (EDT), but they operate at different abstraction levels:
 
-1. SwingUtilities.invokeLater { ... }
-   - Part of standard Java Swing
-   - Pushes your task onto the Event Dispatch Thread (EDT)
-   - Has no awareness of IntelliJ’s application lifecycle
-   - Just says: “run this on the UI thread when possible”
-2. ApplicationManager.getApplication().invokeLater { ... }
-   - Part of the IntelliJ Platform SDK
-   - Also runs on the EDT, BUT:
-     - Is aware of IDE state (e.g. indexing, disposal, modality)
-     - Can respect modality states (dialogs, etc.)
-     - Prevents running code when the project/app is disposed
-     - Integrates with IntelliJ’s threading model
+| Aspect | SwingUtilities.invokeLater | ApplicationManager.getApplication().invokeLater |
+|--------|---------------------------|------------------------------------------------|
+| **Source** | Standard Java Swing | IntelliJ Platform SDK |
+| **IDE Awareness** | ❌ None | ✅ Tracks IDE state, indexing, disposal, modality |
+| **Modality Control** | ❌ No | ✅ Yes |
+| **Disposal Safety** | ❌ No | ✅ Yes |
+| **Threading Rules** | Generic | IntelliJ-compliant |
 
-⚠️ Why this matters
+#### ⚠️ Why this matters in plugins
 
-In a plugin, using SwingUtilities.invokeLater can cause subtle bugs:
+Using `SwingUtilities.invokeLater` can cause subtle, hard-to-debug issues:
 
-Code might run when the project is already closed/disposed
-You might violate IntelliJ threading rules (leading to warnings or crashes)
-You lose control over modality (e.g. running during a modal dialog unintentionally)
+- Code might run when the project/IDE is already disposed
+- You may violate IntelliJ's threading model (causing warnings or crashes)
+- You lose control over modality states (e.g., code running during modal dialogs unintentionally)
+- Breaks assumptions that other plugins depend on (indexing, read/write locks, modality correctness)
 
-✅ Best practice (important)
+#### ✅ Best practice for IntelliJ plugins
 
-For IntelliJ plugins, you should prefer this:
+**Always use:**
+    ```kotlin
+    ApplicationManager.getApplication().invokeLater {
+        // your code
+    }
+    ```
 
-```
-ApplicationManager.getApplication().invokeLater {
-// your code
-}
-```
+**When modality matters (more explicit):**
+    ```kotlin
+    ApplicationManager.getApplication().invokeLater(
+        {
+            // your code
+        },
+        ModalityState.NON_MODAL  // or ModalityState.any()
+    )
+    ```
 
-Or even better (more explicit):
+#### 🆚 When would SwingUtilities be acceptable?
 
-```
-ApplicationManager.getApplication().invokeLater(
-{
-// your code
-},
-ModalityState.NON_MODAL
-)
-```
+Almost never in plugin code. Only acceptable if:
 
-🆚 When would SwingUtilities be okay?
+- You're writing pure Swing code completely outside IntelliJ context
+- You're absolutely certain the code runs independent of IDE lifecycle (rare and risky)
 
-Almost never in plugin code. It’s only acceptable if:
+**Bottom line:** Always use `ApplicationManager.getApplication().invokeLater {}` in IntelliJ plugins.
 
-You’re writing pure Swing code outside IntelliJ context, or
-You really don’t care about IDE lifecycle (rare, risky)
+---
 
-🔍 Errors in Sandbox with additional plugins
+## System Automation & Permissions
 
-Plugins like Kubernetes integrations tend to:
+### java.awt.Robot in JetBrains plugins
 
-React to project state changes
-Hook into background tasks / indexing
-Use IntelliJ’s read/write locks
-Depend on modality state correctness
+In a JetBrains plugin, you should generally avoid `java.awt.Robot` if possible.
 
-Using SwingUtilities.invokeLater can break assumptions those plugins rely on.
+#### Why it's problematic
+
+`java.awt.Robot` is used to simulate:
+- Keyboard input
+- Mouse movement and clicks
+- Screen capture
+- Clipboard interaction
+
+JetBrains plugins run in a controlled **sandbox environment** for security reasons. System automation features require OS-level permissions that may be:
+- **Blocked** by the IDE
+- **Blocked** by the operating system
+- **Denied** at runtime without explicit allowance
+
+#### ⚠️ Known issues
+
+- IntelliJ may block Robot operations for security
+- Some platforms (macOS, Linux) have stricter restrictions
+- The sandbox environment prevents certain system calls
+- Other plugins may not expect direct OS manipulation
+
+#### ✅ Alternatives (when possible)
+
+Instead of `Robot`, consider:
+
+- **UI Selection:** Use IntelliJ's Editor and PsiElement APIs to work with code
+- **Clipboard:** Use `CopyPasteManager` for safe clipboard access
+- **File Operations:** Use VirtualFile API instead of OS-level file access
+- **Events:** Use IntelliJ's event system instead of keyboard simulation
+
+#### When Robot might be necessary
+
+If you absolutely must use `Robot`:
+- Document the requirement clearly
+- Add prominent warnings in your plugin description
+- Test thoroughly in the IDE sandbox
+- Consider requesting explicit permissions

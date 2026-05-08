@@ -30,6 +30,7 @@ object WindowColorApplier {
         }
     }
 
+    // TODO BlakeGoudemond 2026/05/08 | ApplicationManager.getApplication().invokeLater instead of SwingUtilities
     fun applyToAllOpenProjects(enabled: Boolean) {
         SwingUtilities.invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
