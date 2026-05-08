@@ -9,7 +9,7 @@ import java.lang.reflect.Method
 import javax.swing.JComponent
 
 @DisplayName("createMagnifierCanvas Tests")
-class CreateMagnifierCanvasTest {
+class ColorMagnifierTest {
 
     @Test
     @DisplayName("toHex should convert color to correct hex format")

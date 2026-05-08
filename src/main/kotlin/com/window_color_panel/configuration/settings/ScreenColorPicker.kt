@@ -9,8 +9,6 @@ import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
 
-// TODO BlakeGoudemond 2026/05/07 | ask robot to review if my refactor was any good
-// TODO BlakeGoudemond 2026/05/06 | hard to test with code coverage, consider refactoring to separate the UI logic from the color picking logic
 fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     val owner = SwingUtilities.getWindowAncestor(windowColorPanelSettings.panel) ?: return
 
@@ -33,7 +31,7 @@ fun showScreenColorPicker(windowColorPanelSettings: WindowColorPanelSettings) {
     }
 }
 
-private fun showColorChooserViaScreenshot(
+fun showColorChooserViaScreenshot(
     screenSize: Dimension,
     owner: Window,
     windowColorPanelSettings: WindowColorPanelSettings
@@ -42,7 +40,7 @@ private fun showColorChooserViaScreenshot(
     setupColorPickerUI(owner, screenshot, screenSize, windowColorPanelSettings)
 }
 
-private fun showColorChooserViaGraphicsComponent(
+fun showColorChooserViaGraphicsComponent(
     editorComponent: JComponent,
     owner: Window,
     windowColorPanelSettings: WindowColorPanelSettings
@@ -86,10 +84,6 @@ fun colorSelectionOverlayHandler(
     return closeOverlay
 }
 
-/**
- * Prefer captureComponent if possible
- * todo - improve kdoc if possible
- * */
 // Note: This uses Robot which may be restricted in plugin sandbox
 fun takeScreenshot(screenSize: Dimension): BufferedImage {
     // Note: Robot usage may be restricted in JetBrains plugin sandbox. Ensure permissions are granted.

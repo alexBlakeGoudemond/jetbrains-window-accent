@@ -16,7 +16,7 @@ import java.awt.HeadlessException
 import java.awt.Window
 
 @DisplayName("showScreenColorPicker Tests")
-class ShowScreenColorPickerTest {
+class ScreenColorPickerTest {
 
     @Test
     @DisplayName("Should handle color selection bounds checking")
