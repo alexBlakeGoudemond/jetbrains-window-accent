@@ -107,6 +107,7 @@ class WindowColorPanelToolWindowFactoryTest {
         assertEquals("Enable title number for current window", currentDisabledText)
     }
 
+    @Suppress("KotlinConstantConditions")
     @Test
     @DisplayName("Should handle service state toggling logic for colors")
     fun testColorServiceStateToggling() {
@@ -123,6 +124,7 @@ class WindowColorPanelToolWindowFactoryTest {
         assertTrue(newState2)
     }
 
+    @Suppress("KotlinConstantConditions")
     @Test
     @DisplayName("Should handle service state toggling logic for titles")
     fun testTitleServiceStateToggling() {

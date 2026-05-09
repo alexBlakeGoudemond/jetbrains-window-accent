@@ -18,6 +18,7 @@ import org.mockito.Mockito.mock
 import javax.swing.JFrame
 
 @DisplayName("WindowTitleApplier Tests")
+@Suppress("UNCHECKED_CAST")
 class WindowTitleApplierTest {
 
     private lateinit var mockApplication: com.intellij.openapi.application.Application
@@ -230,7 +231,7 @@ class WindowTitleApplierTest {
     }
 
     @Test
-    @DisplayName("Should start title enforcer coroutine")
+    @DisplayName("Should start title enforcer co-routine")
     fun testTitleEnforcerCoroutine() {
         WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
 

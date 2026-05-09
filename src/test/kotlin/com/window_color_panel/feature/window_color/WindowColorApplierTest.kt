@@ -61,7 +61,6 @@ class WindowColorApplierTest {
         )
         method.isAccessible = true
 
-        // Test NORTH and SOUTH (horizontal panels)
         val northDim = method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.NORTH) as Dimension
         val southDim = method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.SOUTH) as Dimension
 
@@ -70,7 +69,6 @@ class WindowColorApplierTest {
         assertEquals(0, southDim.width)
         assertEquals(20, southDim.height)
 
-        // Test EAST and WEST (vertical panels)
         val eastDim = method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.EAST) as Dimension
         val westDim = method.invoke(WindowColorApplier, WindowPanelAppearanceStateService.Side.WEST) as Dimension
 
