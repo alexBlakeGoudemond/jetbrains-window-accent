@@ -1,7 +1,6 @@
 package com.window_color_panel.feature.window_title
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
@@ -11,17 +10,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Applies and maintains a numeric prefix in IDE window titles.
@@ -110,7 +103,7 @@ object WindowTitleApplier {
     }
 
     private fun stripExistingPrefix(title: String): String =
-        title.replace(Regex("^\\[\\d+]\\s*"), "")
+        title.replace(Regex("^(\\[\\d+]\\s*)+"), "")
 
     private fun reapplyOnFocus(project: Project, frame: Frame) {
         val listener = createFocusListener(project, frame)
@@ -148,22 +141,6 @@ object WindowTitleApplier {
         Disposer.register(project) {
             cancelTitleEnforcement(project)
             cleanupFocusListener(project)
-        }
-
-        scope.launch {
-            while (isActive) {
-                enforceTitleOnEdt(project)
-                delay(1500.milliseconds)
-            }
-        }
-    }
-
-    private suspend fun enforceTitleOnEdt(project: Project) {
-        val frame = getProjectFrame(project) ?: return
-        val number = projectNumbers[project] ?: return
-
-        withContext(Dispatchers.EDT) {
-            updateWindowTitle(frame, number)
         }
     }
 
