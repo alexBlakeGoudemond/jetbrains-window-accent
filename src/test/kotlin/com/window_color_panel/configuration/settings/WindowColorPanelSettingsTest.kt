@@ -17,7 +17,6 @@ import javax.swing.JComponent
 import javax.swing.UIManager
 import org.junit.jupiter.api.Assumptions
 
-// Code coverage for this test should now be >0% with proper WindowColorPanelSettings instantiation
 @DisplayName("WindowColorPanelSettings Tests")
 class WindowColorPanelSettingsTest {
 

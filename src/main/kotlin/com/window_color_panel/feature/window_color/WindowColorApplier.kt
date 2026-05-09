@@ -10,7 +10,6 @@ import com.window_color_panel.configuration.persistence.WindowPanelAppearanceSta
 import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JPanel
-import javax.swing.SwingUtilities
 
 /**
  * Applies and maintains the colored window panel for IDE projects.
@@ -30,9 +29,8 @@ object WindowColorApplier {
         }
     }
 
-    // TODO BlakeGoudemond 2026/05/08 | ApplicationManager.getApplication().invokeLater instead of SwingUtilities
     fun applyToAllOpenProjects(enabled: Boolean) {
-        SwingUtilities.invokeLater {
+        ApplicationManager.getApplication().invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 project.getService(WindowPanelAppearanceStateService::class.java).setPanelEnabled(enabled)
                 applyColorToWindow(project)
