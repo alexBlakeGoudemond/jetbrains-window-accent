@@ -193,14 +193,15 @@ class ScreenColorPickerTest {
     // ==================== initialMagnifyingGlassOverlay Tests ====================
 
     @Test
-    @DisplayName("initialMagnifyingGlassOverlay should create undecorated dialog")
-    fun testInitialMagnifyingGlassOverlayUndecorated() {
+    @DisplayName("createOverlay should create undecorated dialog")
+    fun testCreateOverlayUndecorated() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
+        val picker = ScreenColorPicker(mockSettings)
         val owner = javax.swing.JFrame()
         try {
             val size = Dimension(1920, 1080)
-            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            val dialog = picker.createOverlay(owner, size)
             try {
                 assertTrue(dialog.isUndecorated)
             } finally {
@@ -212,14 +213,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("initialMagnifyingGlassOverlay should set always on top")
-    fun testInitialMagnifyingGlassOverlayAlwaysOnTop() {
+    @DisplayName("createOverlay should set always on top")
+    fun testCreateOverlayAlwaysOnTop() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
+        val picker = ScreenColorPicker(mockSettings)
         val owner = javax.swing.JFrame()
         try {
             val size = Dimension(1920, 1080)
-            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            val dialog = picker.createOverlay(owner, size)
             try {
                 assertTrue(dialog.isAlwaysOnTop)
             } finally {
@@ -231,14 +233,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("initialMagnifyingGlassOverlay should have transparent background")
-    fun testInitialMagnifyingGlassOverlayTransparent() {
+    @DisplayName("createOverlay should have transparent background")
+    fun testCreateOverlayTransparent() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
+        val picker = ScreenColorPicker(mockSettings)
         val owner = javax.swing.JFrame()
         try {
             val size = Dimension(1920, 1080)
-            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            val dialog = picker.createOverlay(owner, size)
             try {
                 assertEquals(Color(0, 0, 0, 0), dialog.background)
             } finally {
@@ -250,14 +253,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("initialMagnifyingGlassOverlay should set correct size")
-    fun testInitialMagnifyingGlassOverlaySetsSize() {
+    @DisplayName("createOverlay should set correct size")
+    fun testCreateOverlaySetsSize() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
+        val picker = ScreenColorPicker(mockSettings)
         val owner = javax.swing.JFrame()
         try {
             val size = Dimension(1920, 1080)
-            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            val dialog = picker.createOverlay(owner, size)
             try {
                 assertEquals(size, dialog.size)
             } finally {
@@ -269,14 +273,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("initialMagnifyingGlassOverlay should position at origin")
-    fun testInitialMagnifyingGlassOverlayOriginPosition() {
+    @DisplayName("createOverlay should position at origin")
+    fun testCreateOverlayOriginPosition() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
+        val picker = ScreenColorPicker(mockSettings)
         val owner = javax.swing.JFrame()
         try {
             val size = Dimension(1920, 1080)
-            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            val dialog = picker.createOverlay(owner, size)
             try {
                 assertEquals(0, dialog.x)
                 assertEquals(0, dialog.y)
@@ -289,14 +294,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("initialMagnifyingGlassOverlay should be disposable on close")
-    fun testInitialMagnifyingGlassOverlayDisposeOnClose() {
+    @DisplayName("createOverlay should be disposable on close")
+    fun testCreateOverlayDisposeOnClose() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
+        val picker = ScreenColorPicker(mockSettings)
         val owner = javax.swing.JFrame()
         try {
             val size = Dimension(1920, 1080)
-            val dialog = initialMagnifyingGlassOverlay(owner, size)
+            val dialog = picker.createOverlay(owner, size)
             try {
                 assertEquals(javax.swing.WindowConstants.DISPOSE_ON_CLOSE, dialog.defaultCloseOperation)
             } finally {
@@ -308,21 +314,17 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("colorSelectionOverlayHandler should apply color when applySelection is true")
+    @DisplayName("createColorSelectionHandler should apply color when applySelection is true")
     fun testColorSelectionHandlerAppliesColor() {
         val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
         val testColor = Color(200, 100, 50)
         screenshot.setRGB(50, 50, testColor.rgb)
 
-        val mousePoint = Point(50, 50)
+        val picker = ScreenColorPicker(mockSettings)
+        picker.mousePoint = Point(50, 50)
         val mockOverlay = mock(javax.swing.JDialog::class.java)
 
-        val handler = colorSelectionOverlayHandler(
-            mousePoint,
-            screenshot,
-            mockSettings,
-            mockOverlay
-        )
+        val handler = picker.createColorSelectionHandler(screenshot, mockOverlay)
 
         handler(true)
 
@@ -334,18 +336,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("colorSelectionOverlayHandler should always dispose overlay regardless of selection")
+    @DisplayName("createColorSelectionHandler should always dispose overlay regardless of selection")
     fun testColorSelectionHandlerDisposesOverlayOnApply() {
         val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
-        val mousePoint = Point(50, 50)
+
+        val picker = ScreenColorPicker(mockSettings)
+        picker.mousePoint = Point(50, 50)
         val mockOverlay = mock(javax.swing.JDialog::class.java)
 
-        val handler = colorSelectionOverlayHandler(
-            mousePoint,
-            screenshot,
-            mockSettings,
-            mockOverlay
-        )
+        val handler = picker.createColorSelectionHandler(screenshot, mockOverlay)
 
         handler(true)
 
@@ -353,18 +352,15 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("colorSelectionOverlayHandler should dispose overlay without applying color when false")
+    @DisplayName("createColorSelectionHandler should dispose overlay without applying color when false")
     fun testColorSelectionHandlerDisposesOverlayOnCancel() {
         val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
-        val mousePoint = Point(50, 50)
+
+        val picker = ScreenColorPicker(mockSettings)
+        picker.mousePoint = Point(50, 50)
         val mockOverlay = mock(javax.swing.JDialog::class.java)
 
-        val handler = colorSelectionOverlayHandler(
-            mousePoint,
-            screenshot,
-            mockSettings,
-            mockOverlay
-        )
+        val handler = picker.createColorSelectionHandler(screenshot, mockOverlay)
 
         handler(false)
 
@@ -374,22 +370,18 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("colorSelectionOverlayHandler should clamp coordinates within screenshot bounds")
+    @DisplayName("createColorSelectionHandler should clamp coordinates within screenshot bounds")
     fun testColorSelectionHandlerClampsCoordinates() {
         val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
         val testColor = Color.BLUE
         screenshot.setRGB(0, 0, testColor.rgb) // Set color at clamped position
 
-        val mousePoint = Point(-50, -50) // Out of bounds coordinates
+        val picker = ScreenColorPicker(mockSettings)
+        picker.mousePoint = Point(-50, -50) // Out of bounds coordinates
 
         val mockOverlay = mock(javax.swing.JDialog::class.java)
 
-        val handler = colorSelectionOverlayHandler(
-            mousePoint,
-            screenshot,
-            mockSettings,
-            mockOverlay
-        )
+        val handler = picker.createColorSelectionHandler(screenshot, mockOverlay)
 
         // Should not throw even with out-of-bounds coordinates
         assertDoesNotThrow {
@@ -400,21 +392,17 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("colorSelectionOverlayHandler should handle color at maximum bounds")
+    @DisplayName("createColorSelectionHandler should handle color at maximum bounds")
     fun testColorSelectionHandlerMaximumBounds() {
         val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)
         val testColor = Color.RED
         screenshot.setRGB(99, 99, testColor.rgb)
 
-        val mousePoint = Point(99, 99)
+        val picker = ScreenColorPicker(mockSettings)
+        picker.mousePoint = Point(99, 99)
         val mockOverlay = mock(javax.swing.JDialog::class.java)
 
-        val handler = colorSelectionOverlayHandler(
-            mousePoint,
-            screenshot,
-            mockSettings,
-            mockOverlay
-        )
+        val handler = picker.createColorSelectionHandler(screenshot, mockOverlay)
 
         assertDoesNotThrow {
             handler(true)
@@ -424,21 +412,17 @@ class ScreenColorPickerTest {
     }
 
     @Test
-    @DisplayName("colorSelectionOverlayHandler should handle color with alpha channel")
+    @DisplayName("createColorSelectionHandler should handle color with alpha channel")
     fun testColorSelectionHandlerWithAlpha() {
         val screenshot = BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB)
         val colorWithAlpha = Color(100, 150, 200, 128)
         screenshot.setRGB(50, 50, colorWithAlpha.rgb)
 
-        val mousePoint = Point(50, 50)
+        val picker = ScreenColorPicker(mockSettings)
+        picker.mousePoint = Point(50, 50)
         val mockOverlay = mock(javax.swing.JDialog::class.java)
 
-        val handler = colorSelectionOverlayHandler(
-            mousePoint,
-            screenshot,
-            mockSettings,
-            mockOverlay
-        )
+        val handler = picker.createColorSelectionHandler(screenshot, mockOverlay)
 
         assertDoesNotThrow {
             handler(true)
@@ -979,3 +963,4 @@ class ScreenColorPickerTest {
         }
     }
 }
+
