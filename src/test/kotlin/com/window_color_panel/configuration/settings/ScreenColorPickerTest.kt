@@ -381,13 +381,14 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
                     `when`(mockEditorComponent.width).thenReturn(800)
                     `when`(mockEditorComponent.height).thenReturn(600)
 
-                    // We need to avoid actual UI showing or at least handle it
-                    // setupColorPickerUI creates Dialogs and Canvas
-                    // In headless it might still fail, so we use assumption
-                    Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
-
-                    assertDoesNotThrow {
-                        showScreenColorPicker(mockSettings)
+                    // Mock the creation of JDialog to avoid actual UI instantiation issues
+                    mockConstruction(JDialog::class.java) { mockDialog, _ ->
+                        val mockRootPane = mock(javax.swing.JRootPane::class.java, withSettings().stubOnly())
+                        `when`(mockDialog.rootPane).thenReturn(mockRootPane)
+                    }.use { _ ->
+                        assertDoesNotThrow {
+                            showScreenColorPicker(mockSettings)
+                        }
                     }
                 }
             }
@@ -403,8 +404,13 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         val owner = JFrame()
         try {
             val screenSize = Dimension(800, 600)
-            assertDoesNotThrow {
-                showColorChooserViaScreenshot(screenSize, owner, mockSettings)
+            mockConstruction(JDialog::class.java) { mockDialog, _ ->
+                val mockRootPane = mock(javax.swing.JRootPane::class.java, withSettings().stubOnly())
+                `when`(mockDialog.rootPane).thenReturn(mockRootPane)
+            }.use { _ ->
+                assertDoesNotThrow {
+                    showColorChooserViaScreenshot(screenSize, owner, mockSettings)
+                }
             }
         } finally {
             owner.dispose()

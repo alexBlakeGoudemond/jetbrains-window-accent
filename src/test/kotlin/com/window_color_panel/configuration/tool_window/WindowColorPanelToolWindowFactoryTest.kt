@@ -14,6 +14,7 @@ class WindowColorPanelToolWindowFactoryTest {
     fun testFactoryCreation() {
         val factory = WindowColorPanelToolWindowFactory()
         assertNotNull(factory)
+        @Suppress("USELESS_IS_CHECK")
         assertTrue(factory is WindowColorPanelToolWindowFactory)
     }
 
@@ -21,6 +22,7 @@ class WindowColorPanelToolWindowFactoryTest {
     @DisplayName("Should implement ToolWindowFactory interface")
     fun testImplementsToolWindowFactory() {
         val factory = WindowColorPanelToolWindowFactory()
+        @Suppress("USELESS_IS_CHECK")
         assertTrue(factory is com.intellij.openapi.wm.ToolWindowFactory)
     }
 
