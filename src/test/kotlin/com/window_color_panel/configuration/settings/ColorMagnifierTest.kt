@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage
 import java.lang.reflect.Method
 import javax.swing.JComponent
 
-@DisplayName("createMagnifierCanvas Tests")
+@DisplayName("ColorMagnifier Tests")
 class ColorMagnifierTest {
 
     @Test
