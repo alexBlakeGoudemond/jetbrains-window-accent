@@ -8,12 +8,13 @@
     <name>Window Color Panel</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="alex.blake-goudemond@psybergate.co.za">Alex Blake-Goudemond</vendor>
+    <vendor email="alexgoudemond@gmail.com">Alex Blake-Goudemond</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description>
-        Window Color Panel helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and easy-to-find settings.
+        Window Color Panel helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool
+        window, and easy-to-find settings.
     </description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
