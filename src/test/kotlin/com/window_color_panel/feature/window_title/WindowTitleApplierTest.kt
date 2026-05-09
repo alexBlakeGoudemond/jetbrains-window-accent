@@ -28,7 +28,7 @@ class WindowTitleApplierTest {
     private lateinit var mockFrame1: JFrame
     private lateinit var mockFrame2: JFrame
 
-    private lateinit var applicationMock: org.mockito.MockedStatic<com.intellij.openapi.application.ApplicationManager>
+    private lateinit var applicationMock: org.mockito.MockedStatic<ApplicationManager>
     private lateinit var projectManagerMock: org.mockito.MockedStatic<ProjectManager>
     private lateinit var windowManagerMock: org.mockito.MockedStatic<WindowManager>
 
@@ -44,7 +44,8 @@ class WindowTitleApplierTest {
 
         // Setup static mocks
         applicationMock = Mockito.mockStatic(ApplicationManager::class.java)
-        applicationMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }.thenReturn(mockApplication)
+        applicationMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }
+            .thenReturn(mockApplication)
 
         projectManagerMock = Mockito.mockStatic(ProjectManager::class.java)
         projectManagerMock.`when`<ProjectManager> { ProjectManager.getInstance() }.thenReturn(mockProjectManager)
@@ -80,17 +81,19 @@ class WindowTitleApplierTest {
 
         val projectNumbersField = WindowTitleApplier::class.java.getDeclaredField("projectNumbers")
         projectNumbersField.isAccessible = true
-        val projectNumbers = projectNumbersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, Int>
+        val projectNumbers =
+            projectNumbersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, Int>
         projectNumbers.clear()
 
         val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
         scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
         scopes.clear()
 
         val focusListenersField = WindowTitleApplier::class.java.getDeclaredField("focusListeners")
         focusListenersField.isAccessible = true
-        val focusListeners = focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
+        val focusListeners =
+            focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
         focusListeners.clear()
 
         val alarmsField = WindowTitleApplier::class.java.getDeclaredField("alarms")
@@ -110,7 +113,7 @@ class WindowTitleApplierTest {
         // Verify that a coroutine scope was created (but don't wait for it)
         val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
         scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
         assertTrue(scopes.containsKey(mockProject1))
     }
 
@@ -211,7 +214,8 @@ class WindowTitleApplierTest {
         // Get the focus listener that was added
         val focusListenersField = WindowTitleApplier::class.java.getDeclaredField("focusListeners")
         focusListenersField.isAccessible = true
-        val focusListeners = focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
+        val focusListeners =
+            focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
 
         val listener = focusListeners[mockProject1]!!
 
@@ -233,7 +237,7 @@ class WindowTitleApplierTest {
         // Check that a coroutine scope was created
         val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
         scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
 
         assertTrue(scopes.containsKey(mockProject1))
         assertTrue(scopes[mockProject1]!!.isActive)
@@ -247,7 +251,7 @@ class WindowTitleApplierTest {
 
         val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
         scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
 
         val firstScope = scopes[mockProject1]!!
         assertTrue(firstScope.isActive)
@@ -310,7 +314,7 @@ class WindowTitleApplierTest {
         // Simulate project disposal
         val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
         scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as kotlin.collections.MutableMap<Project, CoroutineScope>
+        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
 
         val scope = scopes[mockProject1]!!
         assertTrue(scope.isActive)

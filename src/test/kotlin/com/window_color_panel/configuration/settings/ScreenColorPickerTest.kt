@@ -1,28 +1,21 @@
 package com.window_color_panel.configuration.settings
 
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
-import org.mockito.Mockito.*
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.GraphicsEnvironment
-import java.awt.Point
+import org.mockito.Mockito.*
+import java.awt.*
 import java.awt.image.BufferedImage
 import javax.swing.JCheckBox
-import javax.swing.JPanel
 import javax.swing.JComponent
+import javax.swing.JPanel
 import javax.swing.SwingUtilities
-import javax.swing.UIManager
-import java.awt.AWTException
-import java.awt.HeadlessException
-import java.awt.Window
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.editor.Editor
 
 @DisplayName("showScreenColorPicker Tests")
 class ScreenColorPickerTest {
@@ -71,7 +64,8 @@ class ScreenColorPickerTest {
 
             mockStatic(FileEditorManager::class.java).use { mockedEditorManager ->
                 val mockFEM = mock(FileEditorManager::class.java)
-                mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }.thenReturn(mockFEM)
+                mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }
+                    .thenReturn(mockFEM)
                 `when`(mockFEM.selectedTextEditor).thenReturn(null)
 
                 // Should handle exception gracefully (Robot fails in headless)
@@ -185,8 +179,8 @@ class ScreenColorPickerTest {
     fun testTakeScreenshotRobotFailure() {
         val validSize = Dimension(1920, 1080)
 
-        mockConstruction(java.awt.Robot::class.java) { mockRobot, _ ->
-            `when`(mockRobot.createScreenCapture(any(java.awt.Rectangle::class.java)))
+        mockConstruction(Robot::class.java) { mockRobot, _ ->
+            `when`(mockRobot.createScreenCapture(any(Rectangle::class.java)))
                 .thenThrow(RuntimeException("Robot error"))
         }.use {
             val exception = assertThrows(RuntimeException::class.java) {
@@ -636,7 +630,10 @@ class ScreenColorPickerTest {
             // In headless mode, Robot creation might fail, but the early return should handle it
         } catch (e: Exception) {
             // In headless environment, Robot might not be available
-            assertTrue(e is AWTException || e is HeadlessException, "Expected AWT or Headless exception in headless mode")
+            assertTrue(
+                e is AWTException || e is HeadlessException,
+                "Expected AWT or Headless exception in headless mode"
+            )
         } finally {
             // Restore original headless setting
             System.setProperty("java.awt.headless", originalHeadless.toString())
@@ -690,7 +687,7 @@ class ScreenColorPickerTest {
     @DisplayName("showScreenColorPicker should use editor component when available")
     fun testShowScreenColorPickerWithEditor() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
-        
+
         val owner = try {
             javax.swing.JFrame()
         } catch (e: Error) {
@@ -706,7 +703,8 @@ class ScreenColorPickerTest {
                     val mockEditor = mock(Editor::class.java)
                     val mockEditorComponent = mock(JComponent::class.java)
 
-                    mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }.thenReturn(mockFEM)
+                    mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }
+                        .thenReturn(mockFEM)
                     `when`(mockFEM.selectedTextEditor).thenReturn(mockEditor)
                     `when`(mockEditor.component).thenReturn(mockEditorComponent)
                     `when`(mockEditorComponent.width).thenReturn(800)
@@ -866,8 +864,14 @@ class ScreenColorPickerTest {
 
         // Values should be monotonically increasing towards target
         for (i in 1 until xValues.size) {
-            assertTrue(xValues[i] > xValues[i - 1], "X values should increase: ${xValues[i]} should be > ${xValues[i - 1]}")
-            assertTrue(yValues[i] > yValues[i - 1], "Y values should increase: ${yValues[i]} should be > ${yValues[i - 1]}")
+            assertTrue(
+                xValues[i] > xValues[i - 1],
+                "X values should increase: ${xValues[i]} should be > ${xValues[i - 1]}"
+            )
+            assertTrue(
+                yValues[i] > yValues[i - 1],
+                "Y values should increase: ${yValues[i]} should be > ${yValues[i - 1]}"
+            )
         }
 
         // Should approach but not exceed target

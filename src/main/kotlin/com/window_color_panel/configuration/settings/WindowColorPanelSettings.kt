@@ -89,7 +89,7 @@ class WindowColorPanelSettings(
     }
 
     private fun configureColorPreview() {
-        colorPreview.preferredSize = java.awt.Dimension(24, 24)
+        colorPreview.preferredSize = Dimension(24, 24)
         colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
     }
 

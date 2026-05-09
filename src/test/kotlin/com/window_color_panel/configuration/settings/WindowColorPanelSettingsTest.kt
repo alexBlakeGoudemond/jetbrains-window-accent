@@ -4,18 +4,17 @@ import com.intellij.openapi.project.Project
 import com.window_color_panel.configuration.persistence.WindowCustomColorStateService
 import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
-import com.window_color_panel.feature.window_color.WindowColorApplier
-import com.window_color_panel.feature.window_title.WindowTitleApplier
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.awt.Color
 import java.awt.GraphicsEnvironment
 import javax.swing.JComponent
 import javax.swing.UIManager
-import org.junit.jupiter.api.Assumptions
 
 @DisplayName("WindowColorPanelSettings Tests")
 class WindowColorPanelSettingsTest {

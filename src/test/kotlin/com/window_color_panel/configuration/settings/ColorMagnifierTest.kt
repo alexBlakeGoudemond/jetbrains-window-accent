@@ -220,9 +220,9 @@ class ColorMagnifierTest {
 
         val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
 
-        val getMagnifyingXMethod = getPrivateMethod(canvas,"getMagnifyingX")
+        val getMagnifyingXMethod = getPrivateMethod(canvas, "getMagnifyingX")
         getMagnifyingXMethod.isAccessible = true
-        val getMagnifyingYMethod = getPrivateMethod(canvas,"getMagnifyingY")
+        val getMagnifyingYMethod = getPrivateMethod(canvas, "getMagnifyingY")
         getMagnifyingYMethod.isAccessible = true
 
         val extremeX = width * -10
