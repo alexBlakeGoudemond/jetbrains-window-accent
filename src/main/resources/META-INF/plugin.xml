@@ -1,4 +1,5 @@
-<idea-plugin require-restart="false" version="2" url="https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel">
+<idea-plugin require-restart="false" version="2"
+             url="https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel">
 
     <id>WindowColorPanel</id>
     <name>Window Color Panel</name>
@@ -25,7 +26,14 @@
                 displayName="Window Color Panel"/>
     </extensions>
 
-    <!-- todo expand on this -->
-    <depends></depends>
+    <!--
+        No plugin dependencies required - this plugin only uses core IntelliJ Platform APIs:
+        - Project and startup management (com.intellij.openapi.project, com.intellij.openapi.startup)
+        - Application services (com.intellij.openapi.application)
+        - Window management (com.intellij.openapi.wm)
+        - UI components for tool windows and settings pages (com.intellij.openapi.ui)
+        All of these are available in the base platform and don't require optional bundled plugins.
+    -->
+    <!--    <depends></depends>-->
 
 </idea-plugin>
