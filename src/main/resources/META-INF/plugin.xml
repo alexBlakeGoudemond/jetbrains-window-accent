@@ -6,10 +6,27 @@
 
     <vendor email="alexgoudemond@gmail.com">Alex Blake-Goudemond</vendor>
 
-    <description>
+    <description><![CDATA[
         Window Color Panel helps you distinguish between multiple JetBrains IDE windows with visual cues.
         Some configuration is available through the tool window as well as the settings.
-    </description>
+        <p>
+        Color options:
+        <ul>
+            <li>Configure a color scheme for each IDE window</li>
+            <li>Choose from preset color schemes or create your own custom schemes</li>
+            <li>Apply color schemes to all open windows or just the current one</li>
+        </ul>
+        Title Numbering options:
+        <ul>
+            <li>Enable / Disable title numbering for each IDE instance preview in the taskbar</li>
+        </ul>
+        Usage:
+        <ul>
+            <li>Open the Window Color Panel tool window to manage color schemes / title numbering and apply them to your IDE windows</li>
+            <li>Use the settings page to configure default color schemes and title numbering preferences</li>
+        </ul>
+        This plugin is designed to be lightweight and non-intrusive, providing visual differentiation without affecting performance.
+    ]]></description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
