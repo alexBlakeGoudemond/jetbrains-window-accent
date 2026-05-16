@@ -15,6 +15,7 @@ class WindowTitleNumberingStateServiceTest {
         service = WindowTitleNumberingStateService()
     }
 
+    // TODO BlakeGoudemond 2026/05/16 | first window title is off by default
     @Test
     fun `initial title numbering is enabled`() {
         assertTrue(service.isTitleNumberingEnabled())
