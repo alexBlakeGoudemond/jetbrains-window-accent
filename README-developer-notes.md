@@ -1,5 +1,12 @@
 # README Developer Notes
 
+## Plugin Structure and Documentation
+
+Beyond trusting AI agents Jetbrains Junie, Github Copilot and ChatGPT, this repository draws inspiration
+from the following sources:
+- [Jetbrains Plugin Configuration File](https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html)
+- [MavenHelper Plugin](https://github.com/krasa/MavenHelper)
+
 ## Threading & UI Updates
 
 ### SwingUtilities.invokeLater vs ApplicationManager.getApplication().invokeLater
