@@ -44,13 +44,14 @@
     </extensions>
 
     <!--
-        No plugin dependencies required - this plugin only uses core IntelliJ Platform APIs:
+        Only recommended plugin dependencies put here: `com.intellij.modules.platform`
+        This plugin only uses core IntelliJ Platform APIs:
         - Project and startup management (com.intellij.openapi.project, com.intellij.openapi.startup)
         - Application services (com.intellij.openapi.application)
         - Window management (com.intellij.openapi.wm)
         - UI components for tool windows and settings pages (com.intellij.openapi.ui)
         All of these are available in the base platform and don't require optional bundled plugins.
     -->
-    <!--    <depends></depends>-->
+        <depends>com.intellij.modules.platform</depends>
 
 </idea-plugin>
