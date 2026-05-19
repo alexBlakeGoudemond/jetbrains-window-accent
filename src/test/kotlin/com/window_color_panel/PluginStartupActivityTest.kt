@@ -28,6 +28,11 @@ class PluginStartupActivityTest {
 
             Mockito.doNothing().`when`(mockApplication).invokeLater(Mockito.any(Runnable::class.java))
 
+            val mockTitleService = mock(com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService::class.java)
+            Mockito.`when`(mockProject.getService(com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService::class.java))
+                .thenReturn(mockTitleService)
+            Mockito.`when`(mockTitleService.isTitleNumberingEnabled()).thenReturn(true)
+
             // Since execute is suspend, we need to run it in a coroutine
             assertDoesNotThrow {
                 runBlocking {

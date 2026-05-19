@@ -5,15 +5,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.util.Alarm
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import com.intellij.util.concurrency.AppExecutorUtil
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -27,13 +25,12 @@ object WindowTitleApplier {
 
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
-    private val alarms = ConcurrentHashMap<Project, Alarm>()
-    private val scopes = mutableMapOf<Project, CoroutineScope>()
     private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
 
-    fun applyToCurrentOpenProject(project: Project, enabled: Boolean = true) {
+    fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
+        val actualEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
         ApplicationManager.getApplication().invokeLater {
-            if (enabled) {
+            if (actualEnabled) {
                 applyTitleToWindow(project)
             } else {
                 removeTitleFromWindow(project)
@@ -41,7 +38,7 @@ object WindowTitleApplier {
         }
     }
 
-    fun applyToAllOpenProjects(enabled: Boolean = true) {
+    fun applyToAllOpenProjects(enabled: Boolean? = null) {
         ApplicationManager.getApplication().invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 applyToCurrentOpenProject(project, enabled)
@@ -59,19 +56,32 @@ object WindowTitleApplier {
     }
 
     private fun applyTitleToWindow(project: Project) {
-        val frame = getProjectFrame(project) ?: return
         val number = getWindowProjectNumber(project)
 
-        updateWindowTitle(frame, number)
-        reapplyOnFocus(project, frame)
-        startTitleEnforcer(project)
+        fun tryApply(retries: Int) {
+            val frame = getProjectFrame(project)
+            if (frame != null) {
+                ApplicationManager.getApplication().invokeLater {
+                    updateWindowTitle(frame, number)
+                    reapplyOnFocus(project, frame)
+
+                    Disposer.register(project) {
+                        cleanupFocusListener(project)
+                    }
+                }
+            } else if (retries > 0) {
+                AppExecutorUtil.getAppScheduledExecutorService().schedule({
+                    tryApply(retries - 1)
+                }, 500, TimeUnit.MILLISECONDS)
+            }
+        }
+
+        tryApply(60) // Retry for 30 seconds
     }
 
     private fun removeTitleFromWindow(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             val frame = getProjectFrame(project) ?: return@invokeLater
-
-            cancelTitleEnforcement(project)
             removeFocusListener(project, frame)
             stripTitlePrefix(frame)
         }
@@ -132,29 +142,12 @@ object WindowTitleApplier {
         }
     }
 
-    private fun startTitleEnforcer(project: Project) {
-        cancelTitleEnforcement(project)
-
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        scopes[project] = scope
-
-        Disposer.register(project) {
-            cancelTitleEnforcement(project)
-            cleanupFocusListener(project)
-        }
-    }
-
-    private fun cancelTitleEnforcement(project: Project) {
-        alarms.remove(project)?.cancelAllRequests()
-        scopes.remove(project)?.cancel()
-    }
-
     private fun cleanupFocusListener(project: Project) {
         val frame = getProjectFrame(project) ?: return
         removeFocusListener(project, frame)
     }
 
-    private fun resetProjectNumbering() {
+    fun resetProjectNumbering() {
         projectNumbers.clear()
         counter.set(1)
     }

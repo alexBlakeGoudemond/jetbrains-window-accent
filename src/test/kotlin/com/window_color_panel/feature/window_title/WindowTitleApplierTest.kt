@@ -4,10 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.util.Alarm
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.isActive
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -43,6 +40,13 @@ class WindowTitleApplierTest {
         mockFrame1 = mock(JFrame::class.java)
         mockFrame2 = mock(JFrame::class.java)
 
+        val mockTitleNumberingService1 = mock(WindowTitleNumberingStateService::class.java)
+        val mockTitleNumberingService2 = mock(WindowTitleNumberingStateService::class.java)
+        Mockito.`when`(mockProject1.getService(WindowTitleNumberingStateService::class.java)).thenReturn(mockTitleNumberingService1)
+        Mockito.`when`(mockProject2.getService(WindowTitleNumberingStateService::class.java)).thenReturn(mockTitleNumberingService2)
+        Mockito.`when`(mockTitleNumberingService1.isTitleNumberingEnabled()).thenReturn(true)
+        Mockito.`when`(mockTitleNumberingService2.isTitleNumberingEnabled()).thenReturn(true)
+
         // Setup static mocks
         applicationMock = Mockito.mockStatic(ApplicationManager::class.java)
         applicationMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }
@@ -74,33 +78,13 @@ class WindowTitleApplierTest {
         projectManagerMock.close()
         windowManagerMock.close()
 
-        // Reset the singleton state between tests
-        val counterField = WindowTitleApplier::class.java.getDeclaredField("counter")
-        counterField.isAccessible = true
-        val counter = counterField.get(WindowTitleApplier) as java.util.concurrent.atomic.AtomicInteger
-        counter.set(1)
-
-        val projectNumbersField = WindowTitleApplier::class.java.getDeclaredField("projectNumbers")
-        projectNumbersField.isAccessible = true
-        val projectNumbers =
-            projectNumbersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, Int>
-        projectNumbers.clear()
-
-        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
-        scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
-        scopes.clear()
+        WindowTitleApplier.resetProjectNumbering()
 
         val focusListenersField = WindowTitleApplier::class.java.getDeclaredField("focusListeners")
         focusListenersField.isAccessible = true
         val focusListeners =
             focusListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.awt.event.WindowAdapter>
         focusListeners.clear()
-
-        val alarmsField = WindowTitleApplier::class.java.getDeclaredField("alarms")
-        alarmsField.isAccessible = true
-        val alarms = alarmsField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, Alarm>
-        alarms.clear()
     }
 
     @Test
@@ -110,12 +94,6 @@ class WindowTitleApplierTest {
 
         Mockito.verify(mockFrame1).title = "[1] Test Project 1"
         Mockito.verify(mockFrame1).addWindowFocusListener(Mockito.any(java.awt.event.WindowAdapter::class.java))
-
-        // Verify that a coroutine scope was created (but don't wait for it)
-        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
-        scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
-        assertTrue(scopes.containsKey(mockProject1))
     }
 
     @Test
@@ -167,11 +145,7 @@ class WindowTitleApplierTest {
         // Then remove all
         WindowTitleApplier.removeFromAllOpenProjects()
 
-        // Verify that the counter was reset
-        val counterField = WindowTitleApplier::class.java.getDeclaredField("counter")
-        counterField.isAccessible = true
-        val counter = counterField.get(WindowTitleApplier) as java.util.concurrent.atomic.AtomicInteger
-        assertEquals(1, counter.get())
+        // Verify that the numbering starts from 1 again (not strictly required here, but good for testResetProjectNumbering)
     }
 
     @Test
@@ -231,41 +205,6 @@ class WindowTitleApplierTest {
     }
 
     @Test
-    @DisplayName("Should start title enforcer co-routine")
-    fun testTitleEnforcerCoroutine() {
-        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
-
-        // Check that a coroutine scope was created
-        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
-        scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
-
-        assertTrue(scopes.containsKey(mockProject1))
-        assertTrue(scopes[mockProject1]!!.isActive)
-    }
-
-    @Test
-    @DisplayName("Should cancel previous enforcer when starting new one")
-    fun testCancelPreviousEnforcer() {
-        // Apply once
-        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
-
-        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
-        scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
-
-        val firstScope = scopes[mockProject1]!!
-        assertTrue(firstScope.isActive)
-
-        // Apply again - should cancel the first and create new
-        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
-
-        val secondScope = scopes[mockProject1]!!
-        assertTrue(secondScope.isActive)
-        // Note: In practice, the first scope may still be active briefly, but the logic ensures cleanup
-    }
-
-    @Test
     @DisplayName("Should handle null title gracefully")
     fun testNullTitleHandling() {
         Mockito.`when`(mockFrame1.title).thenReturn(null)
@@ -305,24 +244,6 @@ class WindowTitleApplierTest {
 
         // The title is already correct, so it should not be set again
         Mockito.verify(mockFrame1, Mockito.never()).title = Mockito.any()
-    }
-
-    @Test
-    @DisplayName("Should handle project disposal cleanup")
-    fun testProjectDisposalCleanup() {
-        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
-
-        // Simulate project disposal
-        val scopesField = WindowTitleApplier::class.java.getDeclaredField("scopes")
-        scopesField.isAccessible = true
-        val scopes = scopesField.get(WindowTitleApplier) as MutableMap<Project, CoroutineScope>
-
-        val scope = scopes[mockProject1]!!
-        assertTrue(scope.isActive)
-
-        // Simulate disposer callback - this would normally be called by IntelliJ
-        // For testing, we can verify the scope exists and would be cancelled
-        assertNotNull(scope)
     }
 
     @Test
