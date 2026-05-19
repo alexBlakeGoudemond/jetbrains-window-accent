@@ -26,6 +26,7 @@ object WindowTitleApplier {
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
     private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
+    private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
 
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
         val actualEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
@@ -64,9 +65,10 @@ object WindowTitleApplier {
                 ApplicationManager.getApplication().invokeLater {
                     updateWindowTitle(frame, number)
                     reapplyOnFocus(project, frame)
+                    reapplyOnTitleChange(project, frame)
 
                     Disposer.register(project) {
-                        cleanupFocusListener(project)
+                        cleanupListeners(project)
                     }
                 }
             } else if (retries > 0) {
@@ -82,7 +84,7 @@ object WindowTitleApplier {
     private fun removeTitleFromWindow(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             val frame = getProjectFrame(project) ?: return@invokeLater
-            removeFocusListener(project, frame)
+            removeListeners(project, frame)
             stripTitlePrefix(frame)
         }
     }
@@ -120,11 +122,28 @@ object WindowTitleApplier {
         replaceFocusListener(project, frame, listener)
     }
 
+    private fun reapplyOnTitleChange(project: Project, frame: Frame) {
+        val listener = createTitleListener(project, frame)
+        replaceTitleListener(project, frame, listener)
+    }
+
     private fun createFocusListener(project: Project, frame: Frame): WindowAdapter =
         object : WindowAdapter() {
             override fun windowGainedFocus(e: WindowEvent?) {
                 val number = projectNumbers[project] ?: return
                 updateWindowTitle(frame, number)
+            }
+        }
+
+    private fun createTitleListener(project: Project, frame: Frame): java.beans.PropertyChangeListener =
+        java.beans.PropertyChangeListener { event ->
+            if ("title" == event.propertyName) {
+                val newTitle = event.newValue as? String ?: return@PropertyChangeListener
+                val number = projectNumbers[project] ?: return@PropertyChangeListener
+                val expectedPrefix = "[$number] "
+                if (!newTitle.startsWith(expectedPrefix)) {
+                    updateWindowTitle(frame, number)
+                }
             }
         }
 
@@ -136,15 +155,26 @@ object WindowTitleApplier {
         frame.addWindowFocusListener(listener)
     }
 
-    private fun removeFocusListener(project: Project, frame: Frame) {
+    private fun replaceTitleListener(project: Project, frame: Frame, listener: java.beans.PropertyChangeListener) {
+        titleListeners.remove(project)?.let { oldListener ->
+            frame.removePropertyChangeListener("title", oldListener)
+        }
+        titleListeners[project] = listener
+        frame.addPropertyChangeListener("title", listener)
+    }
+
+    private fun removeListeners(project: Project, frame: Frame) {
         focusListeners.remove(project)?.let { listener ->
             frame.removeWindowFocusListener(listener)
         }
+        titleListeners.remove(project)?.let { listener ->
+            frame.removePropertyChangeListener("title", listener)
+        }
     }
 
-    private fun cleanupFocusListener(project: Project) {
+    private fun cleanupListeners(project: Project) {
         val frame = getProjectFrame(project) ?: return
-        removeFocusListener(project, frame)
+        removeListeners(project, frame)
     }
 
     fun resetProjectNumbering() {

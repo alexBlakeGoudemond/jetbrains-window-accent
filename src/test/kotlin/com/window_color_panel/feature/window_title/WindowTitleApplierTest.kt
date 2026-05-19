@@ -292,4 +292,29 @@ class WindowTitleApplierTest {
         assertEquals("Actual Title", result)
     }
 
+    @Test
+    @DisplayName("Should handle title change events and reapply title")
+    fun testTitleListenerReappliesTitle() {
+        WindowTitleApplier.applyToCurrentOpenProject(mockProject1, true)
+
+        // Get the title listener that was added
+        val titleListenersField = WindowTitleApplier::class.java.getDeclaredField("titleListeners")
+        titleListenersField.isAccessible = true
+        val titleListeners =
+            titleListenersField.get(WindowTitleApplier) as java.util.concurrent.ConcurrentHashMap<Project, java.beans.PropertyChangeListener>
+
+        val listener = titleListeners[mockProject1]!!
+
+        // Simulate title being changed externally
+        val newTitle = "New Title From IDE"
+        Mockito.`when`(mockFrame1.title).thenReturn(newTitle)
+
+        // Trigger property change event
+        val event = java.beans.PropertyChangeEvent(mockFrame1, "title", "Old Title", newTitle)
+        listener.propertyChange(event)
+
+        // Should reapply the title with prefix
+        Mockito.verify(mockFrame1).title = "[1] New Title From IDE"
+    }
+
 }
