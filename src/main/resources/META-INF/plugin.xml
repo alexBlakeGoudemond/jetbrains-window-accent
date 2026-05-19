@@ -1,29 +1,35 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
-    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>com.window_color_panel.WindowColorPanel</id>
+<idea-plugin require-restart="false" version="2"
+             url="https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel">
 
-    <!-- Public plugin name should be written in Title Case.
-     Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <id>WindowColorPanel</id>
     <name>Window Color Panel</name>
 
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor email="alexgoudemond@gmail.com">Alex Blake-Goudemond</vendor>
 
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
-    <description>
-        Window Color Panel helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool
-        window, and easy-to-find settings.
-    </description>
+    <description><![CDATA[
+        Window Color Panel helps you distinguish between multiple JetBrains IDE windows with visual cues.
+        Some configuration is available through the tool window as well as the settings.
+        <p>
+        Color options:
+        <ul>
+            <li>Configure a color scheme for each IDE window</li>
+            <li>Choose from preset color schemes or create your own custom schemes</li>
+            <li>Apply color schemes to all open windows or just the current one</li>
+        </ul>
+        Title Numbering options:
+        <ul>
+            <li>Enable / Disable title numbering for each IDE instance preview in the taskbar</li>
+        </ul>
+        Usage:
+        <ul>
+            <li>Open the Window Color Panel tool window to manage color schemes / title numbering and apply them to your IDE windows</li>
+            <li>Use the settings page to configure default color schemes and title numbering preferences</li>
+        </ul>
+        This plugin is designed to be lightweight and non-intrusive, providing visual differentiation without affecting performance.
+    ]]></description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
-    <!--
-        Extensions defined by the plugin.
-        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html
-        NOTE: ToolWindow, StartupActivity (EntryPoint) and Settings are defined here
-     -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
                     factoryClass="com.window_color_panel.configuration.tool_window.WindowColorPanelToolWindowFactory"
@@ -36,5 +42,16 @@
                 parentId="appearance"
                 displayName="Window Color Panel"/>
     </extensions>
+
+    <!--
+        Only recommended plugin dependencies put here: `com.intellij.modules.platform`
+        This plugin only uses core IntelliJ Platform APIs:
+        - Project and startup management (com.intellij.openapi.project, com.intellij.openapi.startup)
+        - Application services (com.intellij.openapi.application)
+        - Window management (com.intellij.openapi.wm)
+        - UI components for tool windows and settings pages (com.intellij.openapi.ui)
+        All of these are available in the base platform and don't require optional bundled plugins.
+    -->
+        <depends>com.intellij.modules.platform</depends>
 
 </idea-plugin>

@@ -5,15 +5,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.util.Alarm
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import com.intellij.util.concurrency.AppExecutorUtil
+import com.window_color_panel.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -27,13 +25,13 @@ object WindowTitleApplier {
 
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
-    private val alarms = ConcurrentHashMap<Project, Alarm>()
-    private val scopes = mutableMapOf<Project, CoroutineScope>()
     private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
+    private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
 
-    fun applyToCurrentOpenProject(project: Project, enabled: Boolean = true) {
+    fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
+        val actualEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
         ApplicationManager.getApplication().invokeLater {
-            if (enabled) {
+            if (actualEnabled) {
                 applyTitleToWindow(project)
             } else {
                 removeTitleFromWindow(project)
@@ -41,7 +39,7 @@ object WindowTitleApplier {
         }
     }
 
-    fun applyToAllOpenProjects(enabled: Boolean = true) {
+    fun applyToAllOpenProjects(enabled: Boolean? = null) {
         ApplicationManager.getApplication().invokeLater {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 applyToCurrentOpenProject(project, enabled)
@@ -59,20 +57,34 @@ object WindowTitleApplier {
     }
 
     private fun applyTitleToWindow(project: Project) {
-        val frame = getProjectFrame(project) ?: return
         val number = getWindowProjectNumber(project)
 
-        updateWindowTitle(frame, number)
-        reapplyOnFocus(project, frame)
-        startTitleEnforcer(project)
+        fun tryApply(retries: Int) {
+            val frame = getProjectFrame(project)
+            if (frame != null) {
+                ApplicationManager.getApplication().invokeLater {
+                    updateWindowTitle(frame, number)
+                    reapplyOnFocus(project, frame)
+                    reapplyOnTitleChange(project, frame)
+
+                    Disposer.register(project) {
+                        cleanupListeners(project)
+                    }
+                }
+            } else if (retries > 0) {
+                AppExecutorUtil.getAppScheduledExecutorService().schedule({
+                    tryApply(retries - 1)
+                }, 500, TimeUnit.MILLISECONDS)
+            }
+        }
+
+        tryApply(60) // Retry for 30 seconds
     }
 
     private fun removeTitleFromWindow(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             val frame = getProjectFrame(project) ?: return@invokeLater
-
-            cancelTitleEnforcement(project)
-            removeFocusListener(project, frame)
+            removeListeners(project, frame)
             stripTitlePrefix(frame)
         }
     }
@@ -110,11 +122,28 @@ object WindowTitleApplier {
         replaceFocusListener(project, frame, listener)
     }
 
+    private fun reapplyOnTitleChange(project: Project, frame: Frame) {
+        val listener = createTitleListener(project, frame)
+        replaceTitleListener(project, frame, listener)
+    }
+
     private fun createFocusListener(project: Project, frame: Frame): WindowAdapter =
         object : WindowAdapter() {
             override fun windowGainedFocus(e: WindowEvent?) {
                 val number = projectNumbers[project] ?: return
                 updateWindowTitle(frame, number)
+            }
+        }
+
+    private fun createTitleListener(project: Project, frame: Frame): java.beans.PropertyChangeListener =
+        java.beans.PropertyChangeListener { event ->
+            if ("title" == event.propertyName) {
+                val newTitle = event.newValue as? String ?: return@PropertyChangeListener
+                val number = projectNumbers[project] ?: return@PropertyChangeListener
+                val expectedPrefix = "[$number] "
+                if (!newTitle.startsWith(expectedPrefix)) {
+                    updateWindowTitle(frame, number)
+                }
             }
         }
 
@@ -126,35 +155,29 @@ object WindowTitleApplier {
         frame.addWindowFocusListener(listener)
     }
 
-    private fun removeFocusListener(project: Project, frame: Frame) {
+    private fun replaceTitleListener(project: Project, frame: Frame, listener: java.beans.PropertyChangeListener) {
+        titleListeners.remove(project)?.let { oldListener ->
+            frame.removePropertyChangeListener("title", oldListener)
+        }
+        titleListeners[project] = listener
+        frame.addPropertyChangeListener("title", listener)
+    }
+
+    private fun removeListeners(project: Project, frame: Frame) {
         focusListeners.remove(project)?.let { listener ->
             frame.removeWindowFocusListener(listener)
         }
-    }
-
-    private fun startTitleEnforcer(project: Project) {
-        cancelTitleEnforcement(project)
-
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        scopes[project] = scope
-
-        Disposer.register(project) {
-            cancelTitleEnforcement(project)
-            cleanupFocusListener(project)
+        titleListeners.remove(project)?.let { listener ->
+            frame.removePropertyChangeListener("title", listener)
         }
     }
 
-    private fun cancelTitleEnforcement(project: Project) {
-        alarms.remove(project)?.cancelAllRequests()
-        scopes.remove(project)?.cancel()
-    }
-
-    private fun cleanupFocusListener(project: Project) {
+    private fun cleanupListeners(project: Project) {
         val frame = getProjectFrame(project) ?: return
-        removeFocusListener(project, frame)
+        removeListeners(project, frame)
     }
 
-    private fun resetProjectNumbering() {
+    fun resetProjectNumbering() {
         projectNumbers.clear()
         counter.set(1)
     }
