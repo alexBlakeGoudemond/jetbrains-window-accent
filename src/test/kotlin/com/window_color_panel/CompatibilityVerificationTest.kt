@@ -184,4 +184,20 @@ class CompatibilityVerificationTest {
         )
     }
 
+    /**
+     * PROOF OF DEPRECATED API USAGE:
+     * AppExecutorUtil.getAppScheduledExecutorService() is deprecated and should be replaced with
+     * coroutines or another non-deprecated alternative if applicable.
+     */
+    @Test
+    fun testDetectDeprecatedAppScheduledExecutorService() {
+        val sourcePath = Paths.get("src", "main", "kotlin", "com", "window_color_panel", "feature", "window_color", "WindowColorApplier.kt")
+        val content = String(Files.readAllBytes(sourcePath))
+
+        assertTrue(
+            content.contains("AppExecutorUtil.getAppScheduledExecutorService()"),
+            "WindowColorApplier.kt should contain AppExecutorUtil.getAppScheduledExecutorService() to prove deprecated API usage"
+        )
+    }
+
 }

@@ -58,7 +58,7 @@ intellijPlatform {
 
     pluginVerification {
         ides {
-            recommended()
+            create("IU", "2025.3.5")
         }
     }
 }
