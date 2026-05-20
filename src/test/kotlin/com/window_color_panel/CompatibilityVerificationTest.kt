@@ -104,4 +104,42 @@ class CompatibilityVerificationTest {
         )
     }
 
+    /**
+     * Validates that the plugin only depends on the core platform module.
+     * This ensures no accidental dependencies on optional or heavy modules like Git or XPath
+     * are introduced, which might lead to "Unavailable" warnings in the Marketplace.
+     * */
+    @Test
+    fun testPluginXmlDependenciesIncluded() {
+        val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
+        val content = String(Files.readAllBytes(pluginXmlPath))
+
+        assertTrue(
+            content.contains("<depends>com.intellij.modules.platform</depends>"),
+            "plugin.xml should contain dependency on com.intellij.modules.platform"
+        )
+    }
+
+    /**
+     * Validates that the plugin does not depend on inherited dependencies, for example: Git4Idea or XPathView.
+     * These modules might lead to "Unavailable" warnings in the Marketplace, which is preferred over including.
+     *
+     * Note: Explicitly declaring inherited dependencies like Git4Idea or XPathView is discouraged
+     * unless the plugin actually uses their APIs, as it limits IDE compatibility and does not
+     * resolve platform-level optional dependency warnings.
+     * */
+    @Test
+    fun testPluginXmlDependenciesExcluded() {
+        val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
+        val content = String(Files.readAllBytes(pluginXmlPath))
+
+        // Ensure no other depends tags are present that might be pulling in Git or XPath
+        val dependsCount = "<depends>".toRegex().findAll(content).count()
+        assertTrue(dependsCount == 1, "There should be exactly one <depends> tag, found $dependsCount. Check for accidental dependencies.")
+
+        // Explicitly check for discouraged dependencies that were discussed
+        assertFalse(content.contains("Git4Idea"), "Explicit dependency on Git4Idea is discouraged for this platform-only plugin.")
+        assertFalse(content.contains("XPathView"), "Explicit dependency on XPathView is discouraged for this platform-only plugin.")
+    }
+
 }
