@@ -28,7 +28,7 @@ changelog {
 
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("platformVersion"))
+        intellijIdea(providers.gradleProperty("platformVersion"))
     }
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
@@ -43,14 +43,22 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         ideaVersion {
-            sinceBuild = providers.gradleProperty("pluginSinceBuild")
+            sinceBuild.set(providers.gradleProperty("pluginSinceBuild"))
         }
 
-        changeNotes = providers.gradleProperty("pluginVersion").map {
-            changelog.renderItem(
-                changelog.get(it).withHeader(false).withEmptySections(false),
-                org.jetbrains.changelog.Changelog.OutputType.HTML,
-            )
+        changeNotes.set(
+            providers.gradleProperty("pluginVersion").map {
+                changelog.renderItem(
+                    changelog.get(it).withHeader(false).withEmptySections(false),
+                    org.jetbrains.changelog.Changelog.OutputType.HTML,
+                )
+            }
+        )
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
         }
     }
 }
