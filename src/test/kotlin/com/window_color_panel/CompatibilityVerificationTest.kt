@@ -41,7 +41,26 @@ class CompatibilityVerificationTest {
     }
 
     @Test
-    @Throws(IOException::class)
+    fun testExperimentalMethodsAreNotOverridden() {
+        val methods = WindowColorPanelToolWindowFactory::class.java.declaredMethods
+
+        val isGetAnchorOverridden = Arrays.stream(methods)
+            .anyMatch { m -> m.name == "getAnchor" && !m.isSynthetic && !m.isBridge }
+
+        val isGetIconOverridden = Arrays.stream(methods)
+            .anyMatch { m -> m.name == "getIcon" && !m.isSynthetic && !m.isBridge }
+
+        val isManageOverridden = Arrays.stream(methods)
+            .anyMatch { m -> m.name == "manage" && !m.isSynthetic && !m.isBridge }
+
+        val methodDetails = methods.map { "${it.name}(synthetic=${it.isSynthetic}, bridge=${it.isBridge})" }
+
+        assertFalse(isGetAnchorOverridden, "WindowColorPanelToolWindowFactory should not override experimental getAnchor. Found methods: $methodDetails")
+        assertFalse(isGetIconOverridden, "WindowColorPanelToolWindowFactory should not override experimental getIcon. Found methods: $methodDetails")
+        assertFalse(isManageOverridden, "WindowColorPanelToolWindowFactory should not override experimental manage. Found methods: $methodDetails")
+    }
+
+    @Test
     fun testPluginXmlHasDoNotActivateOnStart() {
         val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
         val content = String(Files.readAllBytes(pluginXmlPath))
@@ -51,4 +70,20 @@ class CompatibilityVerificationTest {
             "plugin.xml should contain doNotActivateOnStart=\"true\" in the toolWindow extension"
         )
     }
+
+    @Test
+    fun testPluginXmlHasModernConfigurations() {
+        val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
+        val content = String(Files.readAllBytes(pluginXmlPath))
+
+        assertTrue(
+            content.contains("anchor=\"left\""),
+            "plugin.xml should contain anchor=\"left\" in the toolWindow extension"
+        )
+        assertTrue(
+            content.contains("icon=\"/META-INF/simple-plugin-icon.svg\""),
+            "plugin.xml should contain icon attribute in the toolWindow extension"
+        )
+    }
+
 }
