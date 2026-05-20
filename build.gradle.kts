@@ -2,10 +2,11 @@ plugins {
     id("java")
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intellijPlatform)
+    alias(libs.plugins.changelog)
 }
 
-group = "com.demo"
-version = "1.0.0"
+group = providers.gradleProperty("pluginGroup")
+version = providers.gradleProperty("pluginVersion")
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -20,6 +21,11 @@ repositories {
 }
 
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
+changelog {
+    groups.empty()
+    repositoryUrl = "https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel"
+}
+
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("platformVersion"))
@@ -40,9 +46,12 @@ intellijPlatform {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
         }
 
-        changeNotes = """
-            Initial version
-        """.trimIndent()
+        changeNotes = providers.gradleProperty("pluginVersion").map {
+            changelog.renderItem(
+                changelog.get(it).withHeader(false).withEmptySections(false),
+                org.jetbrains.changelog.Changelog.OutputType.HTML,
+            )
+        }
     }
 }
 

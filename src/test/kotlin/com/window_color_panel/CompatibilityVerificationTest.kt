@@ -127,6 +127,7 @@ class CompatibilityVerificationTest {
      * This ensures no accidental dependencies on optional or heavy modules like Git or XPath
      * are introduced, which might lead to "Unavailable" warnings in the Marketplace.
      * */
+    // TODO BlakeGoudemond 2026/05/20 | extend to other dependencies, if needed
     @Test
     fun testPluginXmlDependenciesIncluded() {
         val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
