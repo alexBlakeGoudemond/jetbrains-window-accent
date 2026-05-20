@@ -2,14 +2,17 @@ package com.window_color_panel
 
 import com.intellij.openapi.project.Project
 import com.window_color_panel.configuration.tool_window.WindowColorPanelToolWindowFactory
-import org.junit.jupiter.api.Test
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.Arrays
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.*
 
+/**
+ * The tests defined here serve as proof that feedback from the Jetbrains marketplace
+ * Compatibility Verification has been acknowledged and addressed.
+ * */
 class CompatibilityVerificationTest {
 
     /**
@@ -34,7 +37,7 @@ class CompatibilityVerificationTest {
     @Test
     fun testDeprecatedMethodsAreNotOverridden() {
         val methods = WindowColorPanelToolWindowFactory::class.java.declaredMethods
-        
+
         val isIsApplicableOverridden = Arrays.stream(methods)
             .anyMatch { m -> m.name == "isApplicable" && !m.isSynthetic && !m.isBridge }
 
@@ -43,8 +46,14 @@ class CompatibilityVerificationTest {
 
         val methodDetails = methods.map { "${it.name}(synthetic=${it.isSynthetic}, bridge=${it.isBridge})" }
 
-        assertFalse(isIsApplicableOverridden, "WindowColorPanelToolWindowFactory should not override deprecated isApplicable. Found methods: $methodDetails")
-        assertFalse(isIsDoNotActivateOnStartOverridden, "WindowColorPanelToolWindowFactory should not override deprecated isDoNotActivateOnStart. Found methods: $methodDetails")
+        assertFalse(
+            isIsApplicableOverridden,
+            "WindowColorPanelToolWindowFactory should not override deprecated isApplicable. Found methods: $methodDetails"
+        )
+        assertFalse(
+            isIsDoNotActivateOnStartOverridden,
+            "WindowColorPanelToolWindowFactory should not override deprecated isDoNotActivateOnStart. Found methods: $methodDetails"
+        )
     }
 
     /**
@@ -66,9 +75,18 @@ class CompatibilityVerificationTest {
 
         val methodDetails = methods.map { "${it.name}(synthetic=${it.isSynthetic}, bridge=${it.isBridge})" }
 
-        assertFalse(isGetAnchorOverridden, "WindowColorPanelToolWindowFactory should not override experimental getAnchor. Found methods: $methodDetails")
-        assertFalse(isGetIconOverridden, "WindowColorPanelToolWindowFactory should not override experimental getIcon. Found methods: $methodDetails")
-        assertFalse(isManageOverridden, "WindowColorPanelToolWindowFactory should not override experimental manage. Found methods: $methodDetails")
+        assertFalse(
+            isGetAnchorOverridden,
+            "WindowColorPanelToolWindowFactory should not override experimental getAnchor. Found methods: $methodDetails"
+        )
+        assertFalse(
+            isGetIconOverridden,
+            "WindowColorPanelToolWindowFactory should not override experimental getIcon. Found methods: $methodDetails"
+        )
+        assertFalse(
+            isManageOverridden,
+            "WindowColorPanelToolWindowFactory should not override experimental manage. Found methods: $methodDetails"
+        )
     }
 
     /**
@@ -135,11 +153,35 @@ class CompatibilityVerificationTest {
 
         // Ensure no other depends tags are present that might be pulling in Git or XPath
         val dependsCount = "<depends>".toRegex().findAll(content).count()
-        assertTrue(dependsCount == 1, "There should be exactly one <depends> tag, found $dependsCount. Check for accidental dependencies.")
+        assertTrue(
+            dependsCount == 1,
+            "There should be exactly one <depends> tag, found $dependsCount. Check for accidental dependencies."
+        )
 
         // Explicitly check for discouraged dependencies that were discussed
-        assertFalse(content.contains("Git4Idea"), "Explicit dependency on Git4Idea is discouraged for this platform-only plugin.")
-        assertFalse(content.contains("XPathView"), "Explicit dependency on XPathView is discouraged for this platform-only plugin.")
+        assertFalse(
+            content.contains("Git4Idea"),
+            "Explicit dependency on Git4Idea is discouraged for this platform-only plugin."
+        )
+        assertFalse(
+            content.contains("XPathView"),
+            "Explicit dependency on XPathView is discouraged for this platform-only plugin."
+        )
+    }
+
+    /**
+     * Validates that the plugin is configured as a dynamic plugin (no restart required).
+     * This allows the plugin to be installed, updated, or uninstalled without restarting the IDE.
+     * */
+    @Test
+    fun testPluginIsDynamic() {
+        val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
+        val content = String(Files.readAllBytes(pluginXmlPath))
+
+        assertTrue(
+            content.contains("require-restart=\"false\""),
+            "plugin.xml should contain require-restart=\"false\" to support dynamic loading/unloading"
+        )
     }
 
 }
