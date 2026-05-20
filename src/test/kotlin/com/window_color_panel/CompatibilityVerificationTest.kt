@@ -12,6 +12,10 @@ import org.junit.jupiter.api.Assertions.assertTrue
 
 class CompatibilityVerificationTest {
 
+    /**
+     * Validated that the modern replacement `shouldBeAvailable(Project)` is correctly implemented.
+     * This replaces `ToolWindowFactory.isApplicable()`
+     * */
     @Test
     fun testShouldBeAvailableIsOverridden() {
         val isOverridden = Arrays.stream(WindowColorPanelToolWindowFactory::class.java.declaredMethods)
@@ -24,6 +28,9 @@ class CompatibilityVerificationTest {
         assertTrue(isOverridden, "WindowColorPanelToolWindowFactory should override shouldBeAvailable(Project)")
     }
 
+    /**
+     * Ensures through reflection that these deprecated methods are not overridden in `WindowColorPanelToolWindowFactory`
+     * */
     @Test
     fun testDeprecatedMethodsAreNotOverridden() {
         val methods = WindowColorPanelToolWindowFactory::class.java.declaredMethods
@@ -40,6 +47,10 @@ class CompatibilityVerificationTest {
         assertFalse(isIsDoNotActivateOnStartOverridden, "WindowColorPanelToolWindowFactory should not override deprecated isDoNotActivateOnStart. Found methods: $methodDetails")
     }
 
+    /**
+     * Verify that `getAnchor()`, `getIcon()`, and `manage()` are not explicitly overridden
+     * in `WindowColorPanelToolWindowFactory`, preventing accidental use of experimental APIs.
+     * */
     @Test
     fun testExperimentalMethodsAreNotOverridden() {
         val methods = WindowColorPanelToolWindowFactory::class.java.declaredMethods
@@ -60,6 +71,10 @@ class CompatibilityVerificationTest {
         assertFalse(isManageOverridden, "WindowColorPanelToolWindowFactory should not override experimental manage. Found methods: $methodDetails")
     }
 
+    /**
+     * Validated that `doNotActivateOnStart` is correctly set in `plugin.xml`.
+     * This replaces `ToolWindowFactory.isDoNotActivateOnStart()`
+     * */
     @Test
     fun testPluginXmlHasDoNotActivateOnStart() {
         val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
@@ -71,6 +86,9 @@ class CompatibilityVerificationTest {
         )
     }
 
+    /**
+     * validate the presence of `anchor` and `icon` attributes in `plugin.xml`
+     * */
     @Test
     fun testPluginXmlHasModernConfigurations() {
         val pluginXmlPath = Paths.get("src", "main", "resources", "META-INF", "plugin.xml")
