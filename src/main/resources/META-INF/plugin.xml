@@ -33,7 +33,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
                     factoryClass="com.window_color_panel.configuration.tool_window.WindowColorPanelToolWindowFactory"
-                    icon="/META-INF/simple-plugin-icon.svg"/>
+                    icon="/META-INF/simple-plugin-icon.svg"
+                    doNotActivateOnStart="true"/>
         <postStartupActivity implementation="com.window_color_panel.PluginStartupActivity"/>
 
         <projectConfigurable

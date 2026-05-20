@@ -15,6 +15,8 @@ import javax.swing.JPanel
 
 class WindowColorPanelToolWindowFactory : ToolWindowFactory {
 
+    override fun shouldBeAvailable(project: Project): Boolean = true
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
         val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
