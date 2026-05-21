@@ -1,5 +1,5 @@
 <idea-plugin require-restart="false" version="2"
-             url="https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel">
+             url="https://github.com/alexBlakeGoudemond/jetbrains-window-accent">
 
     <id>WindowAccent</id>
     <name>Window Accent</name>
@@ -31,7 +31,7 @@
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow"
+        <toolWindow id="WindowAccent"
                     factoryClass="com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"
                     anchor="left"
@@ -39,7 +39,7 @@
         <postStartupActivity implementation="com.window_accent.PluginStartupActivity"/>
 
         <projectConfigurable
-                id="com.window_accent.windowColorSettings"
+                id="com.window_accent.windowAccentSettings"
                 instance="com.window_accent.configuration.settings.WindowAccentSettings"
                 parentId="appearance"
                 displayName="Window Accent"/>
