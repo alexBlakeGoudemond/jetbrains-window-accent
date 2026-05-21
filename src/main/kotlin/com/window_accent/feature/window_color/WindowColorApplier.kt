@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 object WindowColorApplier {
 
-    private const val PANEL_CLIENT_PROPERTY = "com.window_accent.WindowAccent"
+    private const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
     private const val PANEL_THICKNESS = 20
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
