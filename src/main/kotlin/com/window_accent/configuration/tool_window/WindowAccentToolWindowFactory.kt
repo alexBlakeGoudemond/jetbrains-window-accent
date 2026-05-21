@@ -28,7 +28,7 @@ import javax.swing.JPanel
  *
  * @see DumbAware
  * */
-class WindowColorPanelToolWindowFactory : ToolWindowFactory, DumbAware {
+class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)

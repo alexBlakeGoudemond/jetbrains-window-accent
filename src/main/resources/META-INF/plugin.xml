@@ -32,7 +32,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
-                    factoryClass="com.window_accent.configuration.tool_window.WindowColorPanelToolWindowFactory"
+                    factoryClass="com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"
                     anchor="left"
                     doNotActivateOnStart="true"/>

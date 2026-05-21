@@ -7,21 +7,21 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 @DisplayName("WindowColorPanelToolWindowFactory Tests")
-class WindowColorPanelToolWindowFactoryTest {
+class WindowAccentToolWindowFactoryTest {
 
     @Test
     @DisplayName("Should create tool window factory instance")
     fun testFactoryCreation() {
-        val factory = WindowColorPanelToolWindowFactory()
+        val factory = WindowAccentToolWindowFactory()
         assertNotNull(factory)
         @Suppress("USELESS_IS_CHECK")
-        assertTrue(factory is WindowColorPanelToolWindowFactory)
+        assertTrue(factory is WindowAccentToolWindowFactory)
     }
 
     @Test
     @DisplayName("Should implement ToolWindowFactory interface")
     fun testImplementsToolWindowFactory() {
-        val factory = WindowColorPanelToolWindowFactory()
+        val factory = WindowAccentToolWindowFactory()
         @Suppress("USELESS_IS_CHECK")
         assertTrue(factory is com.intellij.openapi.wm.ToolWindowFactory)
     }

@@ -1,7 +1,7 @@
 package com.window_accent
 
 import com.intellij.openapi.project.Project
-import com.window_accent.configuration.tool_window.WindowColorPanelToolWindowFactory
+import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ class CompatibilityVerificationTest {
      * */
     @Test
     fun testShouldBeAvailableIsOverridden() {
-        val methods = WindowColorPanelToolWindowFactory::class.java.methods
+        val methods = WindowAccentToolWindowFactory::class.java.methods
         val isOverridden = Arrays.stream(methods)
             .anyMatch { m ->
                 m.name == "shouldBeAvailable" &&
@@ -55,7 +55,7 @@ class CompatibilityVerificationTest {
      * */
     @Test
     fun testDeprecatedMethodsAreNotOverridden() {
-        val methods = WindowColorPanelToolWindowFactory::class.java.declaredMethods
+        val methods = WindowAccentToolWindowFactory::class.java.declaredMethods
 
         val isIsApplicableOverridden = Arrays.stream(methods)
             .anyMatch { m -> m.name == "isApplicable" && !m.isSynthetic && !m.isBridge }
@@ -81,7 +81,7 @@ class CompatibilityVerificationTest {
      * */
     @Test
     fun testExperimentalMethodsAreNotOverridden() {
-        val methods = WindowColorPanelToolWindowFactory::class.java.declaredMethods
+        val methods = WindowAccentToolWindowFactory::class.java.declaredMethods
 
         val isGetAnchorOverridden = Arrays.stream(methods)
             .anyMatch { m -> m.name == "getAnchor" && !m.isSynthetic && !m.isBridge }
