@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import javax.swing.JButton
 import javax.swing.JPanel
 
-@DisplayName("WindowColorPanelToolWindowFactory Tests")
+@DisplayName("WindowAccentToolWindowFactory Tests")
 class WindowAccentToolWindowFactoryTest {
 
     @Test

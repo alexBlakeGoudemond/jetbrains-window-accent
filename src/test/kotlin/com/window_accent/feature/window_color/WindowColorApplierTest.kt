@@ -247,7 +247,7 @@ class WindowColorApplierTest {
         field.isAccessible = true
         val constant = field.get(null) as String
 
-        assertEquals("com.window_color_panel.windowColorPanel", constant)
+        assertEquals("com.window_accent.windowAccent", constant)
     }
 
     @Test

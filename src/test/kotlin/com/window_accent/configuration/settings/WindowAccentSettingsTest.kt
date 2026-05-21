@@ -16,7 +16,7 @@ import java.awt.GraphicsEnvironment
 import javax.swing.JComponent
 import javax.swing.UIManager
 
-@DisplayName("WindowColorPanelSettings Tests")
+@DisplayName("WindowAccentSettings Tests")
 class WindowAccentSettingsTest {
 
     private lateinit var mockProject: Project

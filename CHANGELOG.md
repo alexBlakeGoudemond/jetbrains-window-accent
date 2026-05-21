@@ -7,8 +7,8 @@
 ### Fixed
 - Resolved JetBrains Marketplace compatibility warnings:
     - Replaced deprecated `AppExecutorUtil.getAppScheduledExecutorService()` with Kotlin Coroutines in `WindowColorApplier`
-    - Optimized `WindowColorPanelToolWindowFactory` to avoid compiler-generated bridge methods for deprecated/experimental `ToolWindowFactory` members
-    - Added `DumbAware` to `WindowColorPanelToolWindowFactory` for better performance during indexing
+    - Optimized `WindowAccentToolWindowFactory` to avoid compiler-generated bridge methods for deprecated/experimental `ToolWindowFactory` members
+    - Added `DumbAware` to `WindowAccentToolWindowFactory` for better performance during indexing
 - Verified fixes with improved automated compatibility tests that check both source code and compiled bytecode
 - Verified Deprecated API and Experimental API usage warnings are no longer reported, via command `./gradlew verifyPlugin --rerun-tasks --info`
 - Verified Gradle `verifyPlugin` task completes successfully
