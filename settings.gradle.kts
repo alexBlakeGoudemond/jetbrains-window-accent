@@ -1,1 +1,1 @@
-rootProject.name = "WindowColorPanel"
+rootProject.name = "WindowAccent"
