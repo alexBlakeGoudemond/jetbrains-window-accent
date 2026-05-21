@@ -1,13 +1,13 @@
 <idea-plugin require-restart="false" version="2"
-             url="https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel">
+             url="https://github.com/alexBlakeGoudemond/jetbrains-window-accent">
 
-    <id>WindowColorPanel</id>
-    <name>Window Color Panel</name>
+    <id>WindowAccent</id>
+    <name>Window Accent</name>
 
     <vendor email="alexgoudemond@gmail.com">Alex Blake-Goudemond</vendor>
 
     <description><![CDATA[
-        Window Color Panel helps you distinguish between multiple JetBrains IDE windows with visual cues.
+        Window Accent helps you distinguish between multiple JetBrains IDE windows with visual cues.
         Some configuration is available through the tool window as well as the settings.
         <p>
         Color options:
@@ -22,7 +22,7 @@
         </ul>
         Usage:
         <ul>
-            <li>Open the Window Color Panel tool window to manage color schemes / title numbering and apply them to your IDE windows</li>
+            <li>Open the Window Accent tool window to manage color schemes / title numbering and apply them to your IDE windows</li>
             <li>Use the settings page to configure default color schemes and title numbering preferences</li>
         </ul>
         This plugin is designed to be lightweight and non-intrusive, providing visual differentiation without affecting performance.
@@ -31,18 +31,18 @@
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow"
-                    factoryClass="com.window_color_panel.configuration.tool_window.WindowColorPanelToolWindowFactory"
+        <toolWindow id="WindowAccent"
+                    factoryClass="com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"
                     anchor="left"
                     doNotActivateOnStart="true"/>
-        <postStartupActivity implementation="com.window_color_panel.PluginStartupActivity"/>
+        <postStartupActivity implementation="com.window_accent.PluginStartupActivity"/>
 
         <projectConfigurable
-                id="com.window_color_panel.windowColorSettings"
-                instance="com.window_color_panel.configuration.settings.WindowColorPanelSettings"
+                id="com.window_accent.windowAccentSettings"
+                instance="com.window_accent.configuration.settings.WindowAccentSettings"
                 parentId="appearance"
-                displayName="Window Color Panel"/>
+                displayName="Window Accent"/>
     </extensions>
 
     <!--
