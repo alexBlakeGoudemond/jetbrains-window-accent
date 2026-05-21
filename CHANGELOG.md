@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.3]
+
+### Fixed
+
+- Renamed project from `WindowColorPanel` to `WindowAccent` and updated references
+
 ## [1.0.2]
 
 ### Fixed
