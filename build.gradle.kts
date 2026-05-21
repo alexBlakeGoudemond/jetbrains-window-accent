@@ -26,7 +26,7 @@ repositories {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 changelog {
     groups.empty()
-    repositoryUrl = "https://github.com/alexBlakeGoudemond/jetbrains-window-color-panel"
+    repositoryUrl = "https://github.com/alexBlakeGoudemond/jetbrains-window-accent"
 }
 
 dependencies {
