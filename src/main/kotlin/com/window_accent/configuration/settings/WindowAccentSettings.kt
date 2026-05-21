@@ -18,7 +18,7 @@ import javax.swing.*
  * This component keeps the form state in sync with persisted project settings and
  * applies changes to the current IDE window when the user clicks Apply.
  */
-class WindowColorPanelSettings(
+class WindowAccentSettings(
     private val project: Project
 ) : Configurable {
 

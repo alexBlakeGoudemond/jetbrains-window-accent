@@ -305,7 +305,7 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         setHeadlessModeToAvoidShowingUI(true)
 
         try {
-            val mockSettings = mock(WindowColorPanelSettings::class.java)
+            val mockSettings = mock(WindowAccentSettings::class.java)
             val mockPanel = mock(JPanel::class.java)
             val mockCheckBox = mock(JCheckBox::class.java)
 
@@ -337,7 +337,7 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
     @Test
     @DisplayName("Should handle null window ancestor")
     fun testShowScreenColorPickerNullWindow() {
-        val mockSettings = mock(WindowColorPanelSettings::class.java)
+        val mockSettings = mock(WindowAccentSettings::class.java)
         val mockPanel = mock(JPanel::class.java)
 
         `when`(mockSettings.panel).thenReturn(mockPanel)

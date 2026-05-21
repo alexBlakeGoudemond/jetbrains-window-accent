@@ -21,7 +21,7 @@ import org.mockito.stubbing.Answer
  */
 open class BaseScreenColorPickerTest {
 
-    protected lateinit var mockSettings: WindowColorPanelSettings
+    protected lateinit var mockSettings: WindowAccentSettings
     protected lateinit var mockProject: Project
     protected lateinit var mockPanel: JPanel
     protected lateinit var mockCheckBox: JCheckBox
@@ -50,7 +50,7 @@ open class BaseScreenColorPickerTest {
             // If mockStatic fails (e.g. already mocked), ignore
         }
 
-        mockSettings = mock(WindowColorPanelSettings::class.java)
+        mockSettings = mock(WindowAccentSettings::class.java)
         mockProject = mock(Project::class.java)
         mockPanel = mock(JPanel::class.java)
         mockCheckBox = mock(JCheckBox::class.java)

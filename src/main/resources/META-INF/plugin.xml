@@ -40,7 +40,7 @@
 
         <projectConfigurable
                 id="com.window_accent.windowColorSettings"
-                instance="com.window_accent.configuration.settings.WindowColorPanelSettings"
+                instance="com.window_accent.configuration.settings.WindowAccentSettings"
                 parentId="appearance"
                 displayName="Window Accent"/>
     </extensions>

@@ -17,13 +17,13 @@ import javax.swing.JComponent
 import javax.swing.UIManager
 
 @DisplayName("WindowColorPanelSettings Tests")
-class WindowColorPanelSettingsTest {
+class WindowAccentSettingsTest {
 
     private lateinit var mockProject: Project
     private lateinit var mockAppearanceService: WindowPanelAppearanceStateService
     private lateinit var mockCustomColorService: WindowCustomColorStateService
     private lateinit var mockTitleNumberingService: WindowTitleNumberingStateService
-    private lateinit var windowColorPanelSettings: WindowColorPanelSettings
+    private lateinit var windowAccentSettings: WindowAccentSettings
 
     @BeforeEach
     fun setup() {
@@ -55,20 +55,20 @@ class WindowColorPanelSettingsTest {
             .thenReturn(mockTitleNumberingService)
 
         // Create the settings instance with mocked project
-        windowColorPanelSettings = WindowColorPanelSettings(mockProject)
+        windowAccentSettings = WindowAccentSettings(mockProject)
     }
 
     @Test
     @DisplayName("Should have correct display name")
     fun testGetDisplayName() {
-        assertEquals("Window Accent", windowColorPanelSettings.getDisplayName())
+        assertEquals("Window Accent", windowAccentSettings.getDisplayName())
     }
 
     @Test
     @DisplayName("Should create component successfully")
     fun testCreateComponent() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        val component = windowColorPanelSettings.createComponent()
+        val component = windowAccentSettings.createComponent()
 
         assertNotNull(component)
         assertTrue(component is JComponent)
@@ -78,8 +78,8 @@ class WindowColorPanelSettingsTest {
     @DisplayName("Should return same panel instance from createComponent")
     fun testCreateComponentReturnsSamePanel() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        val component1 = windowColorPanelSettings.createComponent()
-        val component2 = windowColorPanelSettings.createComponent()
+        val component1 = windowAccentSettings.createComponent()
+        val component2 = windowAccentSettings.createComponent()
 
         // Should return the same panel instance both times
         assertSame(component1, component2)
@@ -89,88 +89,88 @@ class WindowColorPanelSettingsTest {
     @DisplayName("Should not be modified when settings match UI state")
     fun testIsModifiedFalseWhenNoChanges() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
-        assertFalse(windowColorPanelSettings.isModified())
+        assertFalse(windowAccentSettings.isModified())
     }
 
     @Test
     @DisplayName("Should be modified when side is changed")
     fun testIsModifiedWhenSideChanged() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         // Change the side in the combo box
         val newSide = WindowPanelAppearanceStateService.Side.WEST
-        windowColorPanelSettings.panel.components // Access components to ensure they're created
+        windowAccentSettings.panel.components // Access components to ensure they're created
 
         // Modify underlying service to simulate change
         `when`(mockAppearanceService.getSide()).thenReturn(newSide)
 
-        assertTrue(windowColorPanelSettings.isModified())
+        assertTrue(windowAccentSettings.isModified())
     }
 
     @Test
     @DisplayName("Should be modified when custom color checkbox changes")
     fun testIsModifiedWhenCustomColorCheckboxChanges() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         // Change the checkbox state
-        windowColorPanelSettings.customColorCheckBox.isSelected = true
+        windowAccentSettings.customColorCheckBox.isSelected = true
 
         // Verify modified state changed (service still returns false)
-        assertTrue(windowColorPanelSettings.isModified())
+        assertTrue(windowAccentSettings.isModified())
     }
 
     @Test
     @DisplayName("Should be modified when selected color changes")
     fun testIsModifiedWhenSelectedColorChanges() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
-        windowColorPanelSettings.customColorCheckBox.isSelected = true
+        windowAccentSettings.createComponent()
+        windowAccentSettings.customColorCheckBox.isSelected = true
 
         // Set a selected color
-        windowColorPanelSettings.selectedColor = Color.RED
+        windowAccentSettings.selectedColor = Color.RED
 
         // Service returns null, but selectedColor is RED
-        assertTrue(windowColorPanelSettings.isModified())
+        assertTrue(windowAccentSettings.isModified())
     }
 
     @Test
     @DisplayName("Should sync enabled state based on checkbox")
     fun testSyncEnabledStateWhenDisabled() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
-        windowColorPanelSettings.customColorCheckBox.isSelected = false
+        windowAccentSettings.createComponent()
+        windowAccentSettings.customColorCheckBox.isSelected = false
 
-        windowColorPanelSettings.syncEnabledState()
+        windowAccentSettings.syncEnabledState()
 
         // Color controls should be disabled
-        assertFalse(windowColorPanelSettings.customColorCheckBox.isSelected)
+        assertFalse(windowAccentSettings.customColorCheckBox.isSelected)
     }
 
     @Test
     @DisplayName("Should sync enabled state when enabled")
     fun testSyncEnabledStateWhenEnabled() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
-        windowColorPanelSettings.customColorCheckBox.isSelected = true
+        windowAccentSettings.createComponent()
+        windowAccentSettings.customColorCheckBox.isSelected = true
 
-        windowColorPanelSettings.syncEnabledState()
+        windowAccentSettings.syncEnabledState()
 
-        assertTrue(windowColorPanelSettings.customColorCheckBox.isSelected)
+        assertTrue(windowAccentSettings.customColorCheckBox.isSelected)
     }
 
     @Test
     @DisplayName("Should sync preview with auto-generated text when no color selected")
     fun testSyncPreviewWithoutColor() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
-        windowColorPanelSettings.customColorCheckBox.isSelected = false
-        windowColorPanelSettings.selectedColor = null
+        windowAccentSettings.createComponent()
+        windowAccentSettings.customColorCheckBox.isSelected = false
+        windowAccentSettings.selectedColor = null
 
-        windowColorPanelSettings.syncPreview()
+        windowAccentSettings.syncPreview()
 
         // Preview should show auto-generated text
         assertTrue(true) // Visual component tested, no exceptions thrown
@@ -180,11 +180,11 @@ class WindowColorPanelSettingsTest {
     @DisplayName("Should sync preview with RGB text when color selected")
     fun testSyncPreviewWithColor() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
-        windowColorPanelSettings.customColorCheckBox.isSelected = true
-        windowColorPanelSettings.selectedColor = Color.RED
+        windowAccentSettings.createComponent()
+        windowAccentSettings.customColorCheckBox.isSelected = true
+        windowAccentSettings.selectedColor = Color.RED
 
-        windowColorPanelSettings.syncPreview()
+        windowAccentSettings.syncPreview()
 
         // Preview should show RGB values
         assertTrue(true) // Visual component tested, no exceptions thrown
@@ -194,11 +194,11 @@ class WindowColorPanelSettingsTest {
     @DisplayName("Should apply settings without crashing")
     fun testApply() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         // Apply should handle gracefully - may throw exceptions due to IntelliJ Platform dependencies
         try {
-            windowColorPanelSettings.apply()
+            windowAccentSettings.apply()
         } catch (e: Exception) {
             // Expected in test environment - IntelliJ Platform may not be fully initialized
             assertTrue(true, "Apply completed or threw expected exception in test environment")
@@ -209,29 +209,29 @@ class WindowColorPanelSettingsTest {
     @DisplayName("Should reset to settings")
     fun testReset() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         // Make some changes
-        windowColorPanelSettings.customColorCheckBox.isSelected = true
-        windowColorPanelSettings.selectedColor = Color.BLUE
+        windowAccentSettings.customColorCheckBox.isSelected = true
+        windowAccentSettings.selectedColor = Color.BLUE
 
         // Reset should restore from settings
         assertDoesNotThrow {
-            windowColorPanelSettings.reset()
+            windowAccentSettings.reset()
         }
 
         // Should be back to unchecked (from mock setup)
-        assertFalse(windowColorPanelSettings.customColorCheckBox.isSelected)
+        assertFalse(windowAccentSettings.customColorCheckBox.isSelected)
     }
 
     @Test
     @DisplayName("Should dispose UI resources without error")
     fun testDisposeUIResources() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         assertDoesNotThrow {
-            windowColorPanelSettings.disposeUIResources()
+            windowAccentSettings.disposeUIResources()
         }
     }
 
@@ -279,11 +279,11 @@ class WindowColorPanelSettingsTest {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
         `when`(mockTitleNumberingService.isTitleNumberingEnabled()).thenReturn(true)
 
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         // Apply should handle gracefully - may throw exceptions due to IntelliJ Platform dependencies
         try {
-            windowColorPanelSettings.apply()
+            windowAccentSettings.apply()
         } catch (e: Exception) {
             // Expected in test environment - IntelliJ Platform may not be fully initialized
             assertTrue(true, "Apply completed or threw expected exception in test environment")
@@ -296,11 +296,11 @@ class WindowColorPanelSettingsTest {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
         `when`(mockTitleNumberingService.isTitleNumberingEnabled()).thenReturn(false)
 
-        windowColorPanelSettings.createComponent()
+        windowAccentSettings.createComponent()
 
         // Apply should handle gracefully - may throw exceptions due to IntelliJ Platform dependencies
         try {
-            windowColorPanelSettings.apply()
+            windowAccentSettings.apply()
         } catch (e: Exception) {
             // Expected in test environment - IntelliJ Platform may not be fully initialized
             assertTrue(true, "Apply completed or threw expected exception in test environment")
