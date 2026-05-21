@@ -5,13 +5,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
-import com.intellij.util.concurrency.AppExecutorUtil
 import com.window_color_panel.configuration.persistence.WindowCustomColorStateService
 import com.window_color_panel.configuration.persistence.WindowPanelAppearanceStateService
+import kotlinx.coroutines.*
 import java.awt.*
-import java.util.concurrent.TimeUnit
 import javax.swing.JComponent
 import javax.swing.JPanel
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Applies and maintains the colored window panel for IDE projects.
@@ -24,6 +24,7 @@ object WindowColorApplier {
 
     private const val PANEL_CLIENT_PROPERTY = "com.window_color_panel.windowColorPanel"
     private const val PANEL_THICKNESS = 20
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     fun applyToCurrentOpenProject(project: Project) {
         ApplicationManager.getApplication().invokeLater {
@@ -41,11 +42,10 @@ object WindowColorApplier {
     }
 
     private fun applyColorToWindow(project: Project) {
-        fun tryApply(retries: Int) {
-            val frame = getProjectFrame(project)
-            if (frame != null) {
-                ApplicationManager.getApplication().invokeLater {
-                    if (frame !is javax.swing.JFrame) return@invokeLater
+        scope.launch {
+            repeat(60) {
+                val frame = getProjectFrame(project)
+                if (frame != null) {
                     val rootContentPane = frame.rootPane.contentPane
                     val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
                     val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
@@ -53,19 +53,14 @@ object WindowColorApplier {
 
                     if (panelSettings.panelIsDisabled()) {
                         removeColoredPanel(existingPanel, rootContentPane)
-                        return@invokeLater
+                    } else {
+                        addOrReplaceColoredPanel(existingPanel, rootContentPane, panelSettings, customColorSettings, project)
                     }
-
-                    addOrReplaceColoredPanel(existingPanel, rootContentPane, panelSettings, customColorSettings, project)
+                    return@launch
                 }
-            } else if (retries > 0) {
-                AppExecutorUtil.getAppScheduledExecutorService().schedule({
-                    tryApply(retries - 1)
-                }, 500, TimeUnit.MILLISECONDS)
+                delay(500.milliseconds)
             }
         }
-
-        tryApply(60) // Retry for 30 seconds
     }
 
     private fun getProjectFrame(project: Project) =

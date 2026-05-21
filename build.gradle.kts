@@ -11,6 +11,9 @@ version = providers.gradleProperty("pluginVersion").get()
 // Set the JVM language level used to build the project.
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-default=all")
+    }
 }
 
 repositories {
@@ -28,7 +31,7 @@ changelog {
 
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("platformVersion"))
+        intellijIdea(providers.gradleProperty("platformVersion"))
     }
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
@@ -43,14 +46,23 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         ideaVersion {
-            sinceBuild = providers.gradleProperty("pluginSinceBuild")
+            sinceBuild.set(providers.gradleProperty("pluginSinceBuild"))
         }
 
-        changeNotes = providers.gradleProperty("pluginVersion").map {
-            changelog.renderItem(
-                changelog.get(it).withHeader(false).withEmptySections(false),
-                org.jetbrains.changelog.Changelog.OutputType.HTML,
-            )
+        val changelogHandle = changelog
+        changeNotes.set(
+            providers.gradleProperty("pluginVersion").map {
+                changelogHandle.renderItem(
+                    changelogHandle.get(it).withHeader(false).withEmptySections(false),
+                    org.jetbrains.changelog.Changelog.OutputType.HTML,
+                )
+            }
+        )
+    }
+
+    pluginVerification {
+        ides {
+            create("IU", "2025.3.5")
         }
     }
 }

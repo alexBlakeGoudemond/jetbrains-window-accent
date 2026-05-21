@@ -1,5 +1,6 @@
 package com.window_color_panel.configuration.tool_window
 
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -13,9 +14,21 @@ import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class WindowColorPanelToolWindowFactory : ToolWindowFactory {
-
-    override fun shouldBeAvailable(project: Project): Boolean = true
+/**
+ * DumbAware is an IntelliJ Platform marker interface used in JetBrains IDE plugins.
+ *
+ * In IntelliJ terminology:
+ *
+ * - “Smart mode” = indexes are ready, PSI/model analysis works normally
+ * - “Dumb mode” = the IDE is still indexing, so many code-analysis features are temporarily unavailable
+ *
+ * When your class implements DumbAware, you're telling the IDE:
+ *
+ * “This component can safely run even while the IDE is indexing.”
+ *
+ * @see DumbAware
+ * */
+class WindowColorPanelToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
