@@ -32,15 +32,15 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MyToolWindow"
-                    factoryClass="com.window_color_panel.configuration.tool_window.WindowColorPanelToolWindowFactory"
+                    factoryClass="com.window_accent.configuration.tool_window.WindowColorPanelToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"
                     anchor="left"
                     doNotActivateOnStart="true"/>
-        <postStartupActivity implementation="com.window_color_panel.PluginStartupActivity"/>
+        <postStartupActivity implementation="com.window_accent.PluginStartupActivity"/>
 
         <projectConfigurable
-                id="com.window_color_panel.windowColorSettings"
-                instance="com.window_color_panel.configuration.settings.WindowColorPanelSettings"
+                id="com.window_accent.windowColorSettings"
+                instance="com.window_accent.configuration.settings.WindowColorPanelSettings"
                 parentId="appearance"
                 displayName="Window Accent"/>
     </extensions>
