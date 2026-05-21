@@ -3,9 +3,9 @@
 [![Twitter Follow](https://img.shields.io/badge/follow-%40JBPlatform-1DA1F2?logo=twitter)](https://twitter.com/JBPlatform)
 [![Developers Forum](https://img.shields.io/badge/JetBrains%20Platform-Join-blue)][jb:forum]
 
-## Window Color Panel
+## Window Accent
 
-**Window Color Panel** helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and configurable settings.
+**Window Accent** helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and configurable settings.
 
 ## What it offers
 
@@ -17,7 +17,7 @@
 ## Where to find the settings
 
 Open **Settings / Preferences** in the IDE and look under the plugin’s settings area.  
-From there, you can adjust how the window color panel behaves and how it is displayed.
+From there, you can adjust how the window accent behaves and how it is displayed.
 
 ## Tool window
 

@@ -6,7 +6,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 
 /**
- * Project-level persisted state for the window color panel appearance.
+ * Project-level persisted state for the window panel appearance.
  *
  * This service stores the panel's enabled/disabled state and its preferred
  * placement around the IDE window. It is consumed by the color applier and the

@@ -42,7 +42,7 @@ class WindowColorPanelSettings(
 
     fun getProject(): Project = project
 
-    override fun getDisplayName(): String = "Window Color Panel"
+    override fun getDisplayName(): String = "Window Accent"
 
     override fun createComponent(): JComponent {
         panel.removeAll()

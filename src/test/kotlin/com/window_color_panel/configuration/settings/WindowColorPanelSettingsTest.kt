@@ -61,7 +61,7 @@ class WindowColorPanelSettingsTest {
     @Test
     @DisplayName("Should have correct display name")
     fun testGetDisplayName() {
-        assertEquals("Window Color Panel", windowColorPanelSettings.getDisplayName())
+        assertEquals("Window Accent", windowColorPanelSettings.getDisplayName())
     }
 
     @Test
