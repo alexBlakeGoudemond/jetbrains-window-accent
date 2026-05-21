@@ -49,10 +49,11 @@ intellijPlatform {
             sinceBuild.set(providers.gradleProperty("pluginSinceBuild"))
         }
 
+        val changelogHandle = changelog
         changeNotes.set(
             providers.gradleProperty("pluginVersion").map {
-                changelog.renderItem(
-                    changelog.get(it).withHeader(false).withEmptySections(false),
+                changelogHandle.renderItem(
+                    changelogHandle.get(it).withHeader(false).withEmptySections(false),
                     org.jetbrains.changelog.Changelog.OutputType.HTML,
                 )
             }
