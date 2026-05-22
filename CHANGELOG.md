@@ -14,6 +14,7 @@ TBD
 
 - Attempt 002 to resolve bug where accent changes remain after plugin is disabled
   - Cleanup steps not wrapped in `ApplicationManager.getApplication().invokeLater` - should execute immediately
+- Brought in `intellijPlatformPublishingToken` to use Gradle `publishPlugin` command
 
 ## [1.0.4]
 

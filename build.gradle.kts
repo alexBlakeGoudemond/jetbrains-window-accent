@@ -71,6 +71,10 @@ intellijPlatform {
             create("IU", "2026.1.2")
         }
     }
+
+    publishing {
+        token = providers.gradleProperty("intellijPlatformPublishingToken")
+    }
 }
 
 tasks {
