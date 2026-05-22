@@ -1,4 +1,4 @@
-```java
+```markdown
 $ ./gradlew verifyPlugin --rerun-tasks --info
 Initialized native services in: C:\Users\alexander.goudemond\.gradle\native
 Initialized jansi services in: C:\Users\alexander.goudemond\.gradle\native
