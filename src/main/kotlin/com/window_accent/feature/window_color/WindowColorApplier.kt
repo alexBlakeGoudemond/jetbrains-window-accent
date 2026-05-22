@@ -41,6 +41,17 @@ object WindowColorApplier {
         }
     }
 
+    fun removeColorFromAllOpenProjectsInternal() {
+        ProjectManager.getInstance().openProjects.forEach { project ->
+            val frame = getProjectFrame(project)
+            if (frame != null) {
+                val rootContentPane = frame.rootPane.contentPane
+                val existingPanel = findExistingColoredPanel(rootContentPane)
+                removeColoredPanel(existingPanel, rootContentPane)
+            }
+        }
+    }
+
     private fun applyColorToWindow(project: Project) {
         scope.launch {
             repeat(60) {
