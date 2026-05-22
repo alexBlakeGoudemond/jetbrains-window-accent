@@ -61,4 +61,5 @@ class PluginLifecycleListenerTest {
         assertFalse(colorCleanupCalled, "Color cleanup should NOT have been called")
         assertFalse(titleCleanupCalled, "Title cleanup should NOT have been called")
     }
+
 }
