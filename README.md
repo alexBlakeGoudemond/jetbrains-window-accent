@@ -24,7 +24,7 @@ The author is aware of the following plugins previously published to the Jetbrai
 
 This plugin was developed without the awareness of the plugins described above. I.E. it was not developed as an
 alternative to the plugins mentioned above, but rather as a personal project to explore the Proof of Concept of a
-Jetbrains Marketplace Plugin.
+JetBrains Marketplace Plugin.
 
 However, inspiration may be taken from the plugins mentioned above - especially if those plugins are not compatible with
 the current versions of the IntelliJ IDEs. Attribution will be shared in the Plugin description as well
