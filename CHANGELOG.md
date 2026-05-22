@@ -6,6 +6,15 @@
 
 TBD
 
+### Added
+
+- Updated platformVersion from 2025.3 to 2026.1; allowing for more testing on the current build
+
+### Fixed
+
+- Attempt 002 to resolve bug where accent changes remain after plugin is disabled
+  - Cleanup steps not wrapped in `ApplicationManager.getApplication().invokeLater` - should execute immediately
+
 ## [1.0.4]
 
 ### Added

@@ -26,10 +26,9 @@ class PluginLifecycleListenerTest {
         }
 
         val mockDescriptor = mock(IdeaPluginDescriptor::class.java)
-        val mockPluginId = mock(PluginId::class.java)
+        val testPluginId = PluginId.getId("WindowAccent")
 
-        `when`(mockDescriptor.pluginId).thenReturn(mockPluginId)
-        `when`(mockPluginId.idString).thenReturn("WindowAccent")
+        `when`(mockDescriptor.pluginId).thenReturn(testPluginId)
 
         listener.pluginUnloaded(mockDescriptor, false)
 
@@ -51,10 +50,9 @@ class PluginLifecycleListenerTest {
         }
 
         val mockDescriptor = mock(IdeaPluginDescriptor::class.java)
-        val mockPluginId = mock(PluginId::class.java)
+        val testPluginId = PluginId.getId("SomeOtherPlugin")
 
-        `when`(mockDescriptor.pluginId).thenReturn(mockPluginId)
-        `when`(mockPluginId.idString).thenReturn("SomeOtherPlugin")
+        `when`(mockDescriptor.pluginId).thenReturn(testPluginId)
 
         listener.pluginUnloaded(mockDescriptor, false)
 
