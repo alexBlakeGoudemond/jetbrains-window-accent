@@ -11,12 +11,16 @@ import com.window_accent.feature.window_title.WindowTitleApplier
  * When the plugin is unloaded (e.g., disabled by the user), we need to ensure
  * that all visual modifications to the IDE windows are reverted.
  */
-class PluginLifecycleListener : DynamicPluginListener {
+open class PluginLifecycleListener : DynamicPluginListener {
 
     override fun pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         if (pluginDescriptor.pluginId.idString == "WindowAccent") {
-            WindowColorApplier.removeColorFromAllOpenProjects()
-            WindowTitleApplier.removeFromAllOpenProjects()
+            performCleanup()
         }
+    }
+
+    open fun performCleanup() {
+        WindowColorApplier.removeColorFromAllOpenProjectsInternal()
+        WindowTitleApplier.removeFromAllOpenProjectsInternal()
     }
 }

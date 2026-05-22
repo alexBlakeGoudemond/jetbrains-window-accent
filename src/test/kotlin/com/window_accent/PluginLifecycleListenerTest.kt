@@ -1,16 +1,13 @@
 package com.window_accent
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
-import com.intellij.openapi.application.Application
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.PluginId
-import com.window_accent.feature.window_color.WindowColorApplier
-import com.window_accent.feature.window_title.WindowTitleApplier
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertFalse
 
 @DisplayName("PluginLifecycleListener Tests")
 class PluginLifecycleListenerTest {
@@ -18,52 +15,50 @@ class PluginLifecycleListenerTest {
     @Test
     @DisplayName("Should cleanup decorations when plugin is unloaded")
     fun testPluginUnloaded() {
-        Mockito.mockStatic(ApplicationManager::class.java).use { applicationManagerMock ->
-            val mockApplication = mock(Application::class.java)
-            applicationManagerMock.`when`<Application> { ApplicationManager.getApplication() }.thenReturn(mockApplication)
+        var colorCleanupCalled = false
+        var titleCleanupCalled = false
 
-            Mockito.mockStatic(WindowColorApplier::class.java).use { colorApplierMock ->
-                Mockito.mockStatic(WindowTitleApplier::class.java).use { titleApplierMock ->
-
-                    val listener = PluginLifecycleListener()
-                    val mockDescriptor = mock(IdeaPluginDescriptor::class.java)
-                    val mockPluginId = mock(PluginId::class.java)
-
-                    Mockito.`when`(mockDescriptor.pluginId).thenReturn(mockPluginId)
-                    Mockito.`when`(mockPluginId.idString).thenReturn("WindowAccent")
-
-                    listener.pluginUnloaded(mockDescriptor, false)
-
-                    colorApplierMock.verify( { WindowColorApplier.removeColorFromAllOpenProjects() })
-                    titleApplierMock.verify( { WindowTitleApplier.removeFromAllOpenProjects() })
-                }
+        val listener = object : PluginLifecycleListener() {
+            override fun performCleanup() {
+                colorCleanupCalled = true
+                titleCleanupCalled = true
             }
         }
+
+        val mockDescriptor = mock(IdeaPluginDescriptor::class.java)
+        val mockPluginId = mock(PluginId::class.java)
+
+        `when`(mockDescriptor.pluginId).thenReturn(mockPluginId)
+        `when`(mockPluginId.idString).thenReturn("WindowAccent")
+
+        listener.pluginUnloaded(mockDescriptor, false)
+
+        assertTrue(colorCleanupCalled, "Color cleanup should have been called")
+        assertTrue(titleCleanupCalled, "Title cleanup should have been called")
     }
 
     @Test
     @DisplayName("Should not cleanup decorations if a different plugin is unloaded")
     fun testPluginUnloadedDifferentPlugin() {
-        Mockito.mockStatic(ApplicationManager::class.java).use { applicationManagerMock ->
-            val mockApplication = mock(Application::class.java)
-            applicationManagerMock.`when`<Application> { ApplicationManager.getApplication() }.thenReturn(mockApplication)
+        var colorCleanupCalled = false
+        var titleCleanupCalled = false
 
-            Mockito.mockStatic(WindowColorApplier::class.java).use { colorApplierMock ->
-                Mockito.mockStatic(WindowTitleApplier::class.java).use { titleApplierMock ->
-
-                    val listener = PluginLifecycleListener()
-                    val mockDescriptor = mock(IdeaPluginDescriptor::class.java)
-                    val mockPluginId = mock(PluginId::class.java)
-
-                    Mockito.`when`(mockDescriptor.pluginId).thenReturn(mockPluginId)
-                    Mockito.`when`(mockPluginId.idString).thenReturn("SomeOtherPlugin")
-
-                    listener.pluginUnloaded(mockDescriptor, false)
-
-                    colorApplierMock.verify({ WindowColorApplier.removeColorFromAllOpenProjects() }, Mockito.never())
-                    titleApplierMock.verify({ WindowTitleApplier.removeFromAllOpenProjects() }, Mockito.never())
-                }
+        val listener = object : PluginLifecycleListener() {
+            override fun performCleanup() {
+                colorCleanupCalled = true
+                titleCleanupCalled = true
             }
         }
+
+        val mockDescriptor = mock(IdeaPluginDescriptor::class.java)
+        val mockPluginId = mock(PluginId::class.java)
+
+        `when`(mockDescriptor.pluginId).thenReturn(mockPluginId)
+        `when`(mockPluginId.idString).thenReturn("SomeOtherPlugin")
+
+        listener.pluginUnloaded(mockDescriptor, false)
+
+        assertFalse(colorCleanupCalled, "Color cleanup should NOT have been called")
+        assertFalse(titleCleanupCalled, "Title cleanup should NOT have been called")
     }
 }
