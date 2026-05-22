@@ -26,17 +26,11 @@ It is designed to make multi-window workflows easier by giving you a central pla
 
 ## Screenshots
 
-Add screenshots here or keep them in a folder such as `screenshots/` or `docs/screenshots/` and upload them to the JetBrains Marketplace listing.
-
-Suggested screenshots:
-- The tool window open
-- The settings page
-- A before/after view showing the window distinction effect
-- Any important toggle or configuration screen
+Screenshots have been added to a folder `docs/screenshots/` and uploaded them to the JetBrains Marketplace listing.
 
 ## Plugin template structure
 
-A generated project contains the following content structure:
+This project uses the content structure:
 ```
 ├── .run/ Predefined Run/Debug Configurations 
 ├── build/ Output build directory 
@@ -57,7 +51,7 @@ A generated project contains the following content structure:
 ```
 
 
-In addition to the configuration files, the most crucial part is the `src` directory, which contains our implementation
+In addition to the configuration files, the most crucial part is the `src` directory, which contains the implementation
 and the manifest for our plugin – [plugin.xml][file:plugin.xml].
 
 > [!NOTE]
