@@ -12,6 +12,11 @@
 - Extended Plugin compatibility from build 253 to an earlier build - 251. This should allow the plugin to be used with earlier
   versions of the IDE
 
+### Fixed
+
+- Attempt to resolve bug where accent changes remain after plugin is disabled
+  - Achieved with a PluginLifecycleListener
+
 ## [1.0.3]
 
 ### Fixed

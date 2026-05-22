@@ -26,6 +26,11 @@
     ]]></description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
+    
+    <applicationListeners>
+        <listener class="com.window_accent.PluginLifecycleListener"
+                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>
+    </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="WindowAccent"
