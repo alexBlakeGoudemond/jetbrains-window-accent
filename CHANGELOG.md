@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [1.0.4]
+
+### Added
+
+- Added references to similar plugins on the Marketplace:
+    - Project Color
+    - Colorized Project
+- Extended Plugin compatibility from build 253 to an earlier build - 251. This should allow the plugin to be used with earlier
+  versions of the IDE
+
+### Fixed
+
+- Attempt to resolve bug where accent changes remain after plugin is disabled
+  - Achieved with a PluginLifecycleListener
+
 ## [1.0.3]
 
 ### Fixed
@@ -11,12 +26,16 @@
 ## [1.0.2]
 
 ### Fixed
+
 - Resolved JetBrains Marketplace compatibility warnings:
-    - Replaced deprecated `AppExecutorUtil.getAppScheduledExecutorService()` with Kotlin Coroutines in `WindowColorApplier`
-    - Optimized `WindowAccentToolWindowFactory` to avoid compiler-generated bridge methods for deprecated/experimental `ToolWindowFactory` members
+    - Replaced deprecated `AppExecutorUtil.getAppScheduledExecutorService()` with Kotlin Coroutines in
+      `WindowColorApplier`
+    - Optimized `WindowAccentToolWindowFactory` to avoid compiler-generated bridge methods for deprecated/experimental
+      `ToolWindowFactory` members
     - Added `DumbAware` to `WindowAccentToolWindowFactory` for better performance during indexing
 - Verified fixes with improved automated compatibility tests that check both source code and compiled bytecode
-- Verified Deprecated API and Experimental API usage warnings are no longer reported, via command `./gradlew verifyPlugin --rerun-tasks --info`
+- Verified Deprecated API and Experimental API usage warnings are no longer reported, via command
+  `./gradlew verifyPlugin --rerun-tasks --info`
 - Verified Gradle `verifyPlugin` task completes successfully
 
 ## [1.0.1]

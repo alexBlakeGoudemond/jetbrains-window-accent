@@ -49,11 +49,15 @@ object WindowTitleApplier {
 
     fun removeFromAllOpenProjects() {
         ApplicationManager.getApplication().invokeLater {
-            ProjectManager.getInstance().openProjects.forEach { project ->
-                removeTitleFromWindow(project)
-            }
-            resetProjectNumbering()
+            removeFromAllOpenProjectsInternal()
         }
+    }
+
+    fun removeFromAllOpenProjectsInternal() {
+        ProjectManager.getInstance().openProjects.forEach { project ->
+            removeTitleFromWindow(project)
+        }
+        resetProjectNumbering()
     }
 
     private fun applyTitleToWindow(project: Project) {

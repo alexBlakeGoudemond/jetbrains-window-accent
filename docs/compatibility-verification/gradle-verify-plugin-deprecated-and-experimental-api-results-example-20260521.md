@@ -2,7 +2,7 @@ Command used to generate the results: `./gradlew verifyPlugin --rerun-tasks --in
 
 Results before code changes in v1.0.2:
 
-```java
+```markdown
 ...
 2026-05-20T18:46:30 [main] INFO verification - Reading plugin to check from C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\build\distributions\WindowAccent-1.0.2.z2026-05-20T18:46:38 [main] INFO verification - Task check-plugin parameters: 
 Scheduled verifications (1): 
@@ -34,7 +34,7 @@ Build 6b05415b-190b-43f0-81f7-ede6e333f521 is closed
 
 Results after code changes in v1.0.2:
 
-```java
+```markdown
 ...
         2026-05-21T05:01:48 [main] INFO  verification - Reading plugin to check from C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\build\distributions\WindowAccent-1.0.2.z2026-05-21T05:01:55 [main] INFO  verification - Task check-plugin parameters:
 Scheduled verifications (1):
