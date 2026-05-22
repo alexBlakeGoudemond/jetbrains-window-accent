@@ -60,8 +60,10 @@ intellijPlatform {
         )
     }
 
+    // to run manually: `./gradlew verifyPlugin --rerun-tasks --info`
     pluginVerification {
         ides {
+            // See https://www.jetbrains.com/idea/download/other/ for other versions
             create("IU", "2025.3.5")
         }
     }
