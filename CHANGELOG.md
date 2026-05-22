@@ -4,8 +4,6 @@
 
 ## [1.0.5]
 
-TBD
-
 ### Added
 
 - Updated platformVersion from 2025.3 to 2026.1; allowing for more testing on the current build
