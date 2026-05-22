@@ -53,7 +53,14 @@ object WindowTitleApplier {
         }
     }
 
-    fun removeFromAllOpenProjectsInternal() {
+    fun removeFromAllOpenProjectsSync() {
+        ProjectManager.getInstance().openProjects.forEach { project ->
+            removeTitleFromWindowSync(project)
+        }
+        resetProjectNumbering()
+    }
+
+    private fun removeFromAllOpenProjectsInternal() {
         ProjectManager.getInstance().openProjects.forEach { project ->
             removeTitleFromWindow(project)
         }
@@ -83,6 +90,12 @@ object WindowTitleApplier {
         }
 
         tryApply(60) // Retry for 30 seconds
+    }
+
+    private fun removeTitleFromWindowSync(project: Project) {
+        val frame = getProjectFrame(project) ?: return
+        removeListeners(project, frame)
+        stripTitlePrefix(frame)
     }
 
     private fun removeTitleFromWindow(project: Project) {
