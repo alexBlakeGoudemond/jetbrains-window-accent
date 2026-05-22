@@ -41,7 +41,7 @@ object WindowColorApplier {
         }
     }
 
-    fun removeColorFromAllOpenProjectsInternal() {
+    fun removeColorFromAllOpenProjectsSync() {
         ProjectManager.getInstance().openProjects.forEach { project ->
             val frame = getProjectFrame(project)
             if (frame != null) {
@@ -49,6 +49,12 @@ object WindowColorApplier {
                 val existingPanel = findExistingColoredPanel(rootContentPane)
                 removeColoredPanel(existingPanel, rootContentPane)
             }
+        }
+    }
+
+    private fun removeColorFromAllOpenProjectsInternal() {
+        ApplicationManager.getApplication().invokeLater {
+            removeColorFromAllOpenProjectsSync()
         }
     }
 

@@ -32,6 +32,7 @@ changelog {
 dependencies {
     intellijPlatform {
         intellijIdea(providers.gradleProperty("platformVersion"))
+        jetbrainsRuntime()
     }
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
@@ -60,12 +61,19 @@ intellijPlatform {
         )
     }
 
+    instrumentCode = false
+    buildSearchableOptions = false
+
     // to run manually: `./gradlew verifyPlugin --rerun-tasks --info`
     pluginVerification {
         ides {
             // See https://www.jetbrains.com/idea/download/other/ for other versions
-            create("IU", "2025.3.5")
+            create("IU", "2026.1.2")
         }
+    }
+
+    publishing {
+        token = providers.gradleProperty("intellijPlatformPublishingToken")
     }
 }
 
