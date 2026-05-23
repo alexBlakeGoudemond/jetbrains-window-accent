@@ -4,7 +4,11 @@
 
 ## [1.0.6]
 
-TBD
+### Fixed
+
+- Attempt 003 to resolve bug where accent changes remain after plugin is disabled
+    - Confirmed using IDE logs that cleanup is not being triggered - need to use event `beforePluginUnload` instead
+
 
 ## [1.0.5]
 
