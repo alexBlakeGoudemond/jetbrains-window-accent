@@ -23,18 +23,16 @@ open class PluginLifecycleListener : DynamicPluginListener {
     }
 
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
-        LOG.info("Window Accent attempt to enable")
         if (pluginDescriptor.pluginId.idString == "WindowAccent") {
-            LOG.info("Window Accent enabled/loaded: Restoring decorations")
+            LOG.info("[Window Accent] Window Accent enabled/loaded: Restoring decorations")
             restoreDecorations()
         }
     }
 
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         val pluginId = pluginDescriptor.pluginId.idString
-        LOG.info("[Window Accent] PluginLifecycleListener#beforePluginUnloaded event for: $pluginId")
         if (pluginId == "WindowAccent") {
-            LOG.info("[Window Accent] Cleanup triggered")
+            LOG.info("[Window Accent] Cleanup triggered due to plugin being disabled")
             performCleanup()
         }
     }
