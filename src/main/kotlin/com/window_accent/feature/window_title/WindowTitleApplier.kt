@@ -1,12 +1,15 @@
 package com.window_accent.feature.window_title
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.concurrency.AppExecutorUtil
+import com.window_accent.PluginLifecycleListener
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.feature.window_color.WindowColorApplier
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -22,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger
  * title decoration for the current project session.
  */
 object WindowTitleApplier {
+
+    private val LOG = logger<PluginLifecycleListener>()
 
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
@@ -54,6 +59,7 @@ object WindowTitleApplier {
     }
 
     fun removeFromAllOpenProjectsSync() {
+        LOG.info("[Window Accent] removeFromAllOpenProjectsSync triggered")
         ProjectManager.getInstance().openProjects.forEach { project ->
             removeTitleFromWindowSync(project)
         }
