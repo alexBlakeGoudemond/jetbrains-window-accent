@@ -4,7 +4,10 @@
 
 ## [1.0.6]
 
-TBD
+### Fixed
+
+- Attempt 003 to resolve bug where accent changes remain after plugin is disabled
+    - Confirmed using IDE logs that cleanup is not being triggered - need to use event `beforePluginUnload` instead
 
 ## [1.0.5]
 
@@ -15,7 +18,7 @@ TBD
 ### Fixed
 
 - Attempt 002 to resolve bug where accent changes remain after plugin is disabled
-  - Cleanup steps not wrapped in `ApplicationManager.getApplication().invokeLater` - should execute immediately
+    - Cleanup steps not wrapped in `ApplicationManager.getApplication().invokeLater` - should execute immediately
 - Brought in `intellijPlatformPublishingToken` to use Gradle `publishPlugin` command
 
 ## [1.0.4]
@@ -25,13 +28,14 @@ TBD
 - Added references to similar plugins on the Marketplace:
     - Project Color
     - Colorized Project
-- Extended Plugin compatibility from build 253 to an earlier build - 251. This should allow the plugin to be used with earlier
+- Extended Plugin compatibility from build 253 to an earlier build - 251. This should allow the plugin to be used with
+  earlier
   versions of the IDE
 
 ### Fixed
 
 - Attempt to resolve bug where accent changes remain after plugin is disabled
-  - Achieved with a PluginLifecycleListener
+    - Achieved with a PluginLifecycleListener
 
 ## [1.0.3]
 

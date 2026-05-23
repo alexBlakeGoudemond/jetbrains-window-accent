@@ -1,10 +1,12 @@
 package com.window_accent.feature.window_color
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
+import com.window_accent.PluginLifecycleListener
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import kotlinx.coroutines.*
@@ -21,6 +23,8 @@ import kotlin.time.Duration.Companion.milliseconds
  * position, and removes or reapplies it when settings change.
  */
 object WindowColorApplier {
+
+    private val LOG = logger<PluginLifecycleListener>()
 
     private const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
     private const val PANEL_THICKNESS = 20
@@ -42,6 +46,7 @@ object WindowColorApplier {
     }
 
     fun removeColorFromAllOpenProjectsSync() {
+        LOG.info("[Window Accent] removeColorFromAllOpenProjects triggered")
         ProjectManager.getInstance().openProjects.forEach { project ->
             val frame = getProjectFrame(project)
             if (frame != null) {
