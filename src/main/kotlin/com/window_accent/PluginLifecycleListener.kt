@@ -5,6 +5,7 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.ProjectManager
 
 /**
  * Listener that handles plugin lifecycle events.
@@ -17,8 +18,16 @@ open class PluginLifecycleListener : DynamicPluginListener {
     private val LOG = logger<PluginLifecycleListener>()
 
     init {
-        // This will confirm in the logs that the listener is active
         LOG.info("[Window Accent] Lifecycle Listener registered")
+        restoreDecorations()
+    }
+
+    override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
+        LOG.info("Window Accent attempt to enable")
+        if (pluginDescriptor.pluginId.idString == "WindowAccent") {
+            LOG.info("Window Accent enabled/loaded: Restoring decorations")
+            restoreDecorations()
+        }
     }
 
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
@@ -32,10 +41,18 @@ open class PluginLifecycleListener : DynamicPluginListener {
 
     override fun pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         // This might not show up if the plugin is already fully disposed
-        LOG.info("pluginUnloaded event for: ${pluginDescriptor.pluginId.idString}")
+        LOG.info("[Window Accent] pluginUnloaded event for: ${pluginDescriptor.pluginId.idString}")
     }
 
-    open fun performCleanup() {
+    private fun restoreDecorations() {
+        val openProjects = ProjectManager.getInstance().openProjects
+        openProjects.forEach { project ->
+            WindowColorApplier.applyToCurrentOpenProject(project)
+            WindowTitleApplier.applyToCurrentOpenProject(project)
+        }
+    }
+
+    private fun performCleanup() {
         WindowColorApplier.removeColorFromAllOpenProjectsSync()
         WindowTitleApplier.removeFromAllOpenProjectsSync()
     }
