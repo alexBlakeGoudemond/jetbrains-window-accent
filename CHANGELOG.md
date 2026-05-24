@@ -4,6 +4,10 @@
 
 ## [1.0.7]
 
+### Added
+
+- Add support for custom ai-playbook instructions, for developers
+
 ## [1.0.6]
 
 ### Fixed
