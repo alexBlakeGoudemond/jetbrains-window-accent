@@ -1,5 +1,6 @@
 package com.window_accent.feature.window_color
 
+import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
@@ -7,6 +8,13 @@ import org.junit.jupiter.api.Test
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.Component
+import java.awt.Container
+import javax.swing.JComponent
+import javax.swing.JPanel
+import javax.swing.JRootPane
+import javax.swing.RootPaneContainer
+import org.mockito.Mockito.mock
 
 @DisplayName("WindowColorApplier Tests")
 class WindowColorApplierTest {
@@ -259,4 +267,127 @@ class WindowColorApplierTest {
 
         assertEquals(20, constant)
     }
+
+    @Test
+    @DisplayName("Should wrap content pane when adding SOUTH panel")
+    fun testAddSouthPanelWrapsContentPane() {
+        val rootPane = JRootPane()
+        val originalContentPane = JPanel()
+        rootPane.contentPane = originalContentPane
+
+        val frame = MockRootPaneContainer(rootPane)
+        
+        // Use real services instead of mocks
+        val panelSettings = WindowPanelAppearanceStateService().apply {
+            setSide(WindowPanelAppearanceStateService.Side.SOUTH)
+        }
+        val customColorSettings = WindowCustomColorStateService()
+        
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+        org.mockito.Mockito.`when`(project.name).thenReturn("TestProject")
+
+        // Use reflection to call addColoredPanel
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "addColoredPanel",
+            RootPaneContainer::class.java,
+            WindowPanelAppearanceStateService::class.java,
+            WindowCustomColorStateService::class.java,
+            com.intellij.openapi.project.Project::class.java
+        )
+        method.isAccessible = true
+        method.invoke(WindowColorApplier, frame, panelSettings, customColorSettings, project)
+
+        // Verify wrapping
+        val newContentPane = rootPane.contentPane
+        assertNotSame(originalContentPane, newContentPane)
+        assertTrue(newContentPane is JPanel)
+        assertEquals(BorderLayout::class.java, (newContentPane as JPanel).layout.javaClass)
+        
+        // Check if original content pane is in CENTER
+        val centerComp = (newContentPane.layout as BorderLayout).getLayoutComponent(BorderLayout.CENTER)
+        assertEquals(originalContentPane, centerComp)
+        
+        // Check if colored panel is in SOUTH
+        val southComp = (newContentPane.layout as BorderLayout).getLayoutComponent(BorderLayout.SOUTH)
+        assertTrue(southComp is JPanel)
+        assertEquals(true, (southComp as JComponent).getClientProperty("com.window_accent.windowAccent"))
+    }
+
+    @Test
+    @DisplayName("Should NOT wrap content pane for non-SOUTH sides")
+    fun testAddNorthPanelDoesNotWrap() {
+        val rootPane = JRootPane()
+        val originalContentPane = JPanel(BorderLayout())
+        rootPane.contentPane = originalContentPane
+
+        val frame = MockRootPaneContainer(rootPane)
+        
+        val panelSettings = WindowPanelAppearanceStateService().apply {
+            setSide(WindowPanelAppearanceStateService.Side.NORTH)
+        }
+        val customColorSettings = WindowCustomColorStateService()
+        
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+        org.mockito.Mockito.`when`(project.name).thenReturn("TestProject")
+
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "addColoredPanel",
+            RootPaneContainer::class.java,
+            WindowPanelAppearanceStateService::class.java,
+            WindowCustomColorStateService::class.java,
+            com.intellij.openapi.project.Project::class.java
+        )
+        method.isAccessible = true
+        method.invoke(WindowColorApplier, frame, panelSettings, customColorSettings, project)
+
+        // Verify NO wrapping
+        assertEquals(originalContentPane, rootPane.contentPane)
+        
+        // Verify panel added to contentPane
+        val panel = originalContentPane.components.find { 
+            (it as? JComponent)?.getClientProperty("com.window_accent.windowAccent") == true 
+        }
+        assertNotNull(panel)
+        assertEquals(BorderLayout.NORTH, (originalContentPane.layout as BorderLayout).getConstraints(panel))
+    }
+
+    @Test
+    @DisplayName("Should unwrap content pane when removing SOUTH panel")
+    fun testRemoveAllExistingPanelsUnwrapsSouth() {
+        val rootPane = JRootPane()
+        val originalContentPane = JPanel()
+        val wrapper = JPanel(BorderLayout())
+        wrapper.putClientProperty("com.window_accent.windowAccent", true)
+        
+        val colorPanel = JPanel()
+        colorPanel.putClientProperty("com.window_accent.windowAccent", true)
+        
+        wrapper.add(originalContentPane, BorderLayout.CENTER)
+        wrapper.add(colorPanel, BorderLayout.SOUTH)
+        rootPane.contentPane = wrapper
+        
+        val frame = MockRootPaneContainer(rootPane)
+
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "removeAllExistingPanels",
+            RootPaneContainer::class.java
+        )
+        method.isAccessible = true
+        method.invoke(WindowColorApplier, frame)
+
+        // Verify unwrapping
+        assertEquals(originalContentPane, rootPane.contentPane)
+        assertEquals(0, originalContentPane.components.size)
+    }
+
+    private class MockRootPaneContainer(private val rootPane: JRootPane) : RootPaneContainer {
+        override fun getRootPane(): JRootPane = rootPane
+        override fun setContentPane(contentPane: Container?) { rootPane.contentPane = contentPane }
+        override fun getContentPane(): Container = rootPane.contentPane
+        override fun setLayeredPane(layeredPane: javax.swing.JLayeredPane?) { rootPane.layeredPane = layeredPane }
+        override fun getLayeredPane(): javax.swing.JLayeredPane = rootPane.layeredPane
+        override fun setGlassPane(glassPane: Component?) { rootPane.glassPane = glassPane }
+        override fun getGlassPane(): Component = rootPane.glassPane
+    }
+
 }

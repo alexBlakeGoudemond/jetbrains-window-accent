@@ -21,7 +21,7 @@ import org.mockito.stubbing.Answer
  */
 open class BaseScreenColorPickerTest {
 
-    protected lateinit var mockSettings: WindowAccentSettings
+    protected lateinit var mockSettings: IWindowAccentSettings
     protected lateinit var mockProject: Project
     protected lateinit var mockPanel: JPanel
     protected lateinit var mockCheckBox: JCheckBox
@@ -47,17 +47,21 @@ open class BaseScreenColorPickerTest {
             }
             mockedUIManager?.`when`<ComponentUI> { UIManager.getUI(any()) }?.thenAnswer(uiAnswer)
         } catch (e: Exception) {
-            // If mockStatic fails (e.g. already mocked), ignore
+            System.err.println("[DEBUG_LOG] UIManager mock failed: ${e.message}")
         }
 
-        mockSettings = mock(WindowAccentSettings::class.java)
-        mockProject = mock(Project::class.java)
-        mockPanel = mock(JPanel::class.java)
-        mockCheckBox = mock(JCheckBox::class.java)
+        try {
+            mockSettings = mock(IWindowAccentSettings::class.java)
+            mockProject = mock(Project::class.java)
+            mockPanel = JPanel() // Use real JPanel
+            mockCheckBox = JCheckBox() // Use real JCheckBox
 
-        `when`(mockSettings.panel).thenReturn(mockPanel)
-        `when`(mockSettings.customColorCheckBox).thenReturn(mockCheckBox)
-        `when`(mockSettings.getProject()).thenReturn(mockProject)
+            `when`(mockSettings.getPanel()).thenReturn(mockPanel)
+            `when`(mockSettings.getCustomColorCheckBox()).thenReturn(mockCheckBox)
+            `when`(mockSettings.getProject()).thenReturn(mockProject)
+        } catch (e: Exception) {
+             System.err.println("[DEBUG_LOG] BaseScreenColorPickerTest setup failed: ${e.message}")
+        }
     }
 
     @AfterEach

@@ -19,7 +19,7 @@ open class PluginLifecycleListener : DynamicPluginListener {
 
     init {
         LOG.info("[Window Accent] Lifecycle Listener registered")
-        restoreDecorations()
+//        restoreDecorations() // TODO BlakeGoudemond 2026/05/25 | if this is not needed, delete after v1.0.7
     }
 
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {

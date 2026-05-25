@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
+import org.jetbrains.annotations.VisibleForTesting
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
@@ -18,11 +19,22 @@ import javax.swing.*
  * This component keeps the form state in sync with persisted project settings and
  * applies changes to the current IDE window when the user clicks Apply.
  */
-class WindowAccentSettings(
-    private val project: Project
-) : Configurable {
+interface IWindowAccentSettings {
+    fun getProject(): Project
+    fun getPanel(): JPanel
+    fun getCustomColorCheckBox(): JCheckBox
+    fun getCustomColorPreviewPanel(): JPanel
+    fun setSelectedColor(color: Color?)
+    fun syncEnabledState()
+    fun syncPreview()
+}
 
-    val panel = JPanel(BorderLayout())
+open class WindowAccentSettings(
+    private val project: Project
+) : Configurable, IWindowAccentSettings {
+
+    @VisibleForTesting
+    internal val panel = JPanel(BorderLayout())
 
     private val windowPanelAppearanceStateService = project.getService(WindowPanelAppearanceStateService::class.java)
     private val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
@@ -31,16 +43,25 @@ class WindowAccentSettings(
     private val form = JPanel(GridBagLayout())
 
     private val sideCombo = JComboBox(WindowPanelAppearanceStateService.Side.entries.toTypedArray())
-    val customColorCheckBox = JCheckBox("Use custom color")
+    @get:VisibleForTesting
+    internal val customColorCheckBox = JCheckBox("Use custom color")
     private val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
     private val colorPreview = JPanel()
     private val chooseColorButton = JButton("Choose color")
     private val dropperButton = JButton(AllIcons.Actions.Colors)
     private val previewLabel = JLabel("")
 
-    var selectedColor: Color? = null
+    @set:VisibleForTesting
+    @get:VisibleForTesting
+    internal var selectedColor: Color? = null
 
-    fun getProject(): Project = project
+    override fun getProject(): Project = project
+
+    override fun getPanel(): JPanel = panel
+
+    override fun getCustomColorCheckBox(): JCheckBox = customColorCheckBox
+
+    override fun getCustomColorPreviewPanel(): JPanel = colorPreview
 
     override fun getDisplayName(): String = "Window Accent"
 
@@ -207,14 +228,18 @@ class WindowAccentSettings(
         titleNumberingCheckBox.isSelected = titleNumberingSettings.isTitleNumberingEnabled()
     }
 
-    fun syncEnabledState() {
+    override fun setSelectedColor(color: Color?) {
+        selectedColor = color
+    }
+
+    override fun syncEnabledState() {
         val customColorEnabled = customColorCheckBox.isSelected
         chooseColorButton.isEnabled = customColorEnabled
         dropperButton.isEnabled = customColorEnabled
         colorPreview.isEnabled = customColorEnabled
     }
 
-    fun syncPreview() {
+    override fun syncPreview() {
         val color = if (customColorCheckBox.isSelected) selectedColor else null
         colorPreview.background = color ?: panel.background
         previewLabel.text = if (color == null) {

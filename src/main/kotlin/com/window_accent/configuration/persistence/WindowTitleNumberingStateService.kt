@@ -17,7 +17,7 @@ import com.intellij.openapi.components.Storage
     name = "WindowTitleNumberingStateService",
     storages = [Storage("windowTitleNumberingStateService.xml")]
 )
-class WindowTitleNumberingStateService : PersistentStateComponent<WindowTitleNumberingStateService.State> {
+open class WindowTitleNumberingStateService : PersistentStateComponent<WindowTitleNumberingStateService.State> {
 
     data class State(
         var titleNumberingEnabled: Boolean = true
