@@ -9,7 +9,7 @@ import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
 
-internal class ScreenColorPicker(private val settings: WindowAccentSettings) {
+internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 
     internal lateinit var mousePoint: Point
     private var displayX: Double = 0.0
@@ -56,8 +56,8 @@ internal class ScreenColorPicker(private val settings: WindowAccentSettings) {
                     val mx = mousePoint.x.coerceIn(0, screenshot.width - 1)
                     val my = mousePoint.y.coerceIn(0, screenshot.height - 1)
                     val picked = screenshot.getRGB(mx, my)
-                    settings.selectedColor = Color(picked, true)
-                    settings.customColorCheckBox.isSelected = true
+                    settings.setSelectedColor(Color(picked, true))
+                    settings.getCustomColorCheckBox().isSelected = true
                     settings.syncEnabledState()
                     settings.syncPreview()
                 }
@@ -97,8 +97,8 @@ internal class ScreenColorPicker(private val settings: WindowAccentSettings) {
     }
 }
 
-fun showScreenColorPicker(windowAccentSettings: WindowAccentSettings) {
-    val owner = SwingUtilities.getWindowAncestor(windowAccentSettings.panel) ?: return
+fun showScreenColorPicker(windowAccentSettings: IWindowAccentSettings) {
+    val owner = SwingUtilities.getWindowAncestor(windowAccentSettings.getPanel()) ?: return
 
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     if (screenSize.width <= 0 || screenSize.height <= 0) return
@@ -112,9 +112,9 @@ fun showScreenColorPicker(windowAccentSettings: WindowAccentSettings) {
     } else {
         // Fallback to full screen capture if no editor is available
         try {
-            return showColorChooserViaScreenshot(screenSize, owner, windowAccentSettings)
+            showColorChooserViaScreenshot(screenSize, owner, windowAccentSettings)
         } catch (_: Exception) {
-            return
+            // ignore
         }
     }
 }
@@ -122,7 +122,7 @@ fun showScreenColorPicker(windowAccentSettings: WindowAccentSettings) {
 fun showColorChooserViaScreenshot(
     screenSize: Dimension,
     owner: Window,
-    windowAccentSettings: WindowAccentSettings
+    windowAccentSettings: IWindowAccentSettings
 ) {
     val screenshot = takeScreenshot(screenSize)
     setupColorPickerUI(owner, screenshot, screenSize, windowAccentSettings)
@@ -131,7 +131,7 @@ fun showColorChooserViaScreenshot(
 fun showColorChooserViaGraphicsComponent(
     editorComponent: JComponent,
     owner: Window,
-    windowAccentSettings: WindowAccentSettings
+    windowAccentSettings: IWindowAccentSettings
 ) {
     val screenshot = captureComponent(editorComponent)
     val componentSize = Dimension(editorComponent.width, editorComponent.height)
@@ -178,7 +178,7 @@ private fun setupColorPickerUI(
     owner: Window,
     screenshot: BufferedImage,
     captureArea: Dimension,
-    windowAccentSettings: WindowAccentSettings
+    windowAccentSettings: IWindowAccentSettings
 ) {
     val picker = ScreenColorPicker(windowAccentSettings)
     picker.pickColor(owner, screenshot, captureArea)

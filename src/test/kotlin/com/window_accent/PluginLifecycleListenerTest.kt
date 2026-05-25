@@ -30,7 +30,7 @@ class PluginLifecycleListenerTest {
 
         `when`(mockDescriptor.pluginId).thenReturn(testPluginId)
 
-        listener.pluginUnloaded(mockDescriptor, false)
+        listener.beforePluginUnload(mockDescriptor, false)
 
         assertTrue(colorCleanupCalled, "Color cleanup should have been called")
         assertTrue(titleCleanupCalled, "Title cleanup should have been called")
@@ -54,7 +54,7 @@ class PluginLifecycleListenerTest {
 
         `when`(mockDescriptor.pluginId).thenReturn(testPluginId)
 
-        listener.pluginUnloaded(mockDescriptor, false)
+        listener.beforePluginUnload(mockDescriptor, false)
 
         assertFalse(colorCleanupCalled, "Color cleanup should NOT have been called")
         assertFalse(titleCleanupCalled, "Title cleanup should NOT have been called")

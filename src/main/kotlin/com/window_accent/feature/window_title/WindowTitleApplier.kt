@@ -24,7 +24,18 @@ import java.util.concurrent.atomic.AtomicInteger
  * or when the IDE rewrites the title. This class manages the lifecycle of the
  * title decoration for the current project session.
  */
-object WindowTitleApplier {
+class WindowTitleApplier {
+
+    companion object {
+        private val INSTANCE = WindowTitleApplier()
+        fun getInstance(): WindowTitleApplier = INSTANCE
+        
+        fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) = getInstance().applyToCurrentOpenProject(project, enabled)
+        fun applyToAllOpenProjects(enabled: Boolean? = null) = getInstance().applyToAllOpenProjects(enabled)
+        fun removeFromAllOpenProjects() = getInstance().removeFromAllOpenProjects()
+        fun removeFromAllOpenProjectsSync() = getInstance().removeFromAllOpenProjectsSync()
+        fun resetProjectNumbering() = getInstance().resetProjectNumbering()
+    }
 
     private val LOG = logger<PluginLifecycleListener>()
 
@@ -115,10 +126,10 @@ object WindowTitleApplier {
     private fun getProjectFrame(project: Project): Frame? =
         WindowManager.getInstance().getFrame(project)
 
-    private fun getWindowProjectNumber(project: Project): Int =
+    internal fun getWindowProjectNumber(project: Project): Int =
         projectNumbers.computeIfAbsent(project) { counter.getAndIncrement() }
 
-    private fun updateWindowTitle(frame: Frame, number: Int) {
+    internal fun updateWindowTitle(frame: Frame, number: Int) {
         val currentTitle = frame.title ?: return
         val cleanedTitle = stripExistingPrefix(currentTitle)
         val updatedTitle = "[$number] $cleanedTitle"
@@ -137,7 +148,7 @@ object WindowTitleApplier {
         }
     }
 
-    private fun stripExistingPrefix(title: String): String =
+    internal fun stripExistingPrefix(title: String): String =
         title.replace(Regex("^(\\[\\d+]\\s*)+"), "")
 
     private fun reapplyOnFocus(project: Project, frame: Frame) {

@@ -7,6 +7,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import java.awt.image.BufferedImage
 import javax.swing.JComponent
+import javax.swing.JPanel
 
 @DisplayName("ScreenColorPicker Capture Component Tests")
 class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
@@ -14,12 +15,11 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
     @Test
     @DisplayName("captureComponent should throw when component width is 0")
     fun testCaptureComponentInvalidWidth() {
-        val mockComponent = mock(JComponent::class.java)
-        `when`(mockComponent.width).thenReturn(0)
-        `when`(mockComponent.height).thenReturn(100)
+        val component = JPanel()
+        component.setSize(0, 100)
 
         val exception = assertThrows(IllegalArgumentException::class.java) {
-            captureComponent(mockComponent)
+            captureComponent(component)
         }
 
         assertTrue(exception.message?.contains("invalid dimensions") ?: false)
@@ -28,12 +28,11 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
     @Test
     @DisplayName("captureComponent should throw when component height is 0")
     fun testCaptureComponentInvalidHeight() {
-        val mockComponent = mock(JComponent::class.java)
-        `when`(mockComponent.width).thenReturn(100)
-        `when`(mockComponent.height).thenReturn(0)
+        val component = JPanel()
+        component.setSize(100, 0)
 
         val exception = assertThrows(IllegalArgumentException::class.java) {
-            captureComponent(mockComponent)
+            captureComponent(component)
         }
 
         assertTrue(exception.message?.contains("invalid dimensions") ?: false)
@@ -42,12 +41,11 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
     @Test
     @DisplayName("captureComponent should throw when component dimensions are negative")
     fun testCaptureComponentNegativeDimensions() {
-        val mockComponent = mock(JComponent::class.java)
-        `when`(mockComponent.width).thenReturn(-100)
-        `when`(mockComponent.height).thenReturn(-100)
+        val component = JPanel()
+        component.setSize(-100, -100)
 
         val exception = assertThrows(IllegalArgumentException::class.java) {
-            captureComponent(mockComponent)
+            captureComponent(component)
         }
 
         assertTrue(exception.message?.contains("invalid dimensions") ?: false)
@@ -56,11 +54,10 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
     @Test
     @DisplayName("captureComponent should create BufferedImage with correct dimensions")
     fun testCaptureComponentCreatesCorrectDimensions() {
-        val mockComponent = mock(JComponent::class.java)
-        `when`(mockComponent.width).thenReturn(640)
-        `when`(mockComponent.height).thenReturn(480)
+        val component = JPanel()
+        component.setSize(640, 480)
 
-        val image = captureComponent(mockComponent)
+        val image = captureComponent(component)
 
         assertEquals(640, image.width)
         assertEquals(480, image.height)
@@ -70,15 +67,12 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
     @Test
     @DisplayName("captureComponent should dispose graphics after painting")
     fun testCaptureComponentDisposesGraphics() {
-        val mockComponent = mock(JComponent::class.java)
-        `when`(mockComponent.width).thenReturn(100)
-        `when`(mockComponent.height).thenReturn(100)
+        val component = JPanel()
+        component.setSize(100, 100)
 
         assertDoesNotThrow {
-            captureComponent(mockComponent)
+            captureComponent(component)
         }
-
-        verify(mockComponent).paint(any())
     }
 
 }

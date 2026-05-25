@@ -17,7 +17,7 @@ import com.intellij.openapi.components.Storage
     name = "WindowPanelAppearanceStateService",
     storages = [Storage("windowPanelAppearanceStateService.xml")]
 )
-class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAppearanceStateService.State> {
+open class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAppearanceStateService.State> {
 
     data class State(
         var side: Side = Side.EAST,
