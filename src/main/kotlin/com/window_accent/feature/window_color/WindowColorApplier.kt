@@ -13,6 +13,7 @@ import kotlinx.coroutines.*
 import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.JRootPane
 import javax.swing.RootPaneContainer
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -93,10 +94,22 @@ object WindowColorApplier {
 
     private fun removeAllExistingPanels(frame: RootPaneContainer) {
         val rootPane = frame.rootPane
-        val contentPane = rootPane.contentPane
+        val currentContentPane = rootPane.contentPane
 
-        findExistingColoredPanel(contentPane)?.let { removeColoredPanel(it, contentPane) }
-        findExistingColoredPanel(rootPane)?.let { removeColoredPanel(it, rootPane) }
+        // If the current contentPane is our wrapper, unwrap it
+        if ((currentContentPane as? JComponent)?.getClientProperty(PANEL_CLIENT_PROPERTY) == true) {
+            val originalContent = (currentContentPane as Container).components.firstOrNull {
+                it != findExistingColoredPanel(currentContentPane)
+            }
+            if (originalContent is Container) {
+                rootPane.contentPane = originalContent
+            }
+        }
+
+        // Standard removal for NORTH/EAST/WEST
+        findExistingColoredPanel(rootPane.contentPane)?.let {
+            removeColoredPanel(it, rootPane.contentPane)
+        }
     }
 
     private fun addColoredPanel(
@@ -106,19 +119,30 @@ object WindowColorApplier {
         project: Project
     ) {
         val rootPane = frame.rootPane
-        val contentPane = rootPane.contentPane
         val side = panelSettings.getSide()
+        val panel = createColoredPanel(panelSettings, customColorSettings, project)
 
-        val container = if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
-            rootPane
+        if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
+            placeSouthPanelAtBottomOfStatusBar(rootPane, panel)
         } else {
-            contentPane
+            val contentPane = rootPane.contentPane
+            contentPane.add(panel, borderLayoutConstraint(side), 0)
         }
 
-        val panel = createColoredPanel(panelSettings, customColorSettings, project)
-        container.add(panel, borderLayoutConstraint(side))
-        container.revalidate()
-        container.repaint()
+        rootPane.revalidate()
+        rootPane.repaint()
+    }
+
+    /**
+     * Move the contentPane into the center of the wrapper, adding the panel to the south
+     * */
+    private fun placeSouthPanelAtBottomOfStatusBar(rootPane: JRootPane, panel: JPanel) {
+        val originalContentPane = rootPane.contentPane
+        val wrapper = JPanel(BorderLayout())
+        wrapper.putClientProperty(PANEL_CLIENT_PROPERTY, true)
+        rootPane.contentPane = wrapper
+        wrapper.add(originalContentPane, BorderLayout.CENTER)
+        wrapper.add(panel, BorderLayout.SOUTH)
     }
 
     private fun createColoredPanel(
