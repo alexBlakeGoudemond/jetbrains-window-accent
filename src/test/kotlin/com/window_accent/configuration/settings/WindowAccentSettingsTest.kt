@@ -36,15 +36,15 @@ class WindowAccentSettingsTest {
 
         // Create mocks for the services
         mockProject = mock(Project::class.java)
-        mockAppearanceService = mock(WindowPanelAppearanceStateService::class.java)
-        mockCustomColorService = mock(WindowCustomColorStateService::class.java)
-        mockTitleNumberingService = mock(WindowTitleNumberingStateService::class.java)
+        mockAppearanceService = WindowPanelAppearanceStateService()
+        mockCustomColorService = WindowCustomColorStateService()
+        mockTitleNumberingService = WindowTitleNumberingStateService()
 
         // Setup default return values for services
-        `when`(mockAppearanceService.getSide()).thenReturn(WindowPanelAppearanceStateService.Side.EAST)
-        `when`(mockCustomColorService.isUseCustomColor()).thenReturn(false)
-        `when`(mockCustomColorService.getCustomColor()).thenReturn(null)
-        `when`(mockTitleNumberingService.isTitleNumberingEnabled()).thenReturn(false)
+        mockAppearanceService.setSide(WindowPanelAppearanceStateService.Side.EAST)
+        mockCustomColorService.setUseCustomColor(false)
+        mockCustomColorService.setCustomColor(null)
+        mockTitleNumberingService.setTitleNumberingEnabled(false)
 
         // Mock the project.getService() method to return our mock services
         `when`(mockProject.getService(WindowPanelAppearanceStateService::class.java))
@@ -102,10 +102,9 @@ class WindowAccentSettingsTest {
 
         // Change the side in the combo box
         val newSide = WindowPanelAppearanceStateService.Side.WEST
-        windowAccentSettings.panel.components // Access components to ensure they're created
-
-        // Modify underlying service to simulate change
-        `when`(mockAppearanceService.getSide()).thenReturn(newSide)
+        
+        // Change the service state to DIFFERENT from what's in UI (EAST)
+        mockAppearanceService.setSide(newSide)
 
         assertTrue(windowAccentSettings.isModified())
     }

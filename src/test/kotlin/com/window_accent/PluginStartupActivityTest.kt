@@ -2,6 +2,7 @@ package com.window_accent
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.DisplayName
@@ -28,10 +29,9 @@ class PluginStartupActivityTest {
 
             Mockito.doNothing().`when`(mockApplication).invokeLater(Mockito.any(Runnable::class.java))
 
-            val mockTitleService = mock(com.window_accent.configuration.persistence.WindowTitleNumberingStateService::class.java)
-            Mockito.`when`(mockProject.getService(com.window_accent.configuration.persistence.WindowTitleNumberingStateService::class.java))
+            val mockTitleService = WindowTitleNumberingStateService()
+            Mockito.`when`(mockProject.getService(WindowTitleNumberingStateService::class.java))
                 .thenReturn(mockTitleService)
-            Mockito.`when`(mockTitleService.isTitleNumberingEnabled()).thenReturn(true)
 
             // Since execute is suspend, we need to run it in a coroutine
             assertDoesNotThrow {
