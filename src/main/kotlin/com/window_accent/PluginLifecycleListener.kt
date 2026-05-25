@@ -50,7 +50,7 @@ open class PluginLifecycleListener : DynamicPluginListener {
         }
     }
 
-    private fun performCleanup() {
+    open fun performCleanup() {
         WindowColorApplier.removeColorFromAllOpenProjectsSync()
         WindowTitleApplier.removeFromAllOpenProjectsSync()
     }

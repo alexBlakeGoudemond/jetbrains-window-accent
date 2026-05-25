@@ -13,6 +13,7 @@ import kotlinx.coroutines.*
 import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.RootPaneContainer
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -50,9 +51,7 @@ object WindowColorApplier {
         ProjectManager.getInstance().openProjects.forEach { project ->
             val frame = getProjectFrame(project)
             if (frame != null) {
-                val rootContentPane = frame.rootPane.contentPane
-                val existingPanel = findExistingColoredPanel(rootContentPane)
-                removeColoredPanel(existingPanel, rootContentPane)
+                removeAllExistingPanels(frame)
             }
         }
     }
@@ -68,15 +67,13 @@ object WindowColorApplier {
             repeat(60) {
                 val frame = getProjectFrame(project)
                 if (frame != null) {
-                    val rootContentPane = frame.rootPane.contentPane
                     val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
                     val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
-                    val existingPanel = findExistingColoredPanel(rootContentPane)
 
-                    if (panelSettings.panelIsDisabled()) {
-                        removeColoredPanel(existingPanel, rootContentPane)
-                    } else {
-                        addOrReplaceColoredPanel(existingPanel, rootContentPane, panelSettings, customColorSettings, project)
+                    removeAllExistingPanels(frame)
+
+                    if (!panelSettings.panelIsDisabled()) {
+                        addColoredPanel(frame, panelSettings, customColorSettings, project)
                     }
                     return@launch
                 }
@@ -94,21 +91,34 @@ object WindowColorApplier {
         }
     }
 
-    private fun addOrReplaceColoredPanel(
-        existingPanel: Component?,
-        rootContentPane: Container,
+    private fun removeAllExistingPanels(frame: RootPaneContainer) {
+        val rootPane = frame.rootPane
+        val contentPane = rootPane.contentPane
+
+        findExistingColoredPanel(contentPane)?.let { removeColoredPanel(it, contentPane) }
+        findExistingColoredPanel(rootPane)?.let { removeColoredPanel(it, rootPane) }
+    }
+
+    private fun addColoredPanel(
+        frame: RootPaneContainer,
         panelSettings: WindowPanelAppearanceStateService,
         customColorSettings: WindowCustomColorStateService,
         project: Project
     ) {
-        if (existingPanel != null) {
-            rootContentPane.remove(existingPanel)
+        val rootPane = frame.rootPane
+        val contentPane = rootPane.contentPane
+        val side = panelSettings.getSide()
+
+        val container = if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
+            rootPane
+        } else {
+            contentPane
         }
 
         val panel = createColoredPanel(panelSettings, customColorSettings, project)
-        rootContentPane.add(panel, borderLayoutConstraint(panelSettings.getSide()))
-        rootContentPane.revalidate()
-        rootContentPane.repaint()
+        container.add(panel, borderLayoutConstraint(side))
+        container.revalidate()
+        container.repaint()
     }
 
     private fun createColoredPanel(
