@@ -14,4 +14,5 @@ class PluginStartupActivity : ProjectActivity {
         WindowColorApplier.applyToCurrentOpenProject(project)
         WindowTitleApplier.applyToCurrentOpenProject(project)
     }
+
 }

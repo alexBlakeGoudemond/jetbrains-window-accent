@@ -12,6 +12,10 @@
 
 - Address a bug with SOUTH Color Panel overlapping / sharing the frame with the Status Bar
   - now SOUTH panel is a separate color underneath the Status Bar
+- Addressed Compatibility Verification issues raised re: final classes:
+    - `WindowPanelAppearanceStateService`
+    - `WindowTitleNumberingStateService`
+    - `WindowCustomColorStateService`
 
 ## [1.0.6]
 
