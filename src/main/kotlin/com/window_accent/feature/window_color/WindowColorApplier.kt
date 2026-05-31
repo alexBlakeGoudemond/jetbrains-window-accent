@@ -32,6 +32,10 @@ object WindowColorApplier {
     private const val PANEL_THICKNESS = 20
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    fun cancelCoroutines() {
+        scope.coroutineContext.cancelChildren()
+    }
+
     fun applyToCurrentOpenProject(project: Project) {
         ApplicationManager.getApplication().invokeLater {
             applyColorToWindow(project)

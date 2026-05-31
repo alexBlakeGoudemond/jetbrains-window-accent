@@ -34,6 +34,7 @@ class WindowTitleApplier {
         fun applyToAllOpenProjects(enabled: Boolean? = null) = getInstance().applyToAllOpenProjects(enabled)
         fun removeFromAllOpenProjects() = getInstance().removeFromAllOpenProjects()
         fun removeFromAllOpenProjectsSync() = getInstance().removeFromAllOpenProjectsSync()
+        fun cancelAllPendingOperations() = getInstance().cancelAllPendingOperations()
         fun resetProjectNumbering() = getInstance().resetProjectNumbering()
     }
 
@@ -43,6 +44,7 @@ class WindowTitleApplier {
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
     private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
     private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
+    private val pendingTasks = ConcurrentHashMap<Project, java.util.concurrent.ScheduledFuture<*>>()
 
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
         val actualEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
@@ -77,6 +79,11 @@ class WindowTitleApplier {
         resetProjectNumbering()
     }
 
+    fun cancelAllPendingOperations() {
+        pendingTasks.values.forEach { it.cancel(false) }
+        pendingTasks.clear()
+    }
+
     private fun removeFromAllOpenProjectsInternal() {
         ProjectManager.getInstance().openProjects.forEach { project ->
             removeTitleFromWindow(project)
@@ -98,11 +105,15 @@ class WindowTitleApplier {
                     Disposer.register(project) {
                         cleanupListeners(project)
                     }
+                    pendingTasks.remove(project)
                 }
             } else if (retries > 0) {
-                AppExecutorUtil.getAppScheduledExecutorService().schedule({
+                val future = AppExecutorUtil.getAppScheduledExecutorService().schedule({
                     tryApply(retries - 1)
                 }, 500, TimeUnit.MILLISECONDS)
+                pendingTasks[project] = future
+            } else {
+                pendingTasks.remove(project)
             }
         }
 

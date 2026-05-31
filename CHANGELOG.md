@@ -7,6 +7,10 @@
 ### Fixed
 
 - Improved support of .ai-playbook for developers by revising AGENTS.md
+- Fixed a `ClassCastException` that occurred during plugin re-enabling from coroutine leaks
+    - Added `cancelCoroutines()` to `WindowColorApplier`
+    - Added `cancelAllPendingOperations()` to `WindowTitleApplier` for retry logic
+    - Leverage `cancelCoroutines()` and `cancelAllPendingOperations()` in `PluginLifecycleListener`
 
 ## [1.0.7]
 
@@ -17,7 +21,7 @@
 ### Fixed
 
 - Address a bug with SOUTH Color Panel overlapping / sharing the frame with the Status Bar
-  - now SOUTH panel is a separate color underneath the Status Bar
+    - now SOUTH panel is a separate color underneath the Status Bar
 - Addressed Compatibility Verification issues raised re: final classes:
     - `WindowPanelAppearanceStateService`
     - `WindowTitleNumberingStateService`
