@@ -1,14 +1,15 @@
-# AI Agent Instructions
+# AI Development Guidelines
 
-MANDATORY:
+This repository uses a centralized AI playbook.
 
-- Before making code changes:
-    1. Summarize planned work
-    2. Ask for approval
-    3. Wait for confirmation
+Primary source of truth:
 
-- Follow repository conventions
+- .ai-playbook/instructions/AGENTS.md
+- .ai-playbook/instructions/CONVENTIONS.md
+- .ai-playbook/instructions/CONTEXT.md
 
-Additional instructions:
+Follow these rules when generating or modifying code:
 
-- [AGENTS.playbook.md](AGENTS.playbook.md)]
+- Prefer patterns defined in the AI playbook
+- Maintain consistency with existing architecture
+- Use repository conventions over generic suggestions
