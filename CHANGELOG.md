@@ -4,6 +4,10 @@
 
 ## [1.0.8]
 
+### Fixed
+
+- Improved support of .ai-playbook for developers by revising AGENTS.md
+
 ## [1.0.7]
 
 ### Added
