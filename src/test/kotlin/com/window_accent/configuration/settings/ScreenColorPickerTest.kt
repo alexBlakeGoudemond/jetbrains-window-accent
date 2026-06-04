@@ -1,7 +1,5 @@
 package com.window_accent.configuration.settings
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileEditorManager
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.DisplayName
@@ -11,7 +9,6 @@ import org.mockito.Mockito.*
 import java.awt.*
 import java.awt.image.BufferedImage
 import javax.swing.JCheckBox
-import javax.swing.JComponent
 import javax.swing.JDialog
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -37,39 +34,6 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         }
     }
 
-    @Test
-    @DisplayName("showScreenColorPicker should handle missing editor gracefully")
-    fun testShowScreenColorPickerMissingEditorHandling() {
-        // When no editor is available, the function attempts screenshot fallback
-        // In headless/test environment this will catch exception gracefully
-        setHeadlessModeToAvoidShowingUI(true)
-
-        try {
-            mockStatic(SwingUtilities::class.java).use { mockedSwing ->
-                val mockWindow = JFrame()
-                mockedSwing.`when`<Window?> { SwingUtilities.getWindowAncestor(mockPanel) }
-                    .thenReturn(mockWindow)
-
-                mockStatic(FileEditorManager::class.java).use { mockedEditorManager ->
-                    val mockFEM = mock(FileEditorManager::class.java)
-                    mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }
-                        .thenReturn(mockFEM)
-                    `when`(mockFEM.selectedTextEditor).thenReturn(null)
-
-                    // Should handle exception gracefully (Robot fails in headless)
-                    try {
-                        assertDoesNotThrow {
-                            showScreenColorPicker(mockSettings)
-                        }
-                    } finally {
-                        mockWindow.dispose()
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testShowScreenColorPickerMissingEditorHandling: ${e.message}")
-        }
-    }
 
     @Test
     @DisplayName("createOverlay should create undecorated dialog")
@@ -79,8 +43,8 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         val picker = ScreenColorPicker(mockSettings)
         val owner = JFrame()
         try {
-            val size = Dimension(1920, 1080)
-            val dialog = picker.createOverlay(owner, size)
+            val bounds = Rectangle(0, 0, 1920, 1080)
+            val dialog = picker.createOverlay(owner, bounds)
             try {
                 assertTrue(dialog.isUndecorated)
             } finally {
@@ -99,8 +63,8 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         val picker = ScreenColorPicker(mockSettings)
         val owner = JFrame()
         try {
-            val size = Dimension(1920, 1080)
-            val dialog = picker.createOverlay(owner, size)
+            val bounds = Rectangle(0, 0, 1920, 1080)
+            val dialog = picker.createOverlay(owner, bounds)
             try {
                 assertTrue(dialog.isAlwaysOnTop)
             } finally {
@@ -119,8 +83,8 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         val picker = ScreenColorPicker(mockSettings)
         val owner = JFrame()
         try {
-            val size = Dimension(1920, 1080)
-            val dialog = picker.createOverlay(owner, size)
+            val bounds = Rectangle(0, 0, 1920, 1080)
+            val dialog = picker.createOverlay(owner, bounds)
             try {
                 assertEquals(Color(0, 0, 0, 0), dialog.background)
             } finally {
@@ -139,10 +103,10 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         val picker = ScreenColorPicker(mockSettings)
         val owner = JFrame()
         try {
-            val size = Dimension(1920, 1080)
-            val dialog = picker.createOverlay(owner, size)
+            val bounds = Rectangle(0, 0, 1920, 1080)
+            val dialog = picker.createOverlay(owner, bounds)
             try {
-                assertEquals(size, dialog.size)
+                assertEquals(bounds.size, dialog.size)
             } finally {
                 dialog.dispose()
             }
@@ -152,18 +116,18 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
     }
 
     @Test
-    @DisplayName("createOverlay should position at origin")
-    fun testCreateOverlayOriginPosition() {
+    @DisplayName("createOverlay should position at correct location")
+    fun testCreateOverlayPosition() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
 
         val picker = ScreenColorPicker(mockSettings)
         val owner = JFrame()
         try {
-            val size = Dimension(1920, 1080)
-            val dialog = picker.createOverlay(owner, size)
+            val bounds = Rectangle(100, 200, 1920, 1080)
+            val dialog = picker.createOverlay(owner, bounds)
             try {
-                assertEquals(0, dialog.x)
-                assertEquals(0, dialog.y)
+                assertEquals(100, dialog.x)
+                assertEquals(200, dialog.y)
             } finally {
                 dialog.dispose()
             }
@@ -180,8 +144,8 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         val picker = ScreenColorPicker(mockSettings)
         val owner = JFrame()
         try {
-            val size = Dimension(1920, 1080)
-            val dialog = picker.createOverlay(owner, size)
+            val bounds = Rectangle(0, 0, 1920, 1080)
+            val dialog = picker.createOverlay(owner, bounds)
             try {
                 assertEquals(WindowConstants.DISPOSE_ON_CLOSE, dialog.defaultCloseOperation)
             } finally {
@@ -374,52 +338,6 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         }
     }
 
-    @Test
-    @DisplayName("showScreenColorPicker should use editor component when available")
-    fun testShowScreenColorPickerWithEditor() {
-        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
-
-        try {
-            val owner = try {
-                JFrame()
-            } catch (e: Exception) {
-                Assumptions.abort<JFrame>("Swing initialization failed: ${e.message}")
-            } catch (e: Error) {
-                Assumptions.abort<JFrame>("Swing initialization failed: ${e.message}")
-            }
-            try {
-                mockStatic(SwingUtilities::class.java).use { mockedSwing ->
-                    mockedSwing.`when`<Window?> { SwingUtilities.getWindowAncestor(mockPanel) }
-                        .thenReturn(owner)
-
-                    mockStatic(FileEditorManager::class.java).use { mockedEditorManager ->
-                        val mockFEM = mock(FileEditorManager::class.java)
-                        val mockEditor = mock(Editor::class.java)
-                        val mockEditorComponent = mock(JComponent::class.java)
-
-                        mockedEditorManager.`when`<FileEditorManager> { FileEditorManager.getInstance(mockProject) }
-                            .thenReturn(mockFEM)
-                        `when`(mockFEM.selectedTextEditor).thenReturn(mockEditor)
-                        `when`(mockEditor.component).thenReturn(mockEditorComponent)
-                        `when`(mockEditorComponent.width).thenReturn(800)
-                        `when`(mockEditorComponent.height).thenReturn(600)
-
-                        // Skip the actual UI setup part as it requires more mocking of platform classes
-                        // we'll just test the entry point
-                        try {
-                            showScreenColorPicker(mockSettings)
-                        } catch (e: Exception) {
-                            System.err.println("[DEBUG_LOG] showScreenColorPickerWithEditor partial fail: ${e.message}")
-                        }
-                    }
-                }
-            } finally {
-                owner.dispose()
-            }
-        } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testShowScreenColorPickerWithEditor: ${e.message}")
-        }
-    }
 
     @Test
     @DisplayName("showColorChooserViaScreenshot should take screenshot and setup UI")
@@ -427,10 +345,10 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())
         val owner = JFrame()
         try {
-            val screenSize = Dimension(800, 600)
+            val bounds = Rectangle(0, 0, 800, 600)
             // entry point only
             try {
-                showColorChooserViaScreenshot(screenSize, owner, mockSettings)
+                showColorChooserViaFullScreenScreenshot(bounds, owner, mockSettings)
             } catch (e: Exception) {
                 System.err.println("[DEBUG_LOG] showColorChooserViaScreenshot partial fail: ${e.message}")
             }

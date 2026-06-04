@@ -7,9 +7,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.concurrency.AppExecutorUtil
-import com.window_accent.PluginLifecycleListener
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
-import com.window_accent.feature.window_color.WindowColorApplier
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -38,7 +36,7 @@ class WindowTitleApplier {
         fun resetProjectNumbering() = getInstance().resetProjectNumbering()
     }
 
-    private val LOG = logger<PluginLifecycleListener>()
+    private val logger = logger<WindowTitleApplier>()
 
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
@@ -72,7 +70,7 @@ class WindowTitleApplier {
     }
 
     fun removeFromAllOpenProjectsSync() {
-        LOG.info("[Window Accent] removeFromAllOpenProjectsSync triggered")
+        logger.info("[Window Accent] removeFromAllOpenProjectsSync triggered")
         ProjectManager.getInstance().openProjects.forEach { project ->
             removeTitleFromWindowSync(project)
         }

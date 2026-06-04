@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.0.9]
+
+### Fixed
+
+- Fixed a bug where Choosing Color from the settings menu locks to the primary screen - now can select colour from all
+  connected displays (multiple screens)
+
 ## [1.0.8]
 
 ### Fixed

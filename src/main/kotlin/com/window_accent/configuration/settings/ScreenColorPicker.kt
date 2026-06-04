@@ -1,6 +1,6 @@
 package com.window_accent.configuration.settings
 
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.diagnostic.logger
 import java.awt.*
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
+
+private val logger = logger<ScreenColorPicker>()
 
 internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 
@@ -18,7 +20,8 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
     private lateinit var overlay: JDialog
     private lateinit var colorSelectionHandler: (Boolean) -> Unit
 
-    fun pickColor(owner: Window, screenshot: BufferedImage, captureArea: Dimension) {
+
+    fun pickColor(owner: Window, screenshot: BufferedImage, captureArea: Rectangle) {
         mousePoint = Point(captureArea.width / 2, captureArea.height / 2)
         displayX = mousePoint.x.toDouble()
         displayY = mousePoint.y.toDouble()
@@ -39,14 +42,13 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
         setupEscapeKeyHandler()
     }
 
-    internal fun createOverlay(owner: Window, captureArea: Dimension): JDialog =
+    internal fun createOverlay(owner: Window, captureArea: Rectangle): JDialog =
         JDialog(owner, Dialog.ModalityType.MODELESS).apply {
             isUndecorated = true
             isAlwaysOnTop = true
             background = Color(0, 0, 0, 0)
             defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
-            size = captureArea
-            setLocation(0, 0)
+            bounds = captureArea
         }
 
     internal fun createColorSelectionHandler(screenshot: BufferedImage, overlay: JDialog): (Boolean) -> Unit =
@@ -100,84 +102,53 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 fun showScreenColorPicker(windowAccentSettings: IWindowAccentSettings) {
     val owner = SwingUtilities.getWindowAncestor(windowAccentSettings.getPanel()) ?: return
 
-    val screenSize = Toolkit.getDefaultToolkit().screenSize
-    if (screenSize.width <= 0 || screenSize.height <= 0) return
+    val virtualBounds = calculateScreenBoundsAcrossMultipleScreens()
+    if (virtualBounds.isEmpty) return
 
-    // Prefer captureComponent (sandbox-safe) over Robot-based screenshot
-    val editorComponent = FileEditorManager.getInstance(windowAccentSettings.getProject())
-        .selectedTextEditor
-        ?.component
-    if (editorComponent != null) {
-        showColorChooserViaGraphicsComponent(editorComponent, owner, windowAccentSettings)
-    } else {
-        // Fallback to full screen capture if no editor is available
-        try {
-            showColorChooserViaScreenshot(screenSize, owner, windowAccentSettings)
-        } catch (_: Exception) {
-            // ignore
-        }
+    try {
+        showColorChooserViaFullScreenScreenshot(virtualBounds, owner, windowAccentSettings)
+    } catch (e: Exception) {
+        logger.info("[Window Accent] unable to capture screenshot: ${e.message}")
     }
 }
 
-fun showColorChooserViaScreenshot(
-    screenSize: Dimension,
-    owner: Window,
-    windowAccentSettings: IWindowAccentSettings
-) {
-    val screenshot = takeScreenshot(screenSize)
-    setupColorPickerUI(owner, screenshot, screenSize, windowAccentSettings)
+private fun calculateScreenBoundsAcrossMultipleScreens(): Rectangle {
+    val screens = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+    val bounds = Rectangle()
+    for (screen in screens) {
+        bounds.add(screen.defaultConfiguration.bounds)
+    }
+    return bounds
 }
 
-fun showColorChooserViaGraphicsComponent(
-    editorComponent: JComponent,
+fun showColorChooserViaFullScreenScreenshot(
+    virtualBounds: Rectangle,
     owner: Window,
     windowAccentSettings: IWindowAccentSettings
 ) {
-    val screenshot = captureComponent(editorComponent)
-    val componentSize = Dimension(editorComponent.width, editorComponent.height)
-    setupColorPickerUI(owner, screenshot, componentSize, windowAccentSettings)
+    val screenshot = takeScreenshot(virtualBounds)
+    setupColorPickerUI(owner, screenshot, virtualBounds, windowAccentSettings)
 }
 
 // Note: This uses Robot
-fun takeScreenshot(screenSize: Dimension): BufferedImage {
+fun takeScreenshot(captureRect: Rectangle): BufferedImage {
     // Note: Robot usage may be restricted in JetBrains plugin sandbox. Ensure permissions are granted.
-    if (screenSize.width <= 0 || screenSize.height <= 0) {
-        throw IllegalArgumentException("Invalid screen size: ${screenSize.width}x${screenSize.height}")
+    if (captureRect.width <= 0 || captureRect.height <= 0) {
+        throw IllegalArgumentException("Invalid capture rectangle: $captureRect")
     }
     try {
         val robot = Robot()
-        val screenshot = robot.createScreenCapture(Rectangle(screenSize))
+        val screenshot = robot.createScreenCapture(captureRect)
         return screenshot
     } catch (e: Exception) {
         throw RuntimeException("Failed to capture screenshot: ${e.message}", e)
     }
 }
 
-fun captureComponent(component: JComponent): BufferedImage {
-    if (component.width <= 0 || component.height <= 0) {
-        throw IllegalArgumentException("Component has invalid dimensions: ${component.width}x${component.height}")
-    }
-
-    val image = BufferedImage(
-        component.width,
-        component.height,
-        BufferedImage.TYPE_INT_ARGB
-    )
-
-    val graphics = image.createGraphics()
-    try {
-        component.paint(graphics)
-    } finally {
-        graphics.dispose()
-    }
-
-    return image
-}
-
 private fun setupColorPickerUI(
     owner: Window,
     screenshot: BufferedImage,
-    captureArea: Dimension,
+    captureArea: Rectangle,
     windowAccentSettings: IWindowAccentSettings
 ) {
     val picker = ScreenColorPicker(windowAccentSettings)
