@@ -6,14 +6,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.util.concurrency.AppExecutorUtil
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Applies and maintains a numeric prefix in IDE window titles.
@@ -42,7 +42,14 @@ class WindowTitleApplier {
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
     private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
     private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
-    private val pendingTasks = ConcurrentHashMap<Project, java.util.concurrent.ScheduledFuture<*>>()
+
+    /**
+     * Coroutine scope used exclusively for the frame-availability retry loop in
+     * [applyTitleToWindow]. Using a scope (rather than AppExecutorUtil.schedule) means
+     * cancelled retries are removed from the scheduler immediately on [cancelAllPendingOperations],
+     * preventing the plugin classloader from being held alive by IntelliJ's thread pool.
+     */
+    private val retryScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     /**
      * Stores a dispose-closure per project. Each closure, when invoked, calls
@@ -86,8 +93,7 @@ class WindowTitleApplier {
     }
 
     fun cancelAllPendingOperations() {
-        pendingTasks.values.forEach { it.cancel(false) }
-        pendingTasks.clear()
+        retryScope.cancel()
         disposeAllTrackedDisposables()
     }
 
@@ -114,22 +120,20 @@ class WindowTitleApplier {
                     updateWindowTitle(frame, number)
                     reapplyOnFocus(project, frame)
                     reapplyOnTitleChange(project, frame)
-                    val noOpHolderDisposable = "WindowAccent-title-cleanup"
-                    val holder = Disposer.newDisposable(noOpHolderDisposable)
+
+                    val holder = Disposer.newDisposable("WindowAccent-title-cleanup")
                     projectDisposeClosures.put(project) { Disposer.dispose(holder) }?.invoke()
                     Disposer.register(holder) { cleanupListeners(project) }
                     Disposer.register(project, holder)
-                    pendingTasks.remove(project)
                 }
             } else if (retries > 0) {
-                val future = AppExecutorUtil.getAppScheduledExecutorService().schedule({
+                retryScope.launch {
+                    delay(500.milliseconds)
                     tryApply(retries - 1)
-                }, 500, TimeUnit.MILLISECONDS)
-                pendingTasks[project] = future
-            } else {
-                pendingTasks.remove(project)
+                }
             }
         }
+
         tryApply(60)
     }
 
