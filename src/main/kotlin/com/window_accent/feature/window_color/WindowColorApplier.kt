@@ -32,7 +32,7 @@ object WindowColorApplier {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     fun cancelCoroutines() {
-        scope.coroutineContext.cancelChildren()
+        scope.cancel()
     }
 
     fun applyToCurrentOpenProject(project: Project) {
