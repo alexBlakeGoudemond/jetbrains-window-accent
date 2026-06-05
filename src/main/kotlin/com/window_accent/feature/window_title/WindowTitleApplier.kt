@@ -44,6 +44,14 @@ class WindowTitleApplier {
     private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
     private val pendingTasks = ConcurrentHashMap<Project, java.util.concurrent.ScheduledFuture<*>>()
 
+    /**
+     * Stores a dispose-closure per project. Each closure, when invoked, calls
+     * Disposer.dispose() on the intermediate holder registered under that project.
+     * This avoids needing to reference the Disposable type by name, which is not
+     * directly accessible on the compilation classpath in IntelliJ Platform 2026.1.
+     */
+    private val projectDisposeClosures = ConcurrentHashMap<Project, () -> Unit>()
+
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
         val actualEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
         ApplicationManager.getApplication().invokeLater {
@@ -80,6 +88,13 @@ class WindowTitleApplier {
     fun cancelAllPendingOperations() {
         pendingTasks.values.forEach { it.cancel(false) }
         pendingTasks.clear()
+        disposeAllTrackedDisposables()
+    }
+
+    private fun disposeAllTrackedDisposables() {
+        val snapshot = ArrayList(projectDisposeClosures.values)
+        projectDisposeClosures.clear()
+        snapshot.forEach { it() }
     }
 
     private fun removeFromAllOpenProjectsInternal() {
@@ -99,10 +114,11 @@ class WindowTitleApplier {
                     updateWindowTitle(frame, number)
                     reapplyOnFocus(project, frame)
                     reapplyOnTitleChange(project, frame)
-
-                    Disposer.register(project) {
-                        cleanupListeners(project)
-                    }
+                    val noOpHolderDisposable = "WindowAccent-title-cleanup"
+                    val holder = Disposer.newDisposable(noOpHolderDisposable)
+                    projectDisposeClosures.put(project) { Disposer.dispose(holder) }?.invoke()
+                    Disposer.register(holder) { cleanupListeners(project) }
+                    Disposer.register(project, holder)
                     pendingTasks.remove(project)
                 }
             } else if (retries > 0) {
@@ -114,8 +130,7 @@ class WindowTitleApplier {
                 pendingTasks.remove(project)
             }
         }
-
-        tryApply(60) // Retry for 30 seconds
+        tryApply(60)
     }
 
     private fun removeTitleFromWindowSync(project: Project) {
