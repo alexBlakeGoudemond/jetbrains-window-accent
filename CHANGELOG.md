@@ -4,6 +4,11 @@
 
 ## [1.0.10]
 
+### Fixed
+
+- Improve Plugin Unloading logic to avoid unnecessary project restarts
+    - The problem was caused by the way the Dispose logic was implemented – now load and unload using a unique String
+
 ## [1.0.9]
 
 ### Fixed
