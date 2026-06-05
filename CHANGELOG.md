@@ -2,6 +2,11 @@
 
 ## [1.0.11]
 
+### Fixed
+
+- Second pass of Improving Plugin Unloading to avoid unnecessary project restarts
+  - leverage `scope.cancel()` when unloading
+
 ## [1.0.10]
 
 ### Fixed
