@@ -6,14 +6,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.util.Alarm
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.*
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Applies and maintains a numeric prefix in IDE window titles.
@@ -27,7 +26,10 @@ class WindowTitleApplier {
     companion object {
         private val INSTANCE = WindowTitleApplier()
         fun getInstance(): WindowTitleApplier = INSTANCE
-        
+
+        private const val RETRY_DELAY_MS = 500L
+        private const val MAX_RETRIES = 60
+
         fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) = getInstance().applyToCurrentOpenProject(project, enabled)
         fun applyToAllOpenProjects(enabled: Boolean? = null) = getInstance().applyToAllOpenProjects(enabled)
         fun removeFromAllOpenProjects() = getInstance().removeFromAllOpenProjects()
@@ -44,12 +46,15 @@ class WindowTitleApplier {
     private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
 
     /**
-     * Coroutine scope used exclusively for the frame-availability retry loop in
-     * [applyTitleToWindow]. Using a scope (rather than AppExecutorUtil.schedule) means
-     * cancelled retries are removed from the scheduler immediately on [cancelAllPendingOperations],
-     * preventing the plugin classloader from being held alive by IntelliJ's thread pool.
+     * Alarm used exclusively for the frame-availability retry loop in [applyTitleToWindow].
+     *
+     * Using [Alarm] (rather than a coroutine scope) ensures that [cancelAllRequests] fully
+     * releases all pending request runnables synchronously — setting myRunnable = null on each
+     * request — leaving no plugin-classloader references in any platform scheduler when the
+     * plugin is unloaded. This prevents the classloader-leak that would otherwise require a
+     * restart when updating the plugin dynamically.
      */
-    private val retryScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
 
     /**
      * Stores a dispose-closure per project. Each closure, when invoked, calls
@@ -93,7 +98,7 @@ class WindowTitleApplier {
     }
 
     fun cancelAllPendingOperations() {
-        retryScope.cancel()
+        retryAlarm.cancelAllRequests()
         disposeAllTrackedDisposables()
     }
 
@@ -112,29 +117,33 @@ class WindowTitleApplier {
 
     private fun applyTitleToWindow(project: Project) {
         val number = getWindowProjectNumber(project)
+        doApplyTitle(project, number, MAX_RETRIES)
+    }
 
-        fun tryApply(retries: Int) {
-            val frame = getProjectFrame(project)
-            if (frame != null) {
-                ApplicationManager.getApplication().invokeLater {
-                    updateWindowTitle(frame, number)
-                    reapplyOnFocus(project, frame)
-                    reapplyOnTitleChange(project, frame)
+    /**
+     * Attempts to apply the title prefix to the project window, retrying up to [retriesLeft]
+     * times via [retryAlarm] if the frame is not yet available.
+     *
+     * Using [Alarm.addRequest] for retry (rather than a coroutine delay) ensures that
+     * [Alarm.cancelAllRequests] can fully release the pending runnable reference synchronously,
+     * preventing any plugin-classloader leak during dynamic plugin unload.
+     */
+    private fun doApplyTitle(project: Project, number: Int, retriesLeft: Int) {
+        val frame = getProjectFrame(project)
+        if (frame != null) {
+            ApplicationManager.getApplication().invokeLater {
+                updateWindowTitle(frame, number)
+                reapplyOnFocus(project, frame)
+                reapplyOnTitleChange(project, frame)
 
-                    val holder = Disposer.newDisposable("WindowAccent-title-cleanup")
-                    projectDisposeClosures.put(project) { Disposer.dispose(holder) }?.invoke()
-                    Disposer.register(holder) { cleanupListeners(project) }
-                    Disposer.register(project, holder)
-                }
-            } else if (retries > 0) {
-                retryScope.launch {
-                    delay(500.milliseconds)
-                    tryApply(retries - 1)
-                }
+                val holder = Disposer.newDisposable("WindowAccent-title-cleanup")
+                projectDisposeClosures.put(project) { Disposer.dispose(holder) }?.invoke()
+                Disposer.register(holder) { cleanupListeners(project) }
+                Disposer.register(project, holder)
             }
+        } else if (retriesLeft > 0) {
+            retryAlarm.addRequest({ doApplyTitle(project, number, retriesLeft - 1) }, RETRY_DELAY_MS)
         }
-
-        tryApply(60)
     }
 
     private fun removeTitleFromWindowSync(project: Project) {

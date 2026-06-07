@@ -6,15 +6,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
+import com.intellij.util.Alarm
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
-import kotlinx.coroutines.*
 import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JRootPane
 import javax.swing.RootPaneContainer
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Applies and maintains the colored window panel for IDE projects.
@@ -29,10 +28,22 @@ object WindowColorApplier {
 
     private const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
     private const val PANEL_THICKNESS = 20
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private const val RETRY_DELAY_MS = 500L
+    private const val MAX_RETRIES = 60
+
+    /**
+     * Alarm used exclusively for the frame-availability retry loop in [applyColorToWindow].
+     *
+     * Using [Alarm] (rather than a coroutine scope) ensures that [cancelAllRequests] fully
+     * releases all pending request runnables synchronously — setting myRunnable = null on each
+     * request — leaving no plugin-classloader references in any platform scheduler when the
+     * plugin is unloaded. This prevents the classloader-leak that would otherwise require a
+     * restart when updating the plugin dynamically.
+     */
+    private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
 
     fun cancelCoroutines() {
-        scope.cancel()
+        retryAlarm.cancelAllRequests()
     }
 
     fun applyToCurrentOpenProject(project: Project) {
@@ -60,29 +71,17 @@ object WindowColorApplier {
         }
     }
 
-    private fun removeColorFromAllOpenProjectsInternal() {
-        ApplicationManager.getApplication().invokeLater {
-            removeColorFromAllOpenProjectsSync()
-        }
-    }
-
-    private fun applyColorToWindow(project: Project) {
-        scope.launch {
-            repeat(60) {
-                val frame = getProjectFrame(project)
-                if (frame != null) {
-                    val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
-                    val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
-
-                    removeAllExistingPanels(frame)
-
-                    if (!panelSettings.panelIsDisabled()) {
-                        addColoredPanel(frame, panelSettings, customColorSettings, project)
-                    }
-                    return@launch
-                }
-                delay(500.milliseconds)
+    private fun applyColorToWindow(project: Project, retriesLeft: Int = MAX_RETRIES) {
+        val frame = getProjectFrame(project)
+        if (frame != null) {
+            val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
+            val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
+            removeAllExistingPanels(frame)
+            if (!panelSettings.panelIsDisabled()) {
+                addColoredPanel(frame, panelSettings, customColorSettings, project)
             }
+        } else if (retriesLeft > 0) {
+            retryAlarm.addRequest({ applyColorToWindow(project, retriesLeft - 1) }, RETRY_DELAY_MS)
         }
     }
 
