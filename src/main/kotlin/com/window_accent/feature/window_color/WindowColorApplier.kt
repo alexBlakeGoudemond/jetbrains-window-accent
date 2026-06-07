@@ -32,17 +32,26 @@ object WindowColorApplier {
     private const val MAX_RETRIES = 60
 
     /**
+     * Set to true at the very start of [cancelCoroutines].
+     *
+     * Any EDT task queued before cleanup began but executed after this flag is set
+     * will see isShuttingDown = true and skip all work, preventing a re-added colored
+     * panel or failed service lookup from occurring after the plugin has been unloaded.
+     */
+    @Volatile private var isShuttingDown = false
+
+    /**
      * Alarm used exclusively for the frame-availability retry loop in [applyColorToWindow].
      *
      * Using [Alarm] (rather than a coroutine scope) ensures that [cancelAllRequests] fully
-     * releases all pending request runnables synchronously — setting myRunnable = null on each
-     * request — leaving no plugin-classloader references in any platform scheduler when the
-     * plugin is unloaded. This prevents the classloader-leak that would otherwise require a
-     * restart when updating the plugin dynamically.
+     * releases all pending request runnables synchronously — leaving no plugin-classloader
+     * references in any platform scheduler when the plugin is unloaded.
      */
     private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
 
     fun cancelCoroutines() {
+        // Set the flag FIRST so any EDT task still in the queue skips re-adding panels
+        isShuttingDown = true
         retryAlarm.cancelAllRequests()
     }
 
@@ -72,6 +81,9 @@ object WindowColorApplier {
     }
 
     private fun applyColorToWindow(project: Project, retriesLeft: Int = MAX_RETRIES) {
+        if (isShuttingDown){
+            return
+        }
         val frame = getProjectFrame(project)
         if (frame != null) {
             val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)

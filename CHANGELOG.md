@@ -4,6 +4,12 @@
 
 ## [1.0.13]
 
+### Fixed
+
+- Fourth pass of improving Plugin Unloading to avoid unnecessary project restarts
+  - Define WindowAccentApplicationService to manage lifecyle
+  - Refine cleanup code where possible
+
 ## [1.0.12]
 
 ### Fixed
