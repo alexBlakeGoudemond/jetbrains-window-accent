@@ -2,11 +2,18 @@
 
 ## [Unreleased]
 
+## [1.0.12]
+
+### Fixed
+
+- Third pass of improving Plugin Unloading to avoid unnecessary project restarts
+  - Use Alarm.ThreadToUse.SWING_THREAD to try release references to plugin-code synchronously
+
 ## [1.0.11]
 
 ### Fixed
 
-- Second pass of Improving Plugin Unloading to avoid unnecessary project restarts
+- Second pass of improving Plugin Unloading to avoid unnecessary project restarts
   - leverage `scope.cancel()` when unloading
 
 ## [1.0.10]
@@ -127,7 +134,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.11...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...HEAD
+[1.0.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.11...1.0.12
 [1.0.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.10...1.0.11
 [1.0.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.9...1.0.10
 [1.0.9]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.8...1.0.9
