@@ -102,3 +102,115 @@ If you absolutely must use `Robot`:
 - Add prominent warnings in your plugin description
 - Test thoroughly in the IDE sandbox
 - Consider requesting explicit permissions
+
+---
+
+## Dynamic Plugin Unloading (no-restart updates)
+
+The plugin is declared with `require-restart="false"` in `plugin.xml`, meaning IntelliJ should be
+able to update it without restarting the IDE. However, this only works if the plugin's classloader
+can be garbage-collected after unloading. If any platform code still holds a strong reference to
+plugin-code objects at the time IntelliJ runs its classloader GC check, it logs:
+
+```
+Plugin WindowAccent is not unload-safe because class loader cannot be unloaded
+```
+
+...and falls back to requiring a restart.
+
+## Previous issues where Restart was required
+
+### Root cause — the double `invokeLater` race
+
+The root cause was an **unnecessary inner `invokeLater`** inside `WindowTitleApplier.doApplyTitle`.
+
+When IntelliJ loads the new plugin version it fires `pluginLoaded`, which triggers
+`restoreDecorations()` → `applyToCurrentOpenProject(project)`. That method posts an **outer**
+`invokeLater` to the EDT. When the outer task runs it called `doApplyTitle`, which then posted a
+second, **inner** `invokeLater` (wrapping the AWT listener and Disposer registration work).
+
+The inner task was placed at the **end** of the EDT queue. IntelliJ's cleanup
+(`cancelAllPendingOperations`) ran on a background thread while the EDT continued processing.
+The timeline looked like this:
+
+```
+background thread:  cancelAllPendingOperations()
+                      ├─ isShuttingDown = true         (flag not present before fix)
+                      ├─ retryAlarm.cancelAllRequests()
+                      ├─ disposeAllTrackedDisposables() ← disposes all Disposer holders ✓
+                      └─ removeFromAllOpenProjectsSync() ← removes AWT listeners ✓
+
+EDT (concurrent):   inner invokeLater runs AFTER disposeAllTrackedDisposables()
+                      ├─ frame.addWindowFocusListener(WindowAdapter)   ← plugin lambda on Frame!
+                      ├─ frame.addPropertyChangeListener(listener)     ← plugin lambda on Frame!
+                      └─ Disposer.register(project, holder)            ← plugin lambda in ObjectTree!
+
+result:  ObjectTree (platform) → holder → lambda → WindowTitleApplier.INSTANCE → classloader 🔴
+         AWT Frame  (platform) → WindowAdapter   → WindowTitleApplier.INSTANCE → classloader 🔴
+```
+
+Both are external (platform → plugin) strong references. The classloader cannot be GC'd.
+
+### The secondary cause — unreliable listener removal
+
+`removeListeners(project, frame)` previously obtained the frame via `getProjectFrame(project)` at
+cleanup time. If the frame returned at cleanup was different from the one the listener was added to
+(or null), the listener stayed on the original frame — another platform→plugin reference.
+
+### Fix applied (v1.0.13)
+
+Four changes were made across three files:
+
+#### 1. Removed the inner `invokeLater` (`WindowTitleApplier.doApplyTitle`)
+
+`doApplyTitle` is always called from within an outer `invokeLater` (already on the EDT) or from
+an `Alarm.ThreadToUse.SWING_THREAD` retry (also on the EDT). The inner `invokeLater` was
+redundant and created the race window. All registration work now runs synchronously within
+the same EDT task as the outer `invokeLater`.
+
+#### 2. Added `isShuttingDown` flag to both appliers
+
+```kotlin
+@Volatile private var isShuttingDown = false
+```
+
+Set as the **very first action** in `cancelAllPendingOperations()` (and `cancelCoroutines()`).
+Any EDT task queued before cleanup but executed after the flag is set returns early, so no new
+external references can be created once cleanup has started.
+
+Listener callbacks (`windowGainedFocus`, `PropertyChangeListener`) also check the flag so they
+are no-ops after cleanup, keeping the thread stack free of plugin frames during IntelliJ's GC check.
+
+#### 3. Stored frames alongside listeners
+
+`focusListeners` and `titleListeners` were changed from `ConcurrentHashMap<Project, Listener>` to
+`ConcurrentHashMap<Project, Pair<Listener, Frame>>`. This means cleanup always removes each
+listener from the **exact frame it was added to**, regardless of what
+`WindowManager.getInstance().getFrame(project)` returns at cleanup time.
+
+`cancelAllPendingOperations()` now calls `removeAllTrackedListeners()` eagerly and upfront — it
+iterates the stored `(listener, frame)` pairs, clears the maps, and removes each listener from its
+frame before any other cleanup step runs.
+
+#### 4. Added `WindowAccentApplicationService` (belt-and-suspenders)
+
+Registered in `plugin.xml` as `<applicationService>`:
+
+```xml
+<applicationService serviceImplementation="com.window_accent.WindowAccentApplicationService"/>
+```
+
+IntelliJ calls `dispose()` on all application services during plugin unloading, **before** the
+classloader GC check. `WindowAccentApplicationService.dispose()` sets both shutdown flags and
+re-runs the full cleanup sequence. This provides a guaranteed final sweep even if
+`beforePluginUnload` missed anything due to a timing edge case.
+
+### Key rules to maintain dynamic unloadability
+
+| Rule | Why |
+|------|-----|
+| Never nest `invokeLater` inside another `invokeLater` unnecessarily | Creates a timing window where the inner task can run after cleanup |
+| Always set a `isShuttingDown` flag **first** in cleanup | Prevents any deferred task from re-registering external references |
+| Store the `Frame` alongside each AWT listener | Ensures removal from the correct frame at cleanup time |
+| Register long-lived state as `@Service(Level.APP)` | IntelliJ manages lifecycle and disposes it before the GC check |
+| Remove all `Disposer.register(...)` lambdas explicitly | Any `project → holder → plugin lambda` in `ObjectTree` keeps the classloader alive |
