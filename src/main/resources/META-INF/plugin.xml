@@ -38,6 +38,14 @@
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!--
+            Registering as an application service ensures IntelliJ calls dispose() on this
+            service during plugin unloading, BEFORE the classloader GC check. This is the
+            definitive cleanup hook that prevents "class loader cannot be unloaded" errors
+            - and should allow for updating plugin without needing a restart.
+        -->
+        <applicationService serviceImplementation="com.window_accent.WindowAccentApplicationService"/>
+
         <toolWindow id="WindowAccent"
                     factoryClass="com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory"
                     icon="/META-INF/simple-plugin-icon.svg"

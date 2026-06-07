@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [1.0.13]
+
+### Fixed
+
+- Fourth pass of improving Plugin Unloading to avoid unnecessary project restarts
+  - Define WindowAccentApplicationService to manage lifecyle
+  - Refine cleanup code where possible
+
 ## [1.0.12]
 
 ### Fixed
@@ -134,7 +142,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...HEAD
+[1.0.13]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...1.0.13
 [1.0.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.11...1.0.12
 [1.0.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.10...1.0.11
 [1.0.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.9...1.0.10

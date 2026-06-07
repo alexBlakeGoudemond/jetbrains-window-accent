@@ -40,27 +40,38 @@ class WindowTitleApplier {
 
     private val logger = logger<WindowTitleApplier>()
 
+    /**
+     * Set to true at the very start of [cancelAllPendingOperations].
+     *
+     * Any EDT task that was queued before cleanup began but runs after the flag is set
+     * will see the flag and skip re-registering AWT listeners or Disposer holders,
+     * preventing new platform→plugin references from being created after cleanup.
+     */
+    @Volatile private var isShuttingDown = false
+
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
-    private val focusListeners = ConcurrentHashMap<Project, WindowAdapter>()
-    private val titleListeners = ConcurrentHashMap<Project, java.beans.PropertyChangeListener>()
 
     /**
-     * Alarm used exclusively for the frame-availability retry loop in [applyTitleToWindow].
+     * Stores (listener, frame) pairs so that cleanup can always remove each listener
+     * from the exact frame it was added to, regardless of what
+     * [WindowManager.getInstance().getFrame(project)] returns at cleanup time.
+     */
+    private val focusListeners = ConcurrentHashMap<Project, Pair<WindowAdapter, Frame>>()
+    private val titleListeners = ConcurrentHashMap<Project, Pair<java.beans.PropertyChangeListener, Frame>>()
+
+    /**
+     * Alarm used exclusively for the frame-availability retry loop in [doApplyTitle].
      *
      * Using [Alarm] (rather than a coroutine scope) ensures that [cancelAllRequests] fully
-     * releases all pending request runnables synchronously — setting myRunnable = null on each
-     * request — leaving no plugin-classloader references in any platform scheduler when the
-     * plugin is unloaded. This prevents the classloader-leak that would otherwise require a
-     * restart when updating the plugin dynamically.
+     * releases all pending request runnables synchronously — leaving no plugin-classloader
+     * references in any platform scheduler when the plugin is unloaded.
      */
     private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
 
     /**
-     * Stores a dispose-closure per project. Each closure, when invoked, calls
-     * Disposer.dispose() on the intermediate holder registered under that project.
-     * This avoids needing to reference the Disposable type by name, which is not
-     * directly accessible on the compilation classpath in IntelliJ Platform 2026.1.
+     * Stores a dispose-closure per project so that [disposeAllTrackedDisposables] can
+     * evict the plugin-code lambda from IntelliJ's Disposer ObjectTree during cleanup.
      */
     private val projectDisposeClosures = ConcurrentHashMap<Project, () -> Unit>()
 
@@ -98,8 +109,38 @@ class WindowTitleApplier {
     }
 
     fun cancelAllPendingOperations() {
+        // Set the flag FIRST so that any EDT task already in the queue — but not yet
+        // executed — will see isShuttingDown = true and skip re-registering listeners
+        // or Disposer holders after this cleanup completes.
+        isShuttingDown = true
         retryAlarm.cancelAllRequests()
+        // Proactively remove all tracked AWT listeners from their stored frames immediately.
+        // Using stored frames (not getProjectFrame) guarantees removal from the exact frame
+        // each listener was added to, even if the frame has since changed or become null.
+        removeAllTrackedListeners()
         disposeAllTrackedDisposables()
+    }
+
+    /**
+     * Removes all tracked AWT listeners from their stored frames and clears both maps.
+     *
+     * Called eagerly from [cancelAllPendingOperations] to ensure no AWT Frame holds
+     * a reference to plugin-code listeners at the time of IntelliJ's classloader GC check.
+     */
+    private fun removeAllTrackedListeners() {
+        val focusSnapshot = HashMap(focusListeners)
+        focusListeners.clear()
+        focusSnapshot.forEach { (_, pair) ->
+            val (listener, frame) = pair
+            frame.removeWindowFocusListener(listener)
+        }
+
+        val titleSnapshot = HashMap(titleListeners)
+        titleListeners.clear()
+        titleSnapshot.forEach { (_, pair) ->
+            val (listener, frame) = pair
+            frame.removePropertyChangeListener("title", listener)
+        }
     }
 
     private fun disposeAllTrackedDisposables() {
@@ -121,41 +162,50 @@ class WindowTitleApplier {
     }
 
     /**
-     * Attempts to apply the title prefix to the project window, retrying up to [retriesLeft]
-     * times via [retryAlarm] if the frame is not yet available.
+     * Attempts to apply the title prefix, retrying via [retryAlarm] if the frame is not yet available.
      *
-     * Using [Alarm.addRequest] for retry (rather than a coroutine delay) ensures that
-     * [Alarm.cancelAllRequests] can fully release the pending runnable reference synchronously,
-     * preventing any plugin-classloader leak during dynamic plugin unload.
+     * **No inner invokeLater**: this method is always called from within an outer [invokeLater]
+     * (from [applyTitleToWindow]) or from the [Alarm.ThreadToUse.SWING_THREAD] retry alarm —
+     * both of which already run on the EDT. The previous inner invokeLater was unnecessary and
+     * created a race window where the registration could run *after* [cancelAllPendingOperations]
+     * had already cleaned up the Disposer tree and AWT listeners.
+     *
+     * The [isShuttingDown] guard at the top ensures that any task already queued before cleanup
+     * but executed after it will skip all external registrations.
      */
     private fun doApplyTitle(project: Project, number: Int, retriesLeft: Int) {
+        if (isShuttingDown) return
+
         val frame = getProjectFrame(project)
         if (frame != null) {
-            ApplicationManager.getApplication().invokeLater {
-                updateWindowTitle(frame, number)
-                reapplyOnFocus(project, frame)
-                reapplyOnTitleChange(project, frame)
+            updateWindowTitle(frame, number)
+            reapplyOnFocus(project, frame)
+            reapplyOnTitleChange(project, frame)
 
+            // Double-check the flag before registering with the platform Disposer,
+            // since reapplyOnFocus/reapplyOnTitleChange already added AWT listeners above.
+            if (!isShuttingDown) {
                 val holder = Disposer.newDisposable("WindowAccent-title-cleanup")
                 projectDisposeClosures.put(project) { Disposer.dispose(holder) }?.invoke()
                 Disposer.register(holder) { cleanupListeners(project) }
                 Disposer.register(project, holder)
             }
-        } else if (retriesLeft > 0) {
+        } else if (retriesLeft > 0 && !isShuttingDown) {
             retryAlarm.addRequest({ doApplyTitle(project, number, retriesLeft - 1) }, RETRY_DELAY_MS)
         }
     }
 
     private fun removeTitleFromWindowSync(project: Project) {
+        // Remove listeners using stored frames regardless of getProjectFrame result
+        removeListeners(project)
         val frame = getProjectFrame(project) ?: return
-        removeListeners(project, frame)
         stripTitlePrefix(frame)
     }
 
     private fun removeTitleFromWindow(project: Project) {
         ApplicationManager.getApplication().invokeLater {
+            removeListeners(project)
             val frame = getProjectFrame(project) ?: return@invokeLater
-            removeListeners(project, frame)
             stripTitlePrefix(frame)
         }
     }
@@ -201,6 +251,7 @@ class WindowTitleApplier {
     private fun createFocusListener(project: Project, frame: Frame): WindowAdapter =
         object : WindowAdapter() {
             override fun windowGainedFocus(e: WindowEvent?) {
+                if (isShuttingDown) return
                 val number = projectNumbers[project] ?: return
                 updateWindowTitle(frame, number)
             }
@@ -208,6 +259,7 @@ class WindowTitleApplier {
 
     private fun createTitleListener(project: Project, frame: Frame): java.beans.PropertyChangeListener =
         java.beans.PropertyChangeListener { event ->
+            if (isShuttingDown) return@PropertyChangeListener
             if ("title" == event.propertyName) {
                 val newTitle = event.newValue as? String ?: return@PropertyChangeListener
                 val number = projectNumbers[project] ?: return@PropertyChangeListener
@@ -219,33 +271,41 @@ class WindowTitleApplier {
         }
 
     private fun replaceFocusListener(project: Project, frame: Frame, listener: WindowAdapter) {
-        focusListeners.remove(project)?.let { oldListener ->
-            frame.removeWindowFocusListener(oldListener)
+        // Remove the old listener from its original frame (stored alongside the listener)
+        focusListeners.remove(project)?.let { (oldListener, oldFrame) ->
+            oldFrame.removeWindowFocusListener(oldListener)
         }
-        focusListeners[project] = listener
+        focusListeners[project] = listener to frame
         frame.addWindowFocusListener(listener)
     }
 
     private fun replaceTitleListener(project: Project, frame: Frame, listener: java.beans.PropertyChangeListener) {
-        titleListeners.remove(project)?.let { oldListener ->
-            frame.removePropertyChangeListener("title", oldListener)
+        // Remove the old listener from its original frame (stored alongside the listener)
+        titleListeners.remove(project)?.let { (oldListener, oldFrame) ->
+            oldFrame.removePropertyChangeListener("title", oldListener)
         }
-        titleListeners[project] = listener
+        titleListeners[project] = listener to frame
         frame.addPropertyChangeListener("title", listener)
     }
 
-    private fun removeListeners(project: Project, frame: Frame) {
-        focusListeners.remove(project)?.let { listener ->
+    /**
+     * Removes tracked listeners for [project] from their stored frames.
+     *
+     * Uses the stored frame reference rather than [getProjectFrame] to guarantee
+     * removal from the exact frame each listener was added to, even if that frame
+     * has since become unreachable via [WindowManager].
+     */
+    private fun removeListeners(project: Project) {
+        focusListeners.remove(project)?.let { (listener, frame) ->
             frame.removeWindowFocusListener(listener)
         }
-        titleListeners.remove(project)?.let { listener ->
+        titleListeners.remove(project)?.let { (listener, frame) ->
             frame.removePropertyChangeListener("title", listener)
         }
     }
 
     private fun cleanupListeners(project: Project) {
-        val frame = getProjectFrame(project) ?: return
-        removeListeners(project, frame)
+        removeListeners(project)
     }
 
     fun resetProjectNumbering() {
