@@ -4,11 +4,16 @@
 
 ## [1.0.12]
 
+### Fixed
+
+- Third pass of improving Plugin Unloading to avoid unnecessary project restarts
+  - Use Alarm.ThreadToUse.SWING_THREAD to try release references to plugin-code synchronously
+
 ## [1.0.11]
 
 ### Fixed
 
-- Second pass of Improving Plugin Unloading to avoid unnecessary project restarts
+- Second pass of improving Plugin Unloading to avoid unnecessary project restarts
   - leverage `scope.cancel()` when unloading
 
 ## [1.0.10]
