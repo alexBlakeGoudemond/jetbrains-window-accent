@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
+import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import com.window_accent.feature.window_color.WindowColorApplier
@@ -33,6 +34,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
         val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
+        val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
 
         val panel = JPanel(GridLayout(0, 1, 8, 8))
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
@@ -41,6 +43,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val toggleAllTitlesButton = JButton()
         val toggleCurrentColorButton = JButton()
         val toggleCurrentTitleButton = JButton()
+        val toggleCurrentCustomTitleButton = JButton()
 
         fun refreshButtonText() {
             toggleAllColorsButton.text =
@@ -58,6 +61,10 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             toggleCurrentTitleButton.text =
                 if (titleSettings.isTitleNumberingEnabled()) "Disable title number for current window"
                 else "Enable title number for current window"
+
+            toggleCurrentCustomTitleButton.text =
+                if (customTitleSettings.isCustomTitleEnabled()) "Disable custom title for current window"
+                else "Enable custom title for current window"
         }
 
         toggleAllColorsButton.addActionListener {
@@ -88,12 +95,20 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             refreshButtonText()
         }
 
+        toggleCurrentCustomTitleButton.addActionListener {
+            val enabled = customTitleSettings.isCustomTitleDisabled()
+            customTitleSettings.setCustomTitleEnabled(enabled)
+            WindowTitleApplier.applyToCurrentOpenProject(project)
+            refreshButtonText()
+        }
+
         refreshButtonText()
 
         panel.add(toggleAllColorsButton)
         panel.add(toggleAllTitlesButton)
         panel.add(toggleCurrentColorButton)
         panel.add(toggleCurrentTitleButton)
+        panel.add(toggleCurrentCustomTitleButton)
 
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
