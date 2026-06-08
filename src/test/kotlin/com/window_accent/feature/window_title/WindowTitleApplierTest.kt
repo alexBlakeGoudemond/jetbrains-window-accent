@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
+import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -44,8 +45,12 @@ class WindowTitleApplierTest {
 
         val mockTitleNumberingService1 = WindowTitleNumberingStateService()
         val mockTitleNumberingService2 = WindowTitleNumberingStateService()
+        val mockCustomTitleService1 = WindowCustomTitleStateService()
+        val mockCustomTitleService2 = WindowCustomTitleStateService()
         Mockito.`when`(mockProject1.getService(WindowTitleNumberingStateService::class.java)).thenReturn(mockTitleNumberingService1)
         Mockito.`when`(mockProject2.getService(WindowTitleNumberingStateService::class.java)).thenReturn(mockTitleNumberingService2)
+        Mockito.`when`(mockProject1.getService(WindowCustomTitleStateService::class.java)).thenReturn(mockCustomTitleService1)
+        Mockito.`when`(mockProject2.getService(WindowCustomTitleStateService::class.java)).thenReturn(mockCustomTitleService2)
         mockTitleNumberingService1.setTitleNumberingEnabled(true)
         mockTitleNumberingService2.setTitleNumberingEnabled(true)
     }
@@ -92,6 +97,9 @@ class WindowTitleApplierTest {
         assertEquals("Title", applier.stripExistingPrefix("[1] [2] Title"))
         assertEquals("No Prefix", applier.stripExistingPrefix("No Prefix"))
         assertEquals("Title [With Brackets]", applier.stripExistingPrefix("[1] Title [With Brackets]"))
+        assertEquals("Title", applier.stripExistingPrefix("[dattebayo] Title"))
+        assertEquals("Title", applier.stripExistingPrefix("[1 - dattebayo] Title"))
+        assertEquals("Title", applier.stripExistingPrefix("[1 - dattebayo] [2] Title"))
     }
 
     @Test
@@ -103,10 +111,62 @@ class WindowTitleApplierTest {
     }
 
     @Test
-    @DisplayName("Should update window title with prefix")
-    fun testUpdateWindowTitle() {
+    @DisplayName("Should update window title with number prefix only")
+    fun testUpdateWindowTitleNumberOnly() {
         applier.updateWindowTitle(mockFrame1, 5)
         assertEquals("[5] Test Project 1", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Should update window title with custom title prefix only")
+    fun testUpdateWindowTitleCustomTitleOnly() {
+        applier.updateWindowTitle(mockFrame1, 5, customTitle = "dattebayo", customTitleEnabled = true, numberingEnabled = false)
+        assertEquals("[dattebayo] Test Project 1", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Should update window title with both number and custom title")
+    fun testUpdateWindowTitleNumberAndCustomTitle() {
+        applier.updateWindowTitle(mockFrame1, 2, customTitle = "dattebayo", customTitleEnabled = true, numberingEnabled = true)
+        assertEquals("[2 - dattebayo] Test Project 1", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Should update window title with no prefix when both disabled")
+    fun testUpdateWindowTitleBothDisabled() {
+        mockFrame1.title = "[1] Test Project 1"
+        applier.updateWindowTitle(mockFrame1, 1, customTitle = "dattebayo", customTitleEnabled = false, numberingEnabled = false)
+        assertEquals("Test Project 1", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering on, custom title on")
+    fun testBuildTitlePrefixBoth() {
+        assertEquals("[2 - dattebayo]", applier.buildTitlePrefix(2, true, "dattebayo", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering on, custom title off")
+    fun testBuildTitlePrefixNumberOnly() {
+        assertEquals("[3]", applier.buildTitlePrefix(3, true, "dattebayo", false))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering off, custom title on")
+    fun testBuildTitlePrefixCustomOnly() {
+        assertEquals("[dattebayo]", applier.buildTitlePrefix(1, false, "dattebayo", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering off, custom title off")
+    fun testBuildTitlePrefixNone() {
+        assertEquals("", applier.buildTitlePrefix(1, false, "dattebayo", false))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering on, custom title enabled but blank")
+    fun testBuildTitlePrefixBlankCustomTitle() {
+        assertEquals("[1]", applier.buildTitlePrefix(1, true, "", true))
     }
 
     @Test
