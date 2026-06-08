@@ -4,6 +4,12 @@
 
 ## [1.2.0]
 
+### Fixed
+
+- Improved Plugin description
+  - Leverage header tags and emojis to improve readability
+  - Review phrasing of description
+
 ## [1.1.0]
 
 ### Added
