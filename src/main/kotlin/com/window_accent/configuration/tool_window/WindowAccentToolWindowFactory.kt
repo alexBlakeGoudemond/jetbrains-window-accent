@@ -7,11 +7,14 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
+import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService.Side
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.GridLayout
 import javax.swing.BorderFactory
+import javax.swing.Box
+import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JPanel
 
@@ -20,46 +23,54 @@ import javax.swing.JPanel
  *
  * In IntelliJ terminology:
  *
- * - “Smart mode” = indexes are ready, PSI/model analysis works normally
- * - “Dumb mode” = the IDE is still indexing, so many code-analysis features are temporarily unavailable
+ * - "Smart mode" = indexes are ready, PSI/model analysis works normally
+ * - "Dumb mode" = the IDE is still indexing, so many code-analysis features are temporarily unavailable
  *
  * When your class implements DumbAware, you're telling the IDE:
  *
- * “This component can safely run even while the IDE is indexing.”
+ * "This component can safely run even while the IDE is indexing."
  *
  * @see DumbAware
  * */
 class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
+
+    /** Cycle order for the panel direction button: N → S → W → E → N */
+    private val sidesCycleOrder = listOf(Side.NORTH, Side.SOUTH, Side.WEST, Side.EAST)
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
         val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
 
-        val panel = JPanel(GridLayout(0, 1, 8, 8))
+        val panel = JPanel()
+        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
         panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
         val toggleAllColorsButton = JButton()
-        val toggleAllTitlesButton = JButton()
         val toggleCurrentColorButton = JButton()
+        val cyclePanelDirectionButton = JButton()
+
+        val toggleAllTitlesButton = JButton()
         val toggleCurrentTitleButton = JButton()
+
         val toggleCurrentCustomTitleButton = JButton()
 
         fun refreshButtonText() {
+            val colorsEnabled = colorSettings.panelIsEnabled()
             toggleAllColorsButton.text =
-                if (colorSettings.panelIsEnabled()) "Disable colors for all open windows"
+                if (colorsEnabled) "Disable colors for all open windows"
                 else "Enable colors for all open windows"
-
-            toggleAllTitlesButton.text =
-                if (titleSettings.isTitleNumberingEnabled()) "Disable title numbers for all open windows"
-                else "Enable title numbers for all open windows"
-
             toggleCurrentColorButton.text =
-                if (colorSettings.panelIsEnabled()) "Disable color for current window"
+                if (colorsEnabled) "Disable color for current window"
                 else "Enable color for current window"
 
+            cyclePanelDirectionButton.text = "Panel direction: ${colorSettings.getSide()}"
+            val titlesEnabled = titleSettings.isTitleNumberingEnabled()
+            toggleAllTitlesButton.text =
+                if (titlesEnabled) "Disable title numbers for all open windows"
+                else "Enable title numbers for all open windows"
             toggleCurrentTitleButton.text =
-                if (titleSettings.isTitleNumberingEnabled()) "Disable title number for current window"
+                if (titlesEnabled) "Disable title number for current window"
                 else "Enable title number for current window"
 
             toggleCurrentCustomTitleButton.text =
@@ -74,17 +85,25 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             refreshButtonText()
         }
 
-        toggleAllTitlesButton.addActionListener {
-            val enabled = titleSettings.isTitleNumberingDisabled()
-            titleSettings.setTitleNumberingEnabled(enabled)
-            WindowTitleApplier.applyToAllOpenProjects(enabled)
-            refreshButtonText()
-        }
-
         toggleCurrentColorButton.addActionListener {
             val enabled = colorSettings.panelIsDisabled()
             colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToCurrentOpenProject(project)
+            refreshButtonText()
+        }
+
+        cyclePanelDirectionButton.addActionListener {
+            val currentIndex = sidesCycleOrder.indexOf(colorSettings.getSide())
+            val nextSide = sidesCycleOrder[(currentIndex + 1) % sidesCycleOrder.size]
+            colorSettings.setSide(nextSide)
+            WindowColorApplier.applyToCurrentOpenProject(project)
+            refreshButtonText()
+        }
+
+        toggleAllTitlesButton.addActionListener {
+            val enabled = titleSettings.isTitleNumberingDisabled()
+            titleSettings.setTitleNumberingEnabled(enabled)
+            WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
 
@@ -104,13 +123,22 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         refreshButtonText()
 
-        panel.add(toggleAllColorsButton)
-        panel.add(toggleAllTitlesButton)
-        panel.add(toggleCurrentColorButton)
-        panel.add(toggleCurrentTitleButton)
-        panel.add(toggleCurrentCustomTitleButton)
+        panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
+        panel.add(Box.createVerticalStrut(8))
+        panel.add(buildButtonRow(toggleAllTitlesButton, toggleCurrentTitleButton))
+        panel.add(Box.createVerticalStrut(8))
+        panel.add(buildButtonRow(toggleCurrentCustomTitleButton))
 
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
+    }
+
+    /**
+     * Creates a horizontal row of buttons that each fill an equal share of the available width.
+     */
+    private fun buildButtonRow(vararg buttons: JButton): JPanel {
+        val row = JPanel(GridLayout(1, buttons.size, 8, 0))
+        buttons.forEach { row.add(it) }
+        return row
     }
 }
