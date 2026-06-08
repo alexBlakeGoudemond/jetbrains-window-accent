@@ -4,6 +4,11 @@
 
 ## [1.1.0]
 
+### Added
+
+- Added ability to set a custom window title, separate from the window numbering
+  - Adding a custom title will appear alongside the title number, if enabled: `[1 - customTitle] ...`
+
 ## [1.0.13]
 
 ### Fixed
