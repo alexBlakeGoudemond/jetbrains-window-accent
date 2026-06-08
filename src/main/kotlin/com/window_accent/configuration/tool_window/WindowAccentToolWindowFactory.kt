@@ -57,25 +57,31 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun refreshButtonText() {
             val colorsEnabled = colorSettings.panelIsEnabled()
-            toggleAllColorsButton.text =
+            toggleAllColorsButton.text = wrapTextInHtmlCenter(
                 if (colorsEnabled) "Disable colors for all open windows"
                 else "Enable colors for all open windows"
-            toggleCurrentColorButton.text =
+            )
+            toggleCurrentColorButton.text = wrapTextInHtmlCenter(
                 if (colorsEnabled) "Disable color for current window"
                 else "Enable color for current window"
+            )
 
-            cyclePanelDirectionButton.text = "Panel direction: ${colorSettings.getSide()}"
+            cyclePanelDirectionButton.text = wrapTextInHtmlCenter("Panel direction: ${colorSettings.getSide()}")
+
             val titlesEnabled = titleSettings.isTitleNumberingEnabled()
-            toggleAllTitlesButton.text =
+            toggleAllTitlesButton.text = wrapTextInHtmlCenter(
                 if (titlesEnabled) "Disable title numbers for all open windows"
                 else "Enable title numbers for all open windows"
-            toggleCurrentTitleButton.text =
+            )
+            toggleCurrentTitleButton.text = wrapTextInHtmlCenter(
                 if (titlesEnabled) "Disable title number for current window"
                 else "Enable title number for current window"
+            )
 
-            toggleCurrentCustomTitleButton.text =
+            toggleCurrentCustomTitleButton.text = wrapTextInHtmlCenter(
                 if (customTitleSettings.isCustomTitleEnabled()) "Disable custom title for current window"
                 else "Enable custom title for current window"
+            )
         }
 
         toggleAllColorsButton.addActionListener {
@@ -132,6 +138,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
     }
+
+    /**
+     * Wraps [text] in an HTML centre block so that Swing renders it with
+     * automatic word-wrapping when the button is narrower than the full label.
+     */
+    private fun wrapTextInHtmlCenter(text: String) = "<html><center>$text</center></html>"
 
     /**
      * Creates a horizontal row of buttons that each fill an equal share of the available width.
