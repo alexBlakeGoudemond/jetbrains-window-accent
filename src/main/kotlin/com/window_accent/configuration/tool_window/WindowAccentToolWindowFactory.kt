@@ -4,6 +4,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.ui.JBColor
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -11,6 +12,8 @@ import com.window_accent.configuration.persistence.WindowPanelAppearanceStateSer
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
+import java.awt.Color
+import java.awt.Font
 import java.awt.GridLayout
 import javax.swing.BorderFactory
 import javax.swing.Box
@@ -55,11 +58,18 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         val toggleCurrentCustomTitleButton = JButton()
 
+        styleAsAllButton(toggleAllColorsButton)
+        styleAsAllButton(toggleAllTitlesButton)
+        styleAsCurrentButton(toggleCurrentColorButton)
+        styleAsCurrentButton(toggleCurrentTitleButton)
+        styleAsCurrentButton(toggleCurrentCustomTitleButton)
+        styleAsCycleButton(cyclePanelDirectionButton)
+
         fun refreshButtonText() {
             val colorsEnabled = colorSettings.panelIsEnabled()
             toggleAllColorsButton.text = wrapTextInHtmlCenter(
-                if (colorsEnabled) "Disable colors for all open windows"
-                else "Enable colors for all open windows"
+                if (colorsEnabled) "Disable colors for <b>all</b> open windows"
+                else "Enable colors for <b>all</b> open windows"
             )
             toggleCurrentColorButton.text = wrapTextInHtmlCenter(
                 if (colorsEnabled) "Disable color for current window"
@@ -71,8 +81,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             val titlesEnabled = titleSettings.isTitleNumberingEnabled()
             toggleAllTitlesButton.text = wrapTextInHtmlCenter(
-                if (titlesEnabled) "Disable title numbers for all open windows"
-                else "Enable title numbers for all open windows"
+                if (titlesEnabled) "Disable title numbers for <b>all</b> open windows"
+                else "Enable title numbers for <b>all</b> open windows"
             )
             toggleCurrentTitleButton.text = wrapTextInHtmlCenter(
                 if (titlesEnabled) "Disable title number for current window"
@@ -145,6 +155,40 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
      * automatic word-wrapping when the button is narrower than the full label.
      */
     private fun wrapTextInHtmlCenter(text: String) = "<html><center>$text</center></html>"
+
+    /**
+     * Styles a button that operates on **all** open windows.
+     *
+     * Applies a steel-blue border (theme-aware via [JBColor]) and bold font
+     * to visually signal wide-impact actions.
+     */
+    private fun styleAsAllButton(button: JButton) {
+        val borderColor = JBColor(Color(0x4682B4), Color(0x58A6FF))
+        button.border = BorderFactory.createLineBorder(borderColor, 2, true)
+        button.font = button.font.deriveFont(Font.BOLD)
+    }
+
+    /**
+     * Styles a button that operates on the **current** window only.
+     *
+     * Applies a muted-green border (theme-aware via [JBColor]) to signal
+     * a scoped, lower-impact action.
+     */
+    private fun styleAsCurrentButton(button: JButton) {
+        val borderColor = JBColor(Color(0x5A8A5A), Color(0x3FB950))
+        button.border = BorderFactory.createLineBorder(borderColor, 1, true)
+    }
+
+    /**
+     * Styles the cycle-direction button.
+     *
+     * Applies a warm-amber border (theme-aware via [JBColor]) to distinguish
+     * it as a mode/configuration control rather than an enable/disable toggle.
+     */
+    private fun styleAsCycleButton(button: JButton) {
+        val borderColor = JBColor(Color(0xB8860B), Color(0xD29922))
+        button.border = BorderFactory.createLineBorder(borderColor, 1, true)
+    }
 
     /**
      * Creates a horizontal row of buttons that each fill an equal share of the available width.
