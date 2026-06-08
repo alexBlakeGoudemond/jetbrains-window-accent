@@ -67,6 +67,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
 
             cyclePanelDirectionButton.text = wrapTextInHtmlCenter("Panel direction: ${colorSettings.getSide()}")
+            cyclePanelDirectionButton.toolTipText = "Click Me! Cycle the color panel location"
 
             val titlesEnabled = titleSettings.isTitleNumberingEnabled()
             toggleAllTitlesButton.text = wrapTextInHtmlCenter(
