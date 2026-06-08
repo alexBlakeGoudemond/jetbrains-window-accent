@@ -2,6 +2,7 @@ package com.window_accent
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -32,6 +33,10 @@ class PluginStartupActivityTest {
             val mockTitleService = WindowTitleNumberingStateService()
             Mockito.`when`(mockProject.getService(WindowTitleNumberingStateService::class.java))
                 .thenReturn(mockTitleService)
+
+            val mockCustomTitleService = WindowCustomTitleStateService()
+            Mockito.`when`(mockProject.getService(WindowCustomTitleStateService::class.java))
+                .thenReturn(mockCustomTitleService)
 
             // Since execute is suspend, we need to run it in a coroutine
             assertDoesNotThrow {

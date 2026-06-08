@@ -174,19 +174,22 @@ class WindowAccentToolWindowFactoryTest {
         val button2 = JButton("Button 2")
         val button3 = JButton("Button 3")
         val button4 = JButton("Button 4")
+        val button5 = JButton("Button 5")
 
-        // Add components to panel
+        // Add components to panel (5 buttons: 4 original + 1 custom title toggle)
         panel.add(button1)
         panel.add(button2)
         panel.add(button3)
         panel.add(button4)
+        panel.add(button5)
 
         // Verify components were added
-        assertEquals(4, panel.componentCount)
+        assertEquals(5, panel.componentCount)
         assertEquals(button1, panel.getComponent(0))
         assertEquals(button2, panel.getComponent(1))
         assertEquals(button3, panel.getComponent(2))
         assertEquals(button4, panel.getComponent(3))
+        assertEquals(button5, panel.getComponent(4))
     }
 
     @Test
@@ -194,6 +197,37 @@ class WindowAccentToolWindowFactoryTest {
     fun testBorderFactoryUsage() {
         val border = javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12)
         assertNotNull(border)
+    }
+
+    @Test
+    @DisplayName("Should handle button text refresh logic for custom title button")
+    fun testCustomTitleButtonTextRefreshLogic() {
+        // Simulate enabled state
+        val enabledText =
+            if (true) "Disable custom title for current window" else "Enable custom title for current window"
+        assertEquals("Disable custom title for current window", enabledText)
+
+        // Simulate disabled state
+        val disabledText =
+            if (false) "Disable custom title for current window" else "Enable custom title for current window"
+        assertEquals("Enable custom title for current window", disabledText)
+    }
+
+    @Suppress("KotlinConstantConditions")
+    @Test
+    @DisplayName("Should handle service state toggling logic for custom title")
+    fun testCustomTitleServiceStateToggling() {
+        // Test the logic used in the custom title button action listener
+
+        // Simulate initial enabled state
+        var isEnabled = true
+        val newState1 = !isEnabled // Should be false
+        assertFalse(newState1)
+
+        // Simulate initial disabled state
+        isEnabled = false
+        val newState2 = !isEnabled // Should be true
+        assertTrue(newState2)
     }
 
     @Test

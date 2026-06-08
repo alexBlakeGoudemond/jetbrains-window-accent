@@ -7,6 +7,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.Alarm
+import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
 import java.awt.event.WindowAdapter
@@ -76,9 +77,11 @@ class WindowTitleApplier {
     private val projectDisposeClosures = ConcurrentHashMap<Project, () -> Unit>()
 
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
-        val actualEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
+        val numberingEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
+        val customTitleEnabled = project.getService(WindowCustomTitleStateService::class.java).isCustomTitleEnabled()
+        val shouldApply = numberingEnabled || customTitleEnabled
         ApplicationManager.getApplication().invokeLater {
-            if (actualEnabled) {
+            if (shouldApply) {
                 applyTitleToWindow(project)
             } else {
                 removeTitleFromWindow(project)
@@ -178,7 +181,14 @@ class WindowTitleApplier {
 
         val frame = getProjectFrame(project)
         if (frame != null) {
-            updateWindowTitle(frame, number)
+            val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
+            val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
+            updateWindowTitle(
+                frame, number,
+                customTitle = customTitleService.getCustomTitle(),
+                customTitleEnabled = customTitleService.isCustomTitleEnabled(),
+                numberingEnabled = numberingService.isTitleNumberingEnabled()
+            )
             reapplyOnFocus(project, frame)
             reapplyOnTitleChange(project, frame)
 
@@ -216,13 +226,45 @@ class WindowTitleApplier {
     internal fun getWindowProjectNumber(project: Project): Int =
         projectNumbers.computeIfAbsent(project) { counter.getAndIncrement() }
 
-    internal fun updateWindowTitle(frame: Frame, number: Int) {
+    internal fun updateWindowTitle(
+        frame: Frame,
+        number: Int,
+        customTitle: String = "",
+        customTitleEnabled: Boolean = false,
+        numberingEnabled: Boolean = true
+    ) {
         val currentTitle = frame.title ?: return
         val cleanedTitle = stripExistingPrefix(currentTitle)
-        val updatedTitle = "[$number] $cleanedTitle"
+        val prefix = buildTitlePrefix(number, numberingEnabled, customTitle, customTitleEnabled)
+        val updatedTitle = if (prefix.isNotEmpty()) "$prefix $cleanedTitle" else cleanedTitle
 
         if (frame.title != updatedTitle) {
             frame.title = updatedTitle
+        }
+    }
+
+    /**
+     * Builds the window title prefix based on the current numbering and custom title state.
+     *
+     * | Numbering | Custom title | Result              |
+     * |-----------|--------------|---------------------|
+     * | enabled   | enabled      | `[n - customTitle]` |
+     * | enabled   | disabled     | `[n]`               |
+     * | disabled  | enabled      | `[customTitle]`     |
+     * | disabled  | disabled     | `""` (no prefix)    |
+     */
+    internal fun buildTitlePrefix(
+        number: Int,
+        numberingEnabled: Boolean,
+        customTitle: String,
+        customTitleEnabled: Boolean
+    ): String {
+        val hasCustomTitle = customTitleEnabled && customTitle.isNotBlank()
+        return when {
+            numberingEnabled && hasCustomTitle -> "[$number - $customTitle]"
+            numberingEnabled -> "[$number]"
+            hasCustomTitle -> "[$customTitle]"
+            else -> ""
         }
     }
 
@@ -236,7 +278,7 @@ class WindowTitleApplier {
     }
 
     internal fun stripExistingPrefix(title: String): String =
-        title.replace(Regex("^(\\[\\d+]\\s*)+"), "")
+        title.replace(Regex("^(\\[[^\\]]+]\\s*)+"), "")
 
     private fun reapplyOnFocus(project: Project, frame: Frame) {
         val listener = createFocusListener(project, frame)
@@ -253,7 +295,14 @@ class WindowTitleApplier {
             override fun windowGainedFocus(e: WindowEvent?) {
                 if (isShuttingDown) return
                 val number = projectNumbers[project] ?: return
-                updateWindowTitle(frame, number)
+                val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
+                val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
+                updateWindowTitle(
+                    frame, number,
+                    customTitle = customTitleService.getCustomTitle(),
+                    customTitleEnabled = customTitleService.isCustomTitleEnabled(),
+                    numberingEnabled = numberingService.isTitleNumberingEnabled()
+                )
             }
         }
 
@@ -263,9 +312,22 @@ class WindowTitleApplier {
             if ("title" == event.propertyName) {
                 val newTitle = event.newValue as? String ?: return@PropertyChangeListener
                 val number = projectNumbers[project] ?: return@PropertyChangeListener
-                val expectedPrefix = "[$number] "
-                if (!newTitle.startsWith(expectedPrefix)) {
-                    updateWindowTitle(frame, number)
+                val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
+                val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
+                val expectedPrefix = buildTitlePrefix(
+                    number,
+                    numberingService.isTitleNumberingEnabled(),
+                    customTitleService.getCustomTitle(),
+                    customTitleService.isCustomTitleEnabled()
+                )
+                val expectedFullPrefix = if (expectedPrefix.isNotEmpty()) "$expectedPrefix " else ""
+                if (expectedFullPrefix.isEmpty() || !newTitle.startsWith(expectedFullPrefix)) {
+                    updateWindowTitle(
+                        frame, number,
+                        customTitle = customTitleService.getCustomTitle(),
+                        customTitleEnabled = customTitleService.isCustomTitleEnabled(),
+                        numberingEnabled = numberingService.isTitleNumberingEnabled()
+                    )
                 }
             }
         }

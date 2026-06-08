@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.1.0]
+
+### Added
+
+- Added ability to set a custom window title, separate from the window numbering
+  - Adding a custom title will appear alongside the title number, if enabled: `[1 - customTitle] ...`
+
 ## [1.0.13]
 
 ### Fixed
@@ -142,7 +149,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...1.1.0
 [1.0.13]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...1.0.13
 [1.0.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.11...1.0.12
 [1.0.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.10...1.0.11

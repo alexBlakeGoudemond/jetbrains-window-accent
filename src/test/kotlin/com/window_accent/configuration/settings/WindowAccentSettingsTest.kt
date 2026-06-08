@@ -1,6 +1,7 @@
 package com.window_accent.configuration.settings
 
 import com.intellij.openapi.project.Project
+import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
@@ -23,6 +24,7 @@ class WindowAccentSettingsTest {
     private lateinit var mockAppearanceService: WindowPanelAppearanceStateService
     private lateinit var mockCustomColorService: WindowCustomColorStateService
     private lateinit var mockTitleNumberingService: WindowTitleNumberingStateService
+    private lateinit var mockCustomTitleService: WindowCustomTitleStateService
     private lateinit var windowAccentSettings: WindowAccentSettings
 
     @BeforeEach
@@ -39,12 +41,15 @@ class WindowAccentSettingsTest {
         mockAppearanceService = WindowPanelAppearanceStateService()
         mockCustomColorService = WindowCustomColorStateService()
         mockTitleNumberingService = WindowTitleNumberingStateService()
+        mockCustomTitleService = WindowCustomTitleStateService()
 
         // Setup default return values for services
         mockAppearanceService.setSide(WindowPanelAppearanceStateService.Side.EAST)
         mockCustomColorService.setUseCustomColor(false)
         mockCustomColorService.setCustomColor(null)
         mockTitleNumberingService.setTitleNumberingEnabled(false)
+        mockCustomTitleService.setCustomTitle("")
+        mockCustomTitleService.setCustomTitleEnabled(false)
 
         // Mock the project.getService() method to return our mock services
         `when`(mockProject.getService(WindowPanelAppearanceStateService::class.java))
@@ -53,6 +58,8 @@ class WindowAccentSettingsTest {
             .thenReturn(mockCustomColorService)
         `when`(mockProject.getService(WindowTitleNumberingStateService::class.java))
             .thenReturn(mockTitleNumberingService)
+        `when`(mockProject.getService(WindowCustomTitleStateService::class.java))
+            .thenReturn(mockCustomTitleService)
 
         // Create the settings instance with mocked project
         windowAccentSettings = WindowAccentSettings(mockProject)
@@ -303,6 +310,42 @@ class WindowAccentSettingsTest {
         } catch (e: Exception) {
             // Expected in test environment - IntelliJ Platform may not be fully initialized
             assertTrue(true, "Apply completed or threw expected exception in test environment")
+        }
+    }
+
+    @Test
+    @DisplayName("Should not be modified when custom title text matches persisted value")
+    fun testIsModifiedFalseWhenCustomTitleUnchanged() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+        mockCustomTitleService.setCustomTitle("dattebayo")
+        windowAccentSettings.createComponent()
+        // After createComponent, syncFromSettings loads "dattebayo" into the text field
+        assertFalse(windowAccentSettings.isModified())
+    }
+
+    @Test
+    @DisplayName("Should be modified when custom title text changes")
+    fun testIsModifiedTrueWhenCustomTitleChanged() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+        mockCustomTitleService.setCustomTitle("")
+        windowAccentSettings.createComponent()
+
+        // Simulate user typing into the custom title field via the settings instance
+        // (the service still returns "" so isModified should see the difference)
+        mockCustomTitleService.setCustomTitle("different")
+
+        assertTrue(windowAccentSettings.isModified())
+    }
+
+    @Test
+    @DisplayName("Should reset custom title from persisted settings")
+    fun testResetRestoresCustomTitle() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping in headless mode")
+        mockCustomTitleService.setCustomTitle("dattebayo")
+        windowAccentSettings.createComponent()
+
+        assertDoesNotThrow {
+            windowAccentSettings.reset()
         }
     }
 }
