@@ -27,8 +27,7 @@ class PluginStartupActivityTest {
             val mockApplication = mock(com.intellij.openapi.application.Application::class.java)
             applicationManagerMock.`when`<com.intellij.openapi.application.Application> { ApplicationManager.getApplication() }
                 .thenReturn(mockApplication)
-
-            Mockito.doNothing().`when`(mockApplication).invokeLater(Mockito.any(Runnable::class.java))
+            Mockito.`when`(mockApplication.isDispatchThread).thenReturn(false)
 
             val mockTitleService = WindowTitleNumberingStateService()
             Mockito.`when`(mockProject.getService(WindowTitleNumberingStateService::class.java))
