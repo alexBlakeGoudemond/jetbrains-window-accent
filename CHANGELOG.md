@@ -10,6 +10,11 @@
   - Leverage header tags and emojis to improve readability
   - Review phrasing of description
 
+### Added
+
+- Brought in a button in the Tool Window to cycle Color Panel Location
+  - One can now quickly set the location of the Color Panel: NSWE
+
 ## [1.1.0]
 
 ### Added
