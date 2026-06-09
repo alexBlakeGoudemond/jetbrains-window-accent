@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.2.1]
+
+### Fixed
+
+- Reduced dynamic-unload restart fallback risk during plugin update
+    - Replaced queued EDT `invokeLater` accent application/removal calls with synchronous EDT execution
+    - Avoids leaving queued plugin runnables in the event queue during classloader unload checks
+
+### Added
+
+- Added `.ai-resources` to assist with onboarding the AI model when a fresh context window is used
+
 ## [1.2.0]
 
 ### Fixed
@@ -162,7 +174,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...HEAD
+[1.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...1.1.0
 [1.0.13]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...1.0.13

@@ -70,6 +70,7 @@ class WindowTitleApplierTest {
 
         windowManagerMock = Mockito.mockStatic(WindowManager::class.java)
         windowManagerMock.`when`<WindowManager> { WindowManager.getInstance() }.thenReturn(mockWindowManager)
+        Mockito.`when`(mockApplication.isDispatchThread).thenReturn(true)
 
         // Setup invokeLater to run immediately for testing
         Mockito.doAnswer { invocation ->

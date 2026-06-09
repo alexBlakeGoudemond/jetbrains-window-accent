@@ -43,12 +43,19 @@ object WindowColorApplier {
     /**
      * Alarm used exclusively for the frame-availability retry loop in [applyColorToWindow].
      *
-     * Using [Alarm] (rather than a coroutine scope) ensures that [cancelAllRequests] fully
+     * Using [Alarm] (rather than a coroutine scope) ensures that [Alarm.cancelAllRequests] fully
      * releases all pending request runnables synchronously — leaving no plugin-classloader
      * references in any platform scheduler when the plugin is unloaded.
      */
     private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
 
+    /**
+     * Performs synchronous shutdown cleanup for pending UI work.
+     *
+     * Even though no coroutines are used here, this method is kept to match the existing
+     * shutdown API. It marks the applier as shutting down and clears any queued retry tasks
+     * so no panel updates run after plugin unload begins.
+     */
     fun cancelCoroutines() {
         // Set the flag FIRST so any EDT task still in the queue skips re-adding panels
         isShuttingDown = true
@@ -56,13 +63,13 @@ object WindowColorApplier {
     }
 
     fun applyToCurrentOpenProject(project: Project) {
-        ApplicationManager.getApplication().invokeLater {
+        runOnEdt {
             applyColorToWindow(project)
         }
     }
 
     fun applyToAllOpenProjects(enabled: Boolean) {
-        ApplicationManager.getApplication().invokeLater {
+        runOnEdt {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 project.getService(WindowPanelAppearanceStateService::class.java).setPanelEnabled(enabled)
                 applyColorToWindow(project)
@@ -99,6 +106,15 @@ object WindowColorApplier {
 
     private fun getProjectFrame(project: Project) =
         WindowManager.getInstance().getFrame(project)
+
+    private inline fun runOnEdt(crossinline action: () -> Unit) {
+        val application = ApplicationManager.getApplication()
+        if (application.isDispatchThread) {
+            action()
+        } else {
+            application.invokeAndWait { action() }
+        }
+    }
 
     private fun findExistingColoredPanel(rootContentPane: Container): Component? {
         return rootContentPane.components.firstOrNull {

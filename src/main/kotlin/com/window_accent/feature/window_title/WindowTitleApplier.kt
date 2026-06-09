@@ -80,7 +80,7 @@ class WindowTitleApplier {
         val numberingEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
         val customTitleEnabled = project.getService(WindowCustomTitleStateService::class.java).isCustomTitleEnabled()
         val shouldApply = numberingEnabled || customTitleEnabled
-        ApplicationManager.getApplication().invokeLater {
+        runOnEdt {
             if (shouldApply) {
                 applyTitleToWindow(project)
             } else {
@@ -90,7 +90,7 @@ class WindowTitleApplier {
     }
 
     fun applyToAllOpenProjects(enabled: Boolean? = null) {
-        ApplicationManager.getApplication().invokeLater {
+        runOnEdt {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 applyToCurrentOpenProject(project, enabled)
             }
@@ -98,7 +98,7 @@ class WindowTitleApplier {
     }
 
     fun removeFromAllOpenProjects() {
-        ApplicationManager.getApplication().invokeLater {
+        runOnEdt {
             removeFromAllOpenProjectsInternal()
         }
     }
@@ -167,7 +167,7 @@ class WindowTitleApplier {
     /**
      * Attempts to apply the title prefix, retrying via [retryAlarm] if the frame is not yet available.
      *
-     * **No inner invokeLater**: this method is always called from within an outer [invokeLater]
+     * **No queued invokeLater**: this method is called from [runOnEdt]
      * (from [applyTitleToWindow]) or from the [Alarm.ThreadToUse.SWING_THREAD] retry alarm —
      * both of which already run on the EDT. The previous inner invokeLater was unnecessary and
      * created a race window where the registration could run *after* [cancelAllPendingOperations]
@@ -213,15 +213,24 @@ class WindowTitleApplier {
     }
 
     private fun removeTitleFromWindow(project: Project) {
-        ApplicationManager.getApplication().invokeLater {
+        runOnEdt {
             removeListeners(project)
-            val frame = getProjectFrame(project) ?: return@invokeLater
+            val frame = getProjectFrame(project) ?: return@runOnEdt
             stripTitlePrefix(frame)
         }
     }
 
     private fun getProjectFrame(project: Project): Frame? =
         WindowManager.getInstance().getFrame(project)
+
+    private inline fun runOnEdt(crossinline action: () -> Unit) {
+        val application = ApplicationManager.getApplication()
+        if (application.isDispatchThread) {
+            action()
+        } else {
+            application.invokeAndWait { action() }
+        }
+    }
 
     internal fun getWindowProjectNumber(project: Project): Int =
         projectNumbers.computeIfAbsent(project) { counter.getAndIncrement() }
