@@ -214,3 +214,17 @@ re-runs the full cleanup sequence. This provides a guaranteed final sweep even i
 | Store the `Frame` alongside each AWT listener | Ensures removal from the correct frame at cleanup time |
 | Register long-lived state as `@Service(Level.APP)` | IntelliJ manages lifecycle and disposes it before the GC check |
 | Remove all `Disposer.register(...)` lambdas explicitly | Any `project → holder → plugin lambda` in `ObjectTree` keeps the classloader alive |
+
+### Additional unload-safety hardening (post-v1.2.0)
+
+Even after v1.0.13 improvements, queued EDT tasks from top-level `invokeLater` calls in
+`WindowColorApplier` / `WindowTitleApplier` can still retain plugin lambdas in the event queue
+during unload timing windows.
+
+To reduce this risk, accent apply/remove entry points now execute synchronously on EDT:
+
+- If already on EDT: run immediately
+- Otherwise: use `ApplicationManager.getApplication().invokeAndWait { ... }`
+
+This removes the queueing window for these paths, while retaining `Alarm` only for explicit
+frame-availability retries (which are canceled during unload cleanup).

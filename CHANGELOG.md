@@ -4,6 +4,16 @@
 
 ## [1.2.1]
 
+### Fixed
+
+- Reduced dynamic-unload restart fallback risk during plugin update
+    - Replaced queued EDT `invokeLater` accent application/removal calls with synchronous EDT execution
+    - Avoids leaving queued plugin runnables in the event queue during classloader unload checks
+
+### Added
+
+- Added `.ai-resources` to assist with onboarding the AI model when a fresh context window is used
+
 ## [1.2.0]
 
 ### Fixed
