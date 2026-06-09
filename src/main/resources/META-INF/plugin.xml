@@ -7,23 +7,30 @@
     <vendor email="alexgoudemond@gmail.com">Alex Blake-Goudemond</vendor>
 
     <description><![CDATA[
-        Window Accent helps you distinguish between multiple JetBrains IDE windows with visual cues.
-        <p>
-        <p>
-        When you have multiple IDE windows open, it can be challenging to quickly identify which one is which,
-        especially if they are all running the same project or have similar titles.
-        <p>
+        <h2>Window Accent</h2>
+        Window Accent helps you distinguish between multiple JetBrains IDE windows with
+        visual cues.
+
+        <h3>The Challenge 🤔</h3>
+        When you have multiple IDE windows open, it can be difficult to quickly identify
+        which one is which, especially if they are all running the same project or have
+        similar titles.
+
+        <h3>The Solution ✨</h3>
         Window Accent allows you to apply different accents to each IDE window,
         making it easier to visually differentiate them at a glance.
-        <p>
-        <p>
+
+        <h3>Configuration ⚙️</h3>
         Some configuration is available through the tool window as well as the settings.
+        Please refer to screenshots etc. for insights into the features and configuration options.
+
+        <h3>Related Plugins 📚</h3>
+        Although similar to the following plugins, Window Accent is a separate implementation,
+        created independently:
         <p>
         <p>
-        This plugin is designed to be lightweight and non-intrusive, providing visual differentiation without affecting performance.
-        <p>
-        <p>
-        Although similar to the following plugins, Window Accent is a separate implementation, created independently:
+        Although similar to the following plugins, Window Accent is a separate implementation,
+        created independently:
         <ul>
             <li><a href="https://plugins.jetbrains.com/plugin/19463-project-color">Project Color</a></li>
             <li><a href="https://plugins.jetbrains.com/plugin/20920-colorized-project">Colorized Project</a></li>
@@ -31,7 +38,7 @@
     ]]></description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
-    
+
     <applicationListeners>
         <listener class="com.window_accent.PluginLifecycleListener"
                   topic="com.intellij.ide.plugins.DynamicPluginListener"/>
