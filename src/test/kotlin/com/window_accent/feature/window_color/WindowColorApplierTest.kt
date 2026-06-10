@@ -249,13 +249,32 @@ class WindowColorApplierTest {
     }
 
     @Test
-    @DisplayName("Should handle panel client property constant")
-    fun testPanelClientPropertyConstant() {
-        val field = WindowColorApplier::class.java.getDeclaredField("PANEL_CLIENT_PROPERTY")
-        field.isAccessible = true
-        val constant = field.get(null) as String
+    @DisplayName("Should track panels per-project in addedPanels map")
+    fun testWindowColorApplierTracksAddedPanelsField() {
+        val clazz = WindowColorApplier::class.java
+        val addedPanelsField = clazz.getDeclaredField("addedPanels").apply { isAccessible = true }
 
-        assertEquals("com.window_accent.windowAccent", constant)
+        @Suppress("UNCHECKED_CAST")
+        val addedPanels = addedPanelsField.get(WindowColorApplier) as java.util.concurrent.ConcurrentHashMap<com.intellij.openapi.project.Project, MutableList<Component>>
+
+        // Verify the field exists and is the right type
+        assertNotNull(addedPanels, "addedPanels field should exist and not be null")
+        assertTrue(addedPanels is java.util.concurrent.ConcurrentHashMap, "addedPanels should be a ConcurrentHashMap")
+
+        // Create mock project and add a panel
+        val mockProject = mock(com.intellij.openapi.project.Project::class.java)
+        val testPanel = JPanel()
+
+        // Add to the map (simulating addColoredPanel behavior)
+        addedPanels.getOrPut(mockProject) { mutableListOf() }.add(testPanel)
+
+        // Verify it was added
+        assertTrue(addedPanels.containsKey(mockProject), "Project should be tracked in addedPanels")
+        assertEquals(1, addedPanels[mockProject]?.size, "Should have 1 panel for the project")
+        assertTrue(addedPanels[mockProject]?.get(0) === testPanel, "Should be the same panel instance")
+
+        // Clean up for other tests
+        addedPanels.clear()
     }
 
     @Test

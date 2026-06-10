@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.2.3]
+
+### Fixed
+
+- Pass 007 of improving Plugin Unloading to avoid unnecessary project restarts
+  - Register WindowColorApplier panels for cleanup
+
 ## [1.2.2]
 
 ### Fixed
@@ -186,7 +193,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.2...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.3...HEAD
+[1.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.1.0...1.2.0

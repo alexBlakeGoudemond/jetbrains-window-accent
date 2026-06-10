@@ -2,18 +2,23 @@ package com.window_accent
 
 import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
-import com.window_accent.feature.window_color.WindowColorApplier
-import com.window_accent.feature.window_title.WindowTitleApplier
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.ProjectManager
+import com.window_accent.feature.window_color.WindowColorApplier
+import com.window_accent.feature.window_title.WindowTitleApplier
 
 /**
  * Listener that handles plugin lifecycle events.
  *
- * When the plugin is unloaded (e.g., disabled by the user), we need to ensure
- * that all visual modifications to the IDE windows are reverted.
+ * When the plugin is loaded, we restore decorations to all open projects.
+ * When the plugin is unloaded (e.g., disabled or updated by the user), we trigger
+ * cleanup immediately and keep [WindowAccentApplicationService.dispose] as a guaranteed
+ * fallback. Cleanup is idempotent, so both hooks are safe.
+ *
+ * This listener handles restoration on load and initiates unload cleanup on
+ * beforePluginUnload to reduce timing risk for dynamic unload.
  */
-open class PluginLifecycleListener : DynamicPluginListener {
+class PluginLifecycleListener : DynamicPluginListener {
 
     private val LOG = logger<PluginLifecycleListener>()
 
@@ -31,8 +36,8 @@ open class PluginLifecycleListener : DynamicPluginListener {
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         val pluginId = pluginDescriptor.pluginId.idString
         if (pluginId == "WindowAccent") {
-            LOG.info("[Window Accent] Cleanup triggered due to plugin being disabled")
-            performCleanup()
+            LOG.info("[Window Accent] Plugin unload triggered (update=$isUpdate) — running cleanup")
+            WindowAccentApplicationService.performCleanup("before-plugin-unload")
         }
     }
 
@@ -47,12 +52,5 @@ open class PluginLifecycleListener : DynamicPluginListener {
             WindowColorApplier.applyToCurrentOpenProject(project)
             WindowTitleApplier.applyToCurrentOpenProject(project)
         }
-    }
-
-    open fun performCleanup() {
-        WindowColorApplier.cancelCoroutines()
-        WindowTitleApplier.cancelAllPendingOperations()
-        WindowColorApplier.removeColorFromAllOpenProjectsSync()
-        WindowTitleApplier.removeFromAllOpenProjectsSync()
     }
 }
