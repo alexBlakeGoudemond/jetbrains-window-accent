@@ -9,6 +9,11 @@
 - Disposed retry `Alarm` instances during unload cleanup
     - Prevents platform-held scheduler references from retaining plugin classloader state across updates
 
+### Added
+
+- Brought in additional tests to try prevent regression with plugin updating leading to restart
+  - Updating the plugin should NOT require a restart - so attempts are being made to prevent this
+
 ## [1.2.1]
 
 ### Fixed
