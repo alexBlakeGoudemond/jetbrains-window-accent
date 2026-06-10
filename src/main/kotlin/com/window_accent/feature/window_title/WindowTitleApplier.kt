@@ -13,6 +13,7 @@ import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -69,6 +70,7 @@ class WindowTitleApplier {
      * references in any platform scheduler when the plugin is unloaded.
      */
     private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
+    private val retryAlarmDisposed = AtomicBoolean(false)
 
     /**
      * Stores a dispose-closure per project so that [disposeAllTrackedDisposables] can
@@ -117,6 +119,9 @@ class WindowTitleApplier {
         // or Disposer holders after this cleanup completes.
         isShuttingDown = true
         retryAlarm.cancelAllRequests()
+        if (retryAlarmDisposed.compareAndSet(false, true)) {
+            Disposer.dispose(retryAlarm)
+        }
         // Proactively remove all tracked AWT listeners from their stored frames immediately.
         // Using stored frames (not getProjectFrame) guarantees removal from the exact frame
         // each listener was added to, even if the frame has since changed or become null.

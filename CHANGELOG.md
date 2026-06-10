@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.2.2]
+
+### Fixed
+
+- Disposed retry `Alarm` instances during unload cleanup
+    - Prevents platform-held scheduler references from retaining plugin classloader state across updates
+
+### Added
+
+- Brought in additional tests to try prevent regression with plugin updating leading to restart
+  - Updating the plugin should NOT require a restart - so attempts are being made to prevent this
+
 ## [1.2.1]
 
 ### Fixed
@@ -174,7 +186,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.2...HEAD
+[1.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...1.1.0
