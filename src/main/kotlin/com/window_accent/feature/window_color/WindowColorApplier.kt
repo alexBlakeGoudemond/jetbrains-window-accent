@@ -4,12 +4,14 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import com.intellij.util.Alarm
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JRootPane
@@ -48,6 +50,7 @@ object WindowColorApplier {
      * references in any platform scheduler when the plugin is unloaded.
      */
     private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
+    private val retryAlarmDisposed = AtomicBoolean(false)
 
     /**
      * Performs synchronous shutdown cleanup for pending UI work.
@@ -60,6 +63,9 @@ object WindowColorApplier {
         // Set the flag FIRST so any EDT task still in the queue skips re-adding panels
         isShuttingDown = true
         retryAlarm.cancelAllRequests()
+        if (retryAlarmDisposed.compareAndSet(false, true)) {
+            Disposer.dispose(retryAlarm)
+        }
     }
 
     fun applyToCurrentOpenProject(project: Project) {

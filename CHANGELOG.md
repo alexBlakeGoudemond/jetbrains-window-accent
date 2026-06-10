@@ -4,6 +4,11 @@
 
 ## [1.2.2]
 
+### Fixed
+
+- Disposed retry `Alarm` instances during unload cleanup
+    - Prevents platform-held scheduler references from retaining plugin classloader state across updates
+
 ## [1.2.1]
 
 ### Fixed
