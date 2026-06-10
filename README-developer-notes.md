@@ -228,3 +228,7 @@ To reduce this risk, accent apply/remove entry points now execute synchronously 
 
 This removes the queueing window for these paths, while retaining `Alarm` only for explicit
 frame-availability retries (which are canceled during unload cleanup).
+
+Also note: `Alarm.cancelAllRequests()` alone is not sufficient for dynamic-unload safety.  
+The `Alarm` instance itself must be disposed during unload (`Disposer.dispose(retryAlarm)`),
+otherwise scheduler-owned references can still keep plugin classes reachable.
