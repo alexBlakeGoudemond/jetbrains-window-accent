@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Application-level service that participates in IntelliJ's plugin lifecycle.
@@ -22,18 +23,39 @@ import com.window_accent.feature.window_title.WindowTitleApplier
  * - All tracked AWT listeners are removed from their stored frames.
  * - All Disposer holders are evicted from IntelliJ's ObjectTree.
  * - All pending retry-alarm requests are cancelled and their runnables nulled.
+ *
+ * Cleanup is performed exactly once via [cleanupCompleted] AtomicBoolean to guard against
+ * double-cleanup if [PluginLifecycleListener] or other mechanisms trigger cleanup multiple times.
  */
 @Service(Service.Level.APP)
 class WindowAccentApplicationService : Disposable {
 
-    private val logger = logger<WindowAccentApplicationService>()
+    companion object {
+        private val LOG = logger<WindowAccentApplicationService>()
+
+        /**
+         * Guards against double-cleanup. IntelliJ may call dispose multiple times,
+         * and [PluginLifecycleListener.beforePluginUnload] might also trigger cleanup.
+         * This flag ensures cleanup runs exactly once.
+         */
+        private val cleanupCompleted = AtomicBoolean(false)
+
+        fun performCleanup(reason: String) {
+            if (cleanupCompleted.compareAndSet(false, true)) {
+                LOG.info("[Window Accent] Running final cleanup (reason=$reason)")
+                WindowColorApplier.cancelCoroutines()
+                WindowTitleApplier.cancelAllPendingOperations()
+                WindowColorApplier.removeColorFromAllOpenProjectsSync()
+                WindowTitleApplier.removeFromAllOpenProjectsSync()
+                LOG.info("[Window Accent] Final cleanup completed successfully")
+            } else {
+                LOG.debug("[Window Accent] Cleanup already completed, skipping duplicate cleanup (reason=$reason)")
+            }
+        }
+    }
 
     override fun dispose() {
-        logger.info("[Window Accent] Application service disposing — running final cleanup")
-        WindowColorApplier.cancelCoroutines()
-        WindowTitleApplier.cancelAllPendingOperations()
-        WindowColorApplier.removeColorFromAllOpenProjectsSync()
-        WindowTitleApplier.removeFromAllOpenProjectsSync()
+        performCleanup("application-service-dispose")
     }
 
 }

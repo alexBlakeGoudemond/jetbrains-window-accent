@@ -232,3 +232,32 @@ frame-availability retries (which are canceled during unload cleanup).
 Also note: `Alarm.cancelAllRequests()` alone is not sufficient for dynamic-unload safety.  
 The `Alarm` instance itself must be disposed during unload (`Disposer.dispose(retryAlarm)`),
 otherwise scheduler-owned references can still keep plugin classes reachable.
+
+Three critical fixes to prevent plugin requiring restart on update (v1.2.3):
+
+1. TRACK ADDED PANELS IN WINDOWCOLORAPPLIER
+    - Add ConcurrentHashMap<Project, List<Component>> to track panels per-project
+    - Enables belt-and-suspenders cleanup when frames become unavailable
+    - Register cleanup callbacks with project disposable lifecycle
+
+2. CONSOLIDATE CLEANUP IN WINDOWACCENTAPPLICATIONSERVICE
+    - Add AtomicBoolean guard to ensure cleanup runs exactly once
+    - Defer cleanup from PluginLifecycleListener to app service (guaranteed to run before GC check)
+    - Add error handling and logging for robustness
+
+3. IMPROVE FRAMELESS CLEANUP IN WINDOWCOLORAPPLIER
+    - Remove panels via stored references first (fallback if frame is null)
+    - Then attempt removal via frame for double-checking
+    - Prevents orphaned panels from holding classloader references
+
+ISSUE: WindowColorApplier panels were never registered with Disposer and had no
+fallback removal if frames became unavailable during unload, causing panels to
+persist in memory and hold plugin classloader references. Cleanup was also
+duplicated between PluginLifecycleListener and WindowAccentApplicationService
+without synchronization or idempotency guards.
+
+TESTS: Added tests to verify panel tracking works and cleanup is idempotent.
+Updated PluginLifecycleListenerTest to reflect new delegation pattern.
+
+This should eliminate the 'Plugin WindowAccent is not unload-safe' message and
+allow dynamic updates without restart.

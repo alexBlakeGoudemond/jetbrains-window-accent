@@ -11,6 +11,7 @@ import com.intellij.util.Alarm
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -53,6 +54,16 @@ object WindowColorApplier {
     private val retryAlarmDisposed = AtomicBoolean(false)
 
     /**
+     * Tracks added panels per-project for belt-and-suspenders cleanup.
+     *
+     * If [getProjectFrame] returns null during cleanup (e.g., frame is already disposed),
+     * we can still remove panels by directly iterating this map and removing them from
+     * their parent containers. This prevents orphaned panels from holding classloader references.
+     */
+    private val addedPanels = ConcurrentHashMap<Project, MutableList<Component>>()
+    private val projectDisposeClosures = ConcurrentHashMap<Project, () -> Unit>()
+
+    /**
      * Performs synchronous shutdown cleanup for pending UI work.
      *
      * Even though no coroutines are used here, this method is kept to match the existing
@@ -66,6 +77,7 @@ object WindowColorApplier {
         if (retryAlarmDisposed.compareAndSet(false, true)) {
             Disposer.dispose(retryAlarm)
         }
+        disposeAllTrackedDisposables()
     }
 
     fun applyToCurrentOpenProject(project: Project) {
@@ -85,7 +97,15 @@ object WindowColorApplier {
 
     fun removeColorFromAllOpenProjectsSync() {
         logger.info("[Window Accent] removeColorFromAllOpenProjects triggered")
+
+        // Remove all tracked panels first, even if a project frame is already unavailable.
+        val trackedProjects = addedPanels.keys.toList()
+        trackedProjects.forEach { project ->
+            removeTrackedPanels(project)
+        }
+
         ProjectManager.getInstance().openProjects.forEach { project ->
+            // Standard removal via frame (in case we missed any via the stored references)
             val frame = getProjectFrame(project)
             if (frame != null) {
                 removeAllExistingPanels(frame)
@@ -158,6 +178,10 @@ object WindowColorApplier {
         val side = panelSettings.getSide()
         val panel = createColoredPanel(panelSettings, customColorSettings, project)
 
+        // Replace tracked panel references for this project (at most one active panel per project)
+        removeTrackedPanels(project)
+        addedPanels[project] = mutableListOf(panel)
+
         if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
             placeSouthPanelAtBottomOfStatusBar(rootPane, panel)
         } else {
@@ -167,6 +191,29 @@ object WindowColorApplier {
 
         rootPane.revalidate()
         rootPane.repaint()
+
+        // Register cleanup holder per project, replacing any previous holder to avoid ObjectTree buildup.
+        if (!isShuttingDown) {
+            val projectDisposable = Disposer.newDisposable("WindowAccent-color-panel-cleanup")
+            projectDisposeClosures.put(project) { Disposer.dispose(projectDisposable) }?.invoke()
+            Disposer.register(projectDisposable) { removeTrackedPanels(project) }
+            Disposer.register(project, projectDisposable)
+        }
+    }
+
+    private fun removeTrackedPanels(project: Project) {
+        addedPanels.remove(project)?.forEach { panel ->
+            val parent = panel.parent as? Container ?: return@forEach
+            parent.remove(panel)
+            parent.revalidate()
+            parent.repaint()
+        }
+    }
+
+    private fun disposeAllTrackedDisposables() {
+        val snapshot = ArrayList(projectDisposeClosures.values)
+        projectDisposeClosures.clear()
+        snapshot.forEach { it() }
     }
 
     /**
