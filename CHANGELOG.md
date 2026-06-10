@@ -4,6 +4,11 @@
 
 ## [1.2.3]
 
+### Fixed
+
+- Pass 007 of improving Plugin Unloading to avoid unnecessary project restarts
+  - Register WindowColorApplier panels for cleanup
+
 ## [1.2.2]
 
 ### Fixed
