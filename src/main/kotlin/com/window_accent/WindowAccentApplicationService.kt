@@ -8,6 +8,7 @@ import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.beans.Introspector
@@ -54,6 +55,7 @@ class WindowAccentApplicationService : Disposable {
                 WindowColorApplier.removeColorFromAllOpenProjectsSync()
                 WindowTitleApplier.removeFromAllOpenProjectsSync()
 
+                flushToolWindowListeners()
                 flushIntrospectorCaches()
                 flushEdtQueue()
 
@@ -63,6 +65,15 @@ class WindowAccentApplicationService : Disposable {
                 // This helps confirm whether dispose() was called after beforePluginUnload already ran.
                 LOG.info("[Window Accent] Cleanup already completed, skipping duplicate (reason=$reason)")
             }
+        }
+
+        // Remove all button ActionListeners from the tool window panels.
+        // These lambdas capture plugin service instances and singletons (WindowColorApplier,
+        // WindowTitleApplier). If IntelliJ's ContentManager holds the tool window panel
+        // after plugin unload, those listeners would keep the plugin classloader reachable
+        // during the GC check.
+        private fun flushToolWindowListeners() {
+            WindowAccentToolWindowFactory.removeAllButtonListeners()
         }
 
         /**

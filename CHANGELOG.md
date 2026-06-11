@@ -10,14 +10,15 @@
   - **Root cause hypothesis**: Java's `Introspector` BeanInfo cache holds `Class<?>` keys for plugin
     persistence-service classes even after IntelliJ disposes the service instances. Those hard Class
     references keep the plugin classloader reachable during IntelliJ's GC check. Fixed by calling
-    `Introspector.flushFromCaches(clazz)` for each persistence service class in `performCleanup`.
+    `Introspector.flushFromCaches(clazz)` for each persistence service class in `performCleanup`
   - **Secondary fix**: Added EDT flush (`invokeAndWait {}`) at the end of `performCleanup` when
     running on a background thread. This drains the EDT queue so that any `Alarm`-dispatched
-    Runnables still holding plugin lambda references are released before the GC check begins.
+    Runnables still holding plugin lambda references are released before the GC check begins
   - **Diagnostic improvement**: Changed the "cleanup already completed" log path from `DEBUG` to
     `INFO` so it is visible in standard IDE logs. This makes it possible to confirm from a log whether
     `WindowAccentApplicationService.dispose()` ran as a duplicate (after `beforePluginUnload`) or was
-    never called at all.
+    never called at all
+  - Made it so that the ToolWindow button Listeners are also disposed of when unloading the plugin
 
 ## [1.2.4]
 
