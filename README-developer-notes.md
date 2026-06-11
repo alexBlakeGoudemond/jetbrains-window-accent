@@ -214,6 +214,9 @@ re-runs the full cleanup sequence. This provides a guaranteed final sweep even i
 | Store the `Frame` alongside each AWT listener | Ensures removal from the correct frame at cleanup time |
 | Register long-lived state as `@Service(Level.APP)` | IntelliJ manages lifecycle and disposes it before the GC check |
 | Remove all `Disposer.register(...)` lambdas explicitly | Any `project → holder → plugin lambda` in `ObjectTree` keeps the classloader alive |
+| **Force-instantiate the app service on load** | Application services are lazily created; if never accessed, `dispose()` is never called and the service cleanup never runs |
+| Dispose old Disposer holders before updating tracked-panel state | If the old holder's callback fires after `addedPanels` is updated to the new panel, it removes the new panel. Always: remove → dispose old → track new → register new |
+| Run both `beforePluginUnload` and `dispose()` cleanup through a shared idempotent gate | Guarantees exactly-once cleanup regardless of which hook fires first |
 
 ### Additional unload-safety hardening (post-v1.2.0)
 
@@ -232,6 +235,24 @@ frame-availability retries (which are canceled during unload cleanup).
 Also note: `Alarm.cancelAllRequests()` alone is not sufficient for dynamic-unload safety.  
 The `Alarm` instance itself must be disposed during unload (`Disposer.dispose(retryAlarm)`),
 otherwise scheduler-owned references can still keep plugin classes reachable.
+
+### Diagnosing a future unload failure
+
+When `Plugin WindowAccent is not unload-safe because class loader cannot be unloaded` appears in
+the IDE log, check:
+
+1. **Is `WindowAccentApplicationService.dispose()` logged?**  
+   If not, the service was never instantiated. Ensure `pluginLoaded` calls
+   `ApplicationManager.getApplication().getService(WindowAccentApplicationService::class.java)`
+   to force-instantiate it on every load.
+
+2. **Is `beforePluginUnload` cleanup logged?**  
+   If not, the `DynamicPluginListener` registration is missing or firing on the wrong plugin ID.
+
+3. **Note which plugin version is being unloaded.**  
+   The `beforePluginUnload` callbacks run on the *old* version's code. If the old version had a
+   bug in cleanup, the restart will still happen even if the *new* version is correct. A fix only
+   takes effect when the *fixed* version is itself unloaded (i.e., on the *next* update).
 
 Three critical fixes to prevent plugin requiring restart on update (v1.2.3):
 
