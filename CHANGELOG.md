@@ -4,6 +4,18 @@
 
 ## [1.2.4]
 
+### Fixed
+
+- Pass 008 of improving Plugin Unloading to avoid unnecessary project restarts
+  - **Root cause identified from log analysis**: `WindowAccentApplicationService.dispose()` was
+    never called during unload because the service was never instantiated (lazy services are only
+    disposed if they have been created). Fixed by force-instantiating the service in `pluginLoaded`
+    so IntelliJ will call `dispose()` on every subsequent unload.
+  - Fixed ordering bug in `addColoredPanel`: the old Disposer holder's cleanup callback
+    (`removeTrackedPanels`) was fired after `addedPanels` was updated to the new panel, causing the
+    newly-added panel to be immediately removed. Cleanup now runs in correct order:
+    remove old panels → dispose old holder → track new panel → register new holder.
+
 ## [1.2.3]
 
 ### Fixed
