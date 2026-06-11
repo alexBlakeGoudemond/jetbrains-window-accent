@@ -208,7 +208,7 @@
 - Title numbering options
 
 [Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.4...HEAD
-[1.2.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.4...1.2.4
+[1.2.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.3...1.2.4
 [1.2.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...1.2.1
