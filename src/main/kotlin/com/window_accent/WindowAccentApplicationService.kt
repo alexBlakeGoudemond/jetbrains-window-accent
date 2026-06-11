@@ -29,7 +29,18 @@ import java.util.concurrent.atomic.AtomicBoolean
  *   preventing any late-running EDT task from re-registering external references.
  * - All tracked AWT listeners are removed from their stored frames.
  * - All Disposer holders are evicted from IntelliJ's ObjectTree.
- * - All pending retry-alarm requests are cancelled and their runnables nulled.
+ * - All pending retry-alarm requests are cancelled via [com.intellij.util.Alarm.cancelAllRequests]
+ *   and the alarm itself is disposed via [com.intellij.openapi.util.Disposer.dispose], which nullifies
+ *   any EDT-queued task wrappers that held lambda references.
+ *
+ * Note: an earlier version of this class also called [ApplicationManager.getApplication().invokeAndWait]
+ * to drain the EDT queue of already-dispatched alarm task wrappers. This was removed because:
+ * - It is a no-op on the normal [PluginLifecycleListener.beforePluginUnload] path (which fires on the EDT)
+ * - When [dispose] fires from a background thread (e.g., during application shutdown in EAP automated
+ *   review), the [invokeAndWait] blocked the thread while the EDT was busy with workspace/daemon teardown,
+ *   exposing threading assertions in 2026.2 EAP (262.7132.23) that produced false-positive failures.
+ * - The drain intent is already covered by [com.intellij.util.Alarm.cancelAllRequests] +
+ *   [com.intellij.openapi.util.Disposer.dispose] which removes the alarm's internal lambda references.
  *
  * Cleanup is performed exactly once via [cleanupCompleted] AtomicBoolean to guard against
  * double-cleanup if [PluginLifecycleListener] or other mechanisms trigger cleanup multiple times.
@@ -57,7 +68,6 @@ class WindowAccentApplicationService : Disposable {
 
                 flushToolWindowListeners()
                 flushIntrospectorCaches()
-                flushEdtQueue()
 
                 LOG.info("[Window Accent] Final cleanup completed successfully")
             } else {
@@ -95,33 +105,12 @@ class WindowAccentApplicationService : Disposable {
             classesToFlush.forEach { Introspector.flushFromCaches(it) }
             LOG.info("[Window Accent] Flushed Introspector BeanInfo caches for ${classesToFlush.size} service classes")
         }
-
-        /**
-         * Drains the EDT queue by posting an empty task and waiting for it to complete.
-         *
-         * After [WindowColorApplier.cancelCoroutines] and [WindowTitleApplier.cancelAllPendingOperations]
-         * cancel pending [com.intellij.util.Alarm] requests, any requests that were *already dispatched*
-         * to the EDT queue before cancellation still hold a reference to the plugin lambda (even though
-         * the alarm marks them as "processed" so they no-op when run). Those Runnable wrappers keep the
-         * plugin classloader reachable during IntelliJ's GC check. Waiting for the EDT to drain here
-         * guarantees all such wrappers are processed and released before the check begins.
-         *
-         * Must only be called from a background thread (not the EDT) to avoid deadlock.
-         */
-        private fun flushEdtQueue() {
-            val application = ApplicationManager.getApplication()
-            if (!application.isDispatchThread) {
-                application.invokeAndWait { /* intentional no-op: drains all previously queued EDT events */ }
-                LOG.info("[Window Accent] EDT queue drained")
-            } else {
-                LOG.info("[Window Accent] Skipping EDT flush (already on EDT)")
-            }
-        }
     }
 
     override fun dispose() {
+        val onEdt = ApplicationManager.getApplication().isDispatchThread
+        LOG.info("[Window Accent] dispose() called (onEdt=$onEdt, thread=${Thread.currentThread().name})")
         performCleanup("application-service-dispose")
     }
 
 }
-
