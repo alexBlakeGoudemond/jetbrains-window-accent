@@ -11,13 +11,14 @@
   - **Hypothesis B — tool window button listeners**: Track all 6 `ActionListener` lambdas statically and call `removeAllButtonListeners()` in `performCleanup` to drop captured service/singleton references
   - **Hypothesis C — settings configurable fields**: Null all 4 project service fields in `WindowAccentSettings.disposeUIResources()` so a cached configurable instance cannot retain classloader references
   - **Diagnostic improvement**: Changed "cleanup already completed" log from `DEBUG` to `INFO`
+  - Removed `flushEdtQueue()` that caused EAP 2026.2 (262.7132.23) compatibility failures
 
 ### Diagnostic notes (from log analysis)
 
 - **Disable skips the GC check**: Disabling produces `classloader unload checked=false` — only a marketplace **update** triggers the real GC check (`checked=true`)
 - **`"Application Service created"` absent**: `pluginLoaded` only fires on dynamic enable, not on IDE-startup loads — expected absent
 - **`"pluginUnloaded"` absent**: Listener is intentionally unregistered in `beforePluginUnload` before this event fires — expected absent
-- **EDT flush always skipped**: `beforePluginUnload` runs on the EDT, so `invokeAndWait {}` is always a no-op for this code path
+- **EDT flush was always skipped on disable path**: `beforePluginUnload` runs on the EDT, confirming `flushEdtQueue()` was dead code for that path and only activated on the background-thread `dispose()` path
 
 ## [1.2.4]
 
