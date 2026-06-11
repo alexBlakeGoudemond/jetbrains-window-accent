@@ -2,6 +2,7 @@ package com.window_accent
 
 import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.ProjectManager
 import com.window_accent.feature.window_color.WindowColorApplier
@@ -28,9 +29,20 @@ class PluginLifecycleListener : DynamicPluginListener {
 
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         if (pluginDescriptor.pluginId.idString == "WindowAccent") {
+            ensureApplicationServiceHasBeenInstantiated()
             LOG.info("[Window Accent] Window Accent enabled/loaded: Restoring decorations")
             restoreDecorations()
         }
+    }
+
+    // Force-instantiate the application service so that IntelliJ will call dispose() on
+    // it when the plugin is later unloaded. Application services are lazily instantiated,
+    // so dispose() is only called if the service has been created at least once.
+    private fun ensureApplicationServiceHasBeenInstantiated() {
+        val windowAccentService = ApplicationManager
+            .getApplication()
+            .getService(WindowAccentApplicationService::class.java)
+        LOG.info("[Window Accent] Window Accent Application Service created: ${windowAccentService.javaClass.name}")
     }
 
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
@@ -53,4 +65,5 @@ class PluginLifecycleListener : DynamicPluginListener {
             WindowTitleApplier.applyToCurrentOpenProject(project)
         }
     }
+
 }

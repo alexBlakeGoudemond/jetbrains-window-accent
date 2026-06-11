@@ -174,12 +174,12 @@ object WindowColorApplier {
         customColorSettings: WindowCustomColorStateService,
         project: Project
     ) {
+        removeTrackedPanels(project)
+        // Dispose the previous Disposer holder for this project BEFORE updating addedPanels
+        projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
         val panel = createColoredPanel(panelSettings, customColorSettings, project)
-
-        // Replace tracked panel references for this project (at most one active panel per project)
-        removeTrackedPanels(project)
         addedPanels[project] = mutableListOf(panel)
 
         if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
@@ -192,10 +192,10 @@ object WindowColorApplier {
         rootPane.revalidate()
         rootPane.repaint()
 
-        // Register cleanup holder per project, replacing any previous holder to avoid ObjectTree buildup.
         if (!isShuttingDown) {
             val projectDisposable = Disposer.newDisposable("WindowAccent-color-panel-cleanup")
-            projectDisposeClosures.put(project) { Disposer.dispose(projectDisposable) }?.invoke()
+            // Register a new cleanup holder with the project lifecycle.
+            projectDisposeClosures[project] = { Disposer.dispose(projectDisposable) }
             Disposer.register(projectDisposable) { removeTrackedPanels(project) }
             Disposer.register(project, projectDisposable)
         }
