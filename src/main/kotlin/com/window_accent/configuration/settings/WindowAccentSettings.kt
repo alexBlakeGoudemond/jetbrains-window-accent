@@ -38,10 +38,19 @@ open class WindowAccentSettings(
     @VisibleForTesting
     internal val panel = JPanel(BorderLayout())
 
-    private val windowPanelAppearanceStateService = project.getService(WindowPanelAppearanceStateService::class.java)
-    private val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
-    private val titleNumberingSettings = project.getService(WindowTitleNumberingStateService::class.java)
-    private val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
+    /**
+     * Service references are held as `var` so that [disposeUIResources] can null them,
+     * breaking the plugin-classloader reference chain if IntelliJ's configurable cache
+     * holds this instance after plugin unload.
+     */
+    private var windowPanelAppearanceStateService: WindowPanelAppearanceStateService? =
+        project.getService(WindowPanelAppearanceStateService::class.java)
+    private var customColorSettings: WindowCustomColorStateService? =
+        project.getService(WindowCustomColorStateService::class.java)
+    private var titleNumberingSettings: WindowTitleNumberingStateService? =
+        project.getService(WindowTitleNumberingStateService::class.java)
+    private var customTitleSettings: WindowCustomTitleStateService? =
+        project.getService(WindowCustomTitleStateService::class.java)
 
     private val form = JPanel(GridBagLayout())
 
@@ -199,16 +208,20 @@ open class WindowAccentSettings(
     }
 
     override fun isModified(): Boolean {
+        val panelSvc = windowPanelAppearanceStateService ?: return false
+        val colorSvc = customColorSettings ?: return false
+        val titleSvc = titleNumberingSettings ?: return false
+        val customTitleSvc = customTitleSettings ?: return false
         val selectedSide = sideCombo.selectedItem as WindowPanelAppearanceStateService.Side
-        return selectedSide != windowPanelAppearanceStateService.getSide() ||
-                customColorCheckBox.isSelected != customColorSettings.isUseCustomColor() ||
-                selectedColor?.rgb != customColorSettings.getCustomColor()?.rgb ||
-                titleNumberingCheckBox.isSelected != titleNumberingSettings.isTitleNumberingEnabled() ||
-                customTitleTextField.text.trim() != customTitleSettings.getCustomTitle()
+        return selectedSide != panelSvc.getSide() ||
+                customColorCheckBox.isSelected != colorSvc.isUseCustomColor() ||
+                selectedColor?.rgb != colorSvc.getCustomColor()?.rgb ||
+                titleNumberingCheckBox.isSelected != titleSvc.isTitleNumberingEnabled() ||
+                customTitleTextField.text.trim() != customTitleSvc.getCustomTitle()
     }
 
     override fun apply() {
-        updateSettingsFromUi()
+        updateSettingsFromUi() ?: return
 
         WindowColorApplier.applyToCurrentOpenProject(project)
         applyTitleNumberingChanges()
@@ -222,19 +235,30 @@ open class WindowAccentSettings(
     }
 
     override fun disposeUIResources() {
-        // no-op
+        // Null out plugin service references so that if IntelliJ's configurable cache retains
+        // this instance after plugin unload, it no longer holds strong references to plugin
+        // class instances that would prevent classloader garbage collection.
+        windowPanelAppearanceStateService = null
+        customColorSettings = null
+        titleNumberingSettings = null
+        customTitleSettings = null
     }
 
-    private fun updateSettingsFromUi() {
-        windowPanelAppearanceStateService.setSide(sideCombo.selectedItem as WindowPanelAppearanceStateService.Side)
-        customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
-        customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
-        titleNumberingSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
-        customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
+    private fun updateSettingsFromUi(): Unit? {
+        val panelSvc = windowPanelAppearanceStateService ?: return null
+        val colorSvc = customColorSettings ?: return null
+        val titleSvc = titleNumberingSettings ?: return null
+        val customTitleSvc = customTitleSettings ?: return null
+        panelSvc.setSide(sideCombo.selectedItem as WindowPanelAppearanceStateService.Side)
+        colorSvc.setUseCustomColor(customColorCheckBox.isSelected)
+        colorSvc.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
+        titleSvc.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
+        customTitleSvc.setCustomTitle(customTitleTextField.text.trim())
+        return Unit
     }
 
     private fun applyTitleNumberingChanges() {
-        WindowTitleApplier.applyToCurrentOpenProject(project, titleNumberingSettings.isTitleNumberingEnabled())
+        WindowTitleApplier.applyToCurrentOpenProject(project, titleNumberingSettings?.isTitleNumberingEnabled() ?: return)
     }
 
     private fun applyCustomTitleChanges() {
@@ -244,11 +268,11 @@ open class WindowAccentSettings(
     }
 
     private fun syncFromSettings() {
-        sideCombo.selectedItem = windowPanelAppearanceStateService.getSide()
-        customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
-        selectedColor = customColorSettings.getCustomColor()
-        titleNumberingCheckBox.isSelected = titleNumberingSettings.isTitleNumberingEnabled()
-        customTitleTextField.text = customTitleSettings.getCustomTitle()
+        sideCombo.selectedItem = windowPanelAppearanceStateService?.getSide()
+        customColorCheckBox.isSelected = customColorSettings?.isUseCustomColor() ?: false
+        selectedColor = customColorSettings?.getCustomColor()
+        titleNumberingCheckBox.isSelected = titleNumberingSettings?.isTitleNumberingEnabled() ?: false
+        customTitleTextField.text = customTitleSettings?.getCustomTitle() ?: ""
     }
 
     override fun setSelectedColor(color: Color?) {

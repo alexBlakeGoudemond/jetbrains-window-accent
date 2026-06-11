@@ -2,6 +2,7 @@ package com.window_accent.configuration.tool_window
 
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.JBColor
@@ -15,6 +16,8 @@ import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.Color
 import java.awt.Font
 import java.awt.GridLayout
+import java.awt.event.ActionListener
+import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -36,6 +39,33 @@ import javax.swing.JPanel
  * @see DumbAware
  * */
 class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
+
+    companion object {
+        /**
+         * Tracks all (button, listener) pairs added to tool window panels across all projects.
+         *
+         * During plugin unload we must remove every [ActionListener] from every [JButton]
+         * before IntelliJ's classloader GC check runs.  Each listener lambda captures plugin
+         * objects (service instances, [WindowColorApplier], [WindowTitleApplier]) via the
+         * [refreshButtonText] closure.  As long as those lambdas are registered with a
+         * Swing component held by IntelliJ's [com.intellij.ui.content.ContentManager], the
+         * plugin classloader remains reachable and the GC check fails.
+         *
+         * [removeAllButtonListeners] is called from [com.window_accent.WindowAccentApplicationService.performCleanup]
+         * which runs inside [com.window_accent.PluginLifecycleListener.beforePluginUnload],
+         * guaranteeing cleanup before the GC check.
+         */
+        private val allButtonListeners =
+            ConcurrentHashMap<Project, List<Pair<JButton, ActionListener>>>()
+
+        fun removeAllButtonListeners() {
+            val snapshot = HashMap(allButtonListeners)
+            allButtonListeners.clear()
+            snapshot.values.flatten().forEach { (button, listener) ->
+                button.removeActionListener(listener)
+            }
+        }
+    }
 
     /** Cycle order for the panel direction button: N → S → W → E → N */
     private val sidesCycleOrder = listOf(Side.NORTH, Side.SOUTH, Side.WEST, Side.EAST)
@@ -95,48 +125,55 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
         }
 
-        toggleAllColorsButton.addActionListener {
+        // Assign listeners to named variables so they can be tracked and removed on plugin unload.
+        // Each listener lambda captures plugin objects (service instances, singletons) via the
+        // refreshButtonText closure. If these listeners remain registered on Swing buttons held
+        // by IntelliJ's ContentManager after the plugin is unloaded, the plugin classloader stays
+        // reachable and IntelliJ's GC check fails, forcing an unnecessary restart.
+        val toggleAllColorsListener = ActionListener {
             val enabled = colorSettings.panelIsDisabled()
             colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
-
-        toggleCurrentColorButton.addActionListener {
+        val toggleCurrentColorListener = ActionListener {
             val enabled = colorSettings.panelIsDisabled()
             colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
-
-        cyclePanelDirectionButton.addActionListener {
+        val cyclePanelDirectionListener = ActionListener {
             val currentIndex = sidesCycleOrder.indexOf(colorSettings.getSide())
             val nextSide = sidesCycleOrder[(currentIndex + 1) % sidesCycleOrder.size]
             colorSettings.setSide(nextSide)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
-
-        toggleAllTitlesButton.addActionListener {
+        val toggleAllTitlesListener = ActionListener {
             val enabled = titleSettings.isTitleNumberingDisabled()
             titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
-
-        toggleCurrentTitleButton.addActionListener {
+        val toggleCurrentTitleListener = ActionListener {
             val enabled = titleSettings.isTitleNumberingDisabled()
             titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToCurrentOpenProject(project, enabled)
             refreshButtonText()
         }
-
-        toggleCurrentCustomTitleButton.addActionListener {
+        val toggleCurrentCustomTitleListener = ActionListener {
             val enabled = customTitleSettings.isCustomTitleDisabled()
             customTitleSettings.setCustomTitleEnabled(enabled)
             WindowTitleApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
+
+        toggleAllColorsButton.addActionListener(toggleAllColorsListener)
+        toggleCurrentColorButton.addActionListener(toggleCurrentColorListener)
+        cyclePanelDirectionButton.addActionListener(cyclePanelDirectionListener)
+        toggleAllTitlesButton.addActionListener(toggleAllTitlesListener)
+        toggleCurrentTitleButton.addActionListener(toggleCurrentTitleListener)
+        toggleCurrentCustomTitleButton.addActionListener(toggleCurrentCustomTitleListener)
 
         refreshButtonText()
 
@@ -148,6 +185,24 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
+
+        val listenerPairs = listOf(
+            toggleAllColorsButton to toggleAllColorsListener,
+            toggleCurrentColorButton to toggleCurrentColorListener,
+            cyclePanelDirectionButton to cyclePanelDirectionListener,
+            toggleAllTitlesButton to toggleAllTitlesListener,
+            toggleCurrentTitleButton to toggleCurrentTitleListener,
+            toggleCurrentCustomTitleButton to toggleCurrentCustomTitleListener,
+        )
+        allButtonListeners[project] = listenerPairs
+
+        // Also clean up when the project closes normally (belt-and-suspenders alongside the
+        // explicit removeAllButtonListeners() call in performCleanup for the update/unload path).
+        Disposer.register(toolWindow.disposable) {
+            allButtonListeners.remove(project)?.forEach { (button, listener) ->
+                button.removeActionListener(listener)
+            }
+        }
     }
 
     /**

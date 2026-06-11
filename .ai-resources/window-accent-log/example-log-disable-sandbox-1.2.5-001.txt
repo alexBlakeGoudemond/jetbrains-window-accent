@@ -1,0 +1,331 @@
+2026-06-11 12:56:29,219 [ 195416]   INFO - #c.i.i.p.DisabledPluginsState - Plugins to disable: [WindowAccent], applied
+2026-06-11 12:56:29,225 [ 195422]   INFO - #c.i.i.p.DynamicPlugins - Plugins to unload: [PluginMainDescriptor(name=Window Accent, id=WindowAccent, version=1.2.5, isBundled=false, path=C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\.intellijPlatform\sandbox\WindowAccent\IU-2026.1\plugins\WindowAccent)]
+2026-06-11 12:56:29,230 [ 195427]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Lifecycle Listener registered
+2026-06-11 12:56:29,259 [ 195456]   INFO - #c.i.w.i.i.j.s.JpsGlobalModelSynchronizerImpl - Saving global entities com.intellij.platform.workspace.jps.entities.SdkEntity to files
+2026-06-11 12:56:29,260 [ 195457]   INFO - #c.i.w.i.i.j.s.JpsGlobalModelSynchronizerImpl - Saving global entities com.intellij.platform.workspace.jps.entities.LibraryEntity to files
+2026-06-11 12:56:29,266 [ 195463]   INFO - #c.i.d.d.DataSourceStorageShared$Prj - Attempting to return empty stored state
+2026-06-11 12:56:29,353 [ 195550]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to store empty state
+2026-06-11 12:56:29,353 [ 195550]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to return empty stored state
+2026-06-11 12:56:29,356 [ 195553]   INFO - #c.i.c.ComponentStoreImpl - Saving Project(name=JetbrainsPluginDemo, containerState=COMPONENT_CREATED, componentStore=C:\myworkbench\workspace_personal\demo\jetbrains-plugin-demo\JetbrainsPluginDemo)FileEditorManager took 15 ms, TaskManager took 12 ms, XDebuggerManager took 25 ms
+2026-06-11 12:56:29,360 [ 195557]   INFO - #c.i.a.o.PathMacrosImpl - Saved path macros: {MAVEN_REPOSITORY=C:\myworkbench\data\maven3_repo}
+2026-06-11 12:56:29,366 [ 195563]   INFO - #c.i.d.d.DataSourceStorageShared$App - Attempting to return empty stored state
+2026-06-11 12:56:29,366 [ 195563]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to store empty state
+2026-06-11 12:56:29,366 [ 195563]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to return empty stored state
+2026-06-11 12:56:29,386 [ 195583]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: true, hasOnlyHooksBehavior: false, cancelled: false
+2026-06-11 12:56:29,426 [ 195623]   INFO - #c.i.u.i.FileBasedIndexTumbler - Turning off file-based index. Reason: `Plugin loaded/unloaded`. Nested level count: before=0, after=1
+2026-06-11 12:56:29,427 [ 195624]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-11 12:56:29,430 [ 195627]   INFO - #c.i.u.i.FileBasedIndexImpl - Index dispose started
+2026-06-11 12:56:29,472 [ 195669]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids stored. Size: 105. Index: 105 Path: C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\.intellijPlatform\sandbox\WindowAccent\IU-2026.1\system\index\dirty-file-ids
+2026-06-11 12:56:29,506 [ 195703]   INFO - #c.i.p.s.StubIndexImpl - StubIndexExtension-s were unloaded
+2026-06-11 12:56:29,506 [ 195703]   INFO - #c.i.p.s.SerializationManagerImpl - Start shutting down C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\.intellijPlatform\sandbox\WindowAccent\IU-2026.1\system\index\rep.names
+2026-06-11 12:56:29,506 [ 195703]   INFO - #c.i.p.s.SerializationManagerImpl - Finished shutting down C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\.intellijPlatform\sandbox\WindowAccent\IU-2026.1\system\index\rep.names
+2026-06-11 12:56:29,506 [ 195703]   INFO - #c.i.u.i.FileBasedIndexImpl - Index dispose completed in 76ms.
+2026-06-11 12:56:29,506 [ 195703]   INFO - #c.i.u.i.FileBasedIndexImpl - Dropping registered indexes
+2026-06-11 12:56:29,526 [ 195723]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Plugin unload triggered (update=false) — running cleanup
+2026-06-11 12:56:29,526 [ 195723]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Running final cleanup (reason=before-plugin-unload)
+2026-06-11 12:56:29,528 [ 195725]   INFO - #com.window_accent.feature.window_color.WindowColorApplier - [Window Accent] removeColorFromAllOpenProjects triggered
+2026-06-11 12:56:29,528 [ 195725]   INFO - #com.window_accent.feature.window_title.WindowTitleApplier - [Window Accent] removeFromAllOpenProjectsSync triggered
+2026-06-11 12:56:29,528 [ 195725]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Flushed Introspector BeanInfo caches for 4 service classes
+2026-06-11 12:56:29,528 [ 195725]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Skipping EDT flush (already on EDT)
+2026-06-11 12:56:29,528 [ 195725]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Final cleanup completed successfully
+2026-06-11 12:56:29,535 [ 195732]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-11 12:56:29,559 [ 195756]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [JetbrainsPluginDemo]
+2026-06-11 12:56:29,562 [ 195759]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-11 12:56:29,595 [ 195792]   WARN - #c.i.o.o.e.ConfigurableExtensionPointUtil - ignore deprecated groupId: language for id: preferences.language.Kotlin.scripting
+2026-06-11 12:56:29,652 [ 195849]   WARN - #c.i.o.o.e.ConfigurableCardPanel - auto-dispose 'Plugins' id=preferences.pluginManager
+2026-06-11 12:56:29,758 [ 195955]   INFO - #c.i.i.p.PluginManager - Plugin set resolution:
+Module intellij.json.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.jupyter.py.psi is not enabled because dependency com.intellij.modules.python is not available
+Module intellij.sh.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.textmate.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.toml.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.yaml.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.markdown.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.terminal.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.fullLine.chat is not enabled because dependency intellij.ml.llm.core is not available
+Module intellij.fullLine.terraform is not enabled because dependency org.intellij.plugins.hcl is not available
+Module intellij.fullLine.rust is not enabled because dependency com.jetbrains.rust is not available
+Module intellij.fullLine.ruby is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.fullLine.rider is not enabled because dependency intellij.rd.client is not available
+Module intellij.fullLine.rider.unrealengine is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.shaderlab is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.fsharp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.csharp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.cpp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rbs is not enabled because dependency intellij.ruby.rbs.backend is not available
+Module intellij.fullLine.python is not enabled because dependency com.intellij.modules.python is not available
+Module intellij.fullLine.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.fullLine.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.fullLine.erb is not enabled because dependency org.jetbrains.plugins.ruby is not available
+Module intellij.fullLine.cpp is not enabled because dependency intellij.cidr.lang.base is not available
+Module intellij.fullLine.federatedCompute is not enabled because dependency com.intellij.federatedCompute is not available
+Module intellij.fullLine.terraform.local is not enabled because dependency intellij.fullLine.terraform is not available
+Module intellij.fullLine.rust.local is not enabled because dependency intellij.fullLine.rust is not available
+Module intellij.fullLine.ruby.local is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.fullLine.rider.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.csharp.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.cpp.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.python.local is not enabled because dependency intellij.fullLine.python is not available
+Module intellij.fullLine.php.local is not enabled because dependency intellij.fullLine.php is not available
+Module intellij.fullLine.go.local is not enabled because dependency intellij.fullLine.go is not available
+Module intellij.fullLine.cpp.local is not enabled because dependency intellij.fullLine.cpp is not available
+Module intellij.sh.python is not enabled because dependency com.intellij.modules.python is not available
+Module intellij.spring.core.injections is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.protoeditor.python is not enabled because dependency com.intellij.modules.python is not available
+Module intellij.protoeditor.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.packageChecker.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.packageChecker.python is not enabled because dependency com.intellij.modules.python is not available
+Module intellij.packageChecker.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.yaml.helm is not enabled because dependency org.jetbrains.plugins.go-template is not available
+Module intellij.editorconfig.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.vcs.github.ultimate.features is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.vcs.github.ultimate.cron is not enabled because dependency intellij.vcs.github.ultimate.features is not available
+Module intellij.vcs.gitlab.ultimate.features is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.vcs.gitlab.ultimate.ci.sh is not enabled because dependency intellij.vcs.gitlab.ultimate.features is not available
+Module intellij.code.provenance.core.llm is not enabled because dependency intellij.ml.llm.core is not available
+Module intellij.diagram.properties is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.diagram.vcs is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.sass is disabled because the containing plugin org.jetbrains.plugins.sass won't be loaded
+Module intellij.sass.common is disabled because the containing plugin org.jetbrains.plugins.sass won't be loaded
+Module intellij.css.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.css.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.fullLine.css.sass is not enabled because dependency intellij.sass.backend is not available
+Module intellij.fullLine.css.postcss is not enabled because dependency org.intellij.plugins.postcss is not available
+Module intellij.fullLine.css.less is not enabled because dependency org.jetbrains.plugins.less is not available
+Module intellij.fullLine.css.sass.local is not enabled because dependency intellij.fullLine.css.sass is not available
+Module intellij.fullLine.css.postcss.local is not enabled because dependency intellij.fullLine.css.postcss is not available
+Module intellij.fullLine.css.less.local is not enabled because dependency intellij.fullLine.css.less is not available
+Module intellij.microservices.diagrams is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.httpClient.injection.graphql is not enabled because dependency com.intellij.lang.jsgraphql is not available
+Module intellij.station.aia is not enabled because dependency intellij.ml.llm.mcp is not available
+Module intellij.station.frontend.split is not enabled because dependency com.intellij.jetbrains.client is not available
+Module intellij.station.frontend.gateway is not enabled because dependency com.jetbrains.gateway is not available
+Module intellij.ml.llm.completion is not enabled because dependency intellij.ml.llm.core is not available
+Module intellij.ml.llm.xml.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.vcs.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.rider.unrealengine.completion is not enabled because dependency intellij.fullLine.rider.unrealengine is not available
+Module intellij.ml.llm.rider.shaderlab.completion is not enabled because dependency intellij.fullLine.rider.shaderlab is not available
+Module intellij.ml.llm.rider.godot.completion is not enabled because dependency intellij.fullLine.rider.shaderlab is not available
+Module intellij.ml.llm.rider.fsharp.completion is not enabled because dependency intellij.fullLine.rider.fsharp is not available
+Module intellij.ml.llm.rider.csharp.completion is not enabled because dependency intellij.fullLine.rider.csharp is not available
+Module intellij.ml.llm.rider.cpp.completion is not enabled because dependency intellij.fullLine.rider.cpp is not available
+Module intellij.ml.llm.xdebugger.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.json.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.rust.completion is not enabled because dependency intellij.fullLine.rust is not available
+Module intellij.ml.llm.yaml.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.yaml.json.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.terminal.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.cpp.completion is not enabled because dependency intellij.fullLine.cpp is not available
+Module intellij.ml.llm.markdown.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.text.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.terraform.completion is not enabled because dependency intellij.fullLine.terraform is not available
+Module intellij.ml.llm.html.completion is not enabled because dependency intellij.ml.llm.libraries.grazie is not available
+Module intellij.ml.llm.css.completion is not enabled because dependency intellij.ml.llm.css is not available
+Module intellij.ml.llm.css.postcss.completion is not enabled because dependency intellij.fullLine.css.postcss is not available
+Module intellij.ml.llm.css.sass.completion is not enabled because dependency intellij.sass.backend is not available
+Module intellij.ml.llm.css.less.completion is not enabled because dependency intellij.fullLine.css.less is not available
+Module intellij.ml.llm.php.completion is not enabled because dependency intellij.fullLine.php is not available
+Module intellij.ml.llm.ruby.completion is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.ml.llm.rbs.completion is not enabled because dependency intellij.fullLine.rbs is not available
+Module intellij.ml.llm.go.completion is not enabled because dependency intellij.fullLine.go is not available
+Module intellij.ml.llm.python.completion is not enabled because dependency intellij.fullLine.python is not available
+Module intellij.ml.llm.erb.completion is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.ml.llm.chat.completion is not enabled because dependency intellij.fullLine.chat is not available
+Module intellij.ml.llm.completion.nextEdits.proxy is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.experiments is not enabled because dependency intellij.ml.llm.core is not available
+Module intellij.llmInstaller.ds.ide is not enabled because dependency intellij.dataspell.ide.impl is not available
+Module intellij.llmInstaller.ds is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.llmInstaller.pycharm.community is not enabled because dependency intellij.pycharm.community.ide.impl.promotion is not available
+Module intellij.clouds.docker.file.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.clouds.docker.devcontainers.cli is disabled because the containing plugin org.jetbrains.plugins.docker.gateway won't be loaded
+Module intellij.vcs.github.ultimate.docker is not enabled because dependency intellij.vcs.github.ultimate.features is not available
+Module intellij.clouds.docker.ssh is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.clouds.kubernetes.libraries is disabled because the containing plugin com.intellij.kubernetes won't be loaded
+Module intellij.clouds.kubernetes is disabled because the containing plugin com.intellij.kubernetes won't be loaded
+Module intellij.clouds.kubernetes.frontend is disabled because the containing plugin com.intellij.kubernetes won't be loaded
+Module intellij.clouds.kubernetes.backend is disabled because the containing plugin com.intellij.kubernetes won't be loaded
+Module intellij.ml.llm.sql.completion is not enabled because dependency intellij.ml.llm.libraries.grazie is not available
+Module intellij.database.pro is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.database.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.database.mcp is not enabled because dependency intellij.ml.llm.sql is not available
+Module intellij.diagram.java is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.ml.llm.properties.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.javaFX.css is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.flyway.orm is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.liquibase.orm is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.flyway.diff is not enabled because dependency intellij.flyway.orm is not available
+Module intellij.javaee.langInjection is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.compose.ide.plugin.k1 is not enabled because dependency com.intellij.modules.kotlin.k1 is not available
+Module kotlin-ultimate.native-debugger is not enabled because dependency intellij.cidr.runner is not available
+Module kotlin-ultimate.ultimate-native is not enabled because dependency kotlin-ultimate.native-debugger is not available
+Module intellij.ml.llm.kotlin.completion is not enabled because dependency intellij.ml.llm.libraries.grazie is not available
+Module intellij.packageChecker.amper is not enabled because dependency org.jetbrains.amper is not available
+Module intellij.ml.llm.javaee.spring.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.ml.llm.yaml.javaee.spring.completion is not enabled because dependency intellij.ml.llm.completion is not available
+Module intellij.debugger.collections.visualizer.jvm is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.java.promo is not enabled because dependency com.intellij.modules.idea.community is not available
+Module intellij.jvm.dfa.analysis.ui is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.profiler.ultimate is not enabled because dependency com.intellij.modules.ultimate is not available
+Module kotlin-ultimate.profiler is not enabled because dependency com.intellij.LineProfiler is not available
+Module intellij.java.duplicates.analysis is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.java.duplicates is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.java.duplicatesDetection is not enabled because dependency intellij.java.duplicates is not available
+Module intellij.microservices.jvm.cron is not enabled because dependency com.intellij.cron is not available
+Module intellij.microservices.jvm.yaml is not enabled because dependency intellij.microservices.jvm.cron is not available
+Module intellij.spring.boot.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.spring is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.spring.boot is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.json is not enabled because dependency intellij.spring.boot is not available
+Module intellij.spring.boot.core.copyright is not enabled because dependency intellij.spring.boot is not available
+Module intellij.spring.boot.run is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.gradle.shared is not enabled because dependency intellij.spring.boot.run is not available
+Module intellij.spring.boot.gradle.kts.shared is not enabled because dependency intellij.spring.boot.gradle.shared is not available
+Module intellij.spring.boot.configYaml is not enabled because dependency intellij.spring.boot.json is not available
+Module intellij.ml.llm.java.completion is not enabled because dependency intellij.ml.llm.libraries.grazie is not available
+Module intellij.spring.core is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.initializr/settings is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.cron is not enabled because dependency intellij.microservices.jvm.cron is not available
+Module intellij.spring.boot.cron.yaml is not enabled because dependency intellij.spring.boot.cron is not available
+Module intellij.spring.boot.cron.properties is not enabled because dependency intellij.spring.boot.cron is not available
+Module intellij.spring.boot.core is not enabled because dependency intellij.spring is not available
+Module intellij.spring.aop is not enabled because dependency intellij.spring is not available
+Module intellij.spring.graph is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.run.diagram is not enabled because dependency intellij.spring.graph is not available
+Module intellij.java.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.spring.eclipse is not enabled because dependency intellij.spring is not available
+Module intellij.groovy.ant is not enabled because dependency AntSupport is not available
+Module intellij.groovy.duplicates is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.maven.profiler is not enabled because dependency intellij.profiler.ultimate is not available
+Module intellij.diagram.gradle is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.diagram.maven is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.gradle.profiler is not enabled because dependency intellij.profiler.ultimate is not available
+Module intellij.spring.boot.maven.shared is not enabled because dependency intellij.spring.boot.run is not available
+Module intellij.spring.groovy is not enabled because dependency intellij.spring is not available
+Module intellij.javaee.platform.impl is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.spring.web is not enabled because dependency intellij.spring is not available
+Module intellij.flyway.jpa is not enabled because dependency intellij.flyway.diff is not available
+Module intellij.spring.boot.jpa is not enabled because dependency intellij.spring is not available
+Module intellij.liquibase.jpa is not enabled because dependency intellij.liquibase.orm is not available
+Module intellij.liquibase.yaml.jpa is not enabled because dependency intellij.liquibase.jpa is not available
+Module intellij.spring.boot.properties.datasource is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.yaml.datasource is not enabled because dependency intellij.spring.boot.properties.datasource is not available
+Module intellij.spring.persistence is not enabled because dependency intellij.spring is not available
+Module intellij.spring.persistence.jpa is not enabled because dependency intellij.spring.persistence is not available
+Module intellij.spring.persistence.hibernate is not enabled because dependency intellij.spring.persistence is not available
+Module intellij.thymeleaf.paid is not enabled because dependency intellij.javaee.platform.impl is not available
+Module intellij.thymeleaf.spring.security is not enabled because dependency intellij.thymeleaf.paid is not available
+Module intellij.javaee.gradle is not enabled because dependency intellij.javaee.platform.impl is not available
+Module intellij.javaee.maven is not enabled because dependency intellij.javaee.platform.impl is not available
+Module intellij.javaee.application.maven is not enabled because dependency intellij.javaee.maven is not available
+Module intellij.javaee.platform.impl.database is not enabled because dependency intellij.javaee.platform.impl is not available
+Module intellij.webDeployment.transport is not enabled because dependency intellij.javaee.platform.impl is not available
+Module intellij.spring.el is not enabled because dependency intellij.spring is not available
+Module intellij.spring.boot.flyway is not enabled because dependency intellij.spring.boot is not available
+Module intellij.spring.boot.data is not enabled because dependency intellij.spring.data.jpa is not available
+Module intellij.thymeleaf.spring.el is not enabled because dependency intellij.spring.el is not available
+Module intellij.spring.boot.el is not enabled because dependency intellij.spring.el is not available
+Module intellij.spring.jsf is not enabled because dependency intellij.spring.el is not available
+Module intellij.qodana.rust is not enabled because dependency com.intellij.modules.rustrover is not available
+Module intellij.qodana.python.community is not enabled because dependency com.intellij.modules.python is not available
+Module intellij.qodana.inspectionKts is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.qodana.inspectionKts.mcp is not enabled because dependency intellij.qodana.inspectionKts is not available
+Module intellij.qodana.inspectionKts.java is not enabled because dependency intellij.qodana.inspectionKts is not available
+Module intellij.qodana.inspectionKts.kotlin is not enabled because dependency intellij.qodana.inspectionKts is not available
+Module intellij.qodana.cpp is not enabled because dependency intellij.cidr.projectModel is not available
+Module intellij.qodana.python.coverage is not enabled because dependency intellij.python is not available
+Module intellij.qodana.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.qodana.go is not enabled because dependency intellij.go.coverage is not available
+Module intellij.thymeleaf.vue is not enabled because dependency intellij.thymeleaf.paid is not available
+Module intellij.javascript.debugger.common is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module intellij.javascript.debugger.frontend is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module intellij.javascript.debugger.backend is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module intellij.javascript.debugger.backend.rpc is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module intellij.javascript.debugger.ui is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module intellij.javascript.wip.backend is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module intellij.javascript.wip.protocol is disabled because the containing plugin JavaScriptDebugger won't be loaded
+Module kotlin-ultimate.wasm.debugger is not enabled because dependency intellij.javascript.debugger.backend is not available
+Module kotlin-ultimate.javascript.debugger is not enabled because dependency intellij.javascript.debugger.backend is not available
+Module intellij.ml.llm.javascript.completion is not enabled because dependency intellij.ml.llm.libraries.grazie is not available
+Module intellij.angular.backend is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.react.ultimate is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.vitejs.react is not enabled because dependency intellij.react.ultimate is not available
+Module intellij.spring.boot.mvc is not enabled because dependency intellij.spring.boot.run is not available
+Module intellij.spring.kotlin is not enabled because dependency intellij.spring is not available
+Module intellij.fullLine.js.svelte is not enabled because dependency dev.blachut.svelte.lang is not available
+Module intellij.ml.llm.javascript.svelte.completion is not enabled because dependency intellij.fullLine.js.svelte is not available
+Module intellij.fullLine.js.svelte.local is not enabled because dependency intellij.fullLine.js.svelte is not available
+Module intellij.fullLine.js.astro is not enabled because dependency org.jetbrains.plugins.astro is not available
+Module intellij.ml.llm.javascript.astro.completion is not enabled because dependency intellij.fullLine.js.astro is not available
+Module intellij.fullLine.js.astro.local is not enabled because dependency intellij.fullLine.js.astro is not available
+Module intellij.aqua.runners.js.core is not enabled because dependency JavaScriptDebugger is not available
+Module intellij.aqua.runners.cypress is not enabled because dependency intellij.aqua.runners.js.core is not available
+Module intellij.javascript.ultimate is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.vuejs.backend is not enabled because dependency intellij.javascript.ultimate is not available
+Module intellij.vuejs.markdown is not enabled because dependency intellij.vuejs.backend is not available
+Module intellij.vuejs.debugger is not enabled because dependency intellij.javascript.debugger.backend is not available
+Module intellij.fullLine.js.vue is not enabled because dependency intellij.vuejs.backend is not available
+Module intellij.ml.llm.javascript.vue.completion is not enabled because dependency intellij.fullLine.js.vue is not available
+Module intellij.fullLine.js.vue.local is not enabled because dependency intellij.fullLine.js.vue is not available
+Module intellij.aqua.runners.playwright.js is not enabled because dependency intellij.aqua.runners.js.core is not available
+Module intellij.javascript.duplicatesDetection is not enabled because dependency com.intellij.modules.ultimate is not available
+Module intellij.javascript.fileWatcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.javascript.coverage is not enabled because dependency intellij.javascript.ultimate is not available
+Module intellij.javascript.newProject is not enabled because dependency com.intellij.modules.webstorm is not available
+Module intellij.javascript.sharedIndexes is not enabled because dependency intellij.indexing.shared.core is not available
+Module intellij.javascript.sharedIndexes.generator is not enabled because dependency intellij.javascript.sharedIndexes is not available
+Module intellij.javascript.devkit is not enabled because dependency intellij.devkit.core is not available
+Module kotlin-ultimate.javascript.nodeJs is not enabled because dependency JavaScriptDebugger is not available
+Module intellij.qodana.js is not enabled because dependency NodeJS is not available
+Module intellij.qodana.inspectionKts.js is not enabled because dependency intellij.qodana.inspectionKts is not available
+Module intellij.vuejs.prettier is not enabled because dependency intellij.vuejs.backend is not available
+Module intellij.angular.tslint is not enabled because dependency intellij.angular.backend is not available
+Module intellij.fullLine.python.jupyter is not enabled because dependency intellij.fullLine.python is not available
+Module intellij.fullLine.python.jupyter.local is not enabled because dependency intellij.fullLine.python is not available
+Module intellij.dataspell.jupyter.customCells.sql.common is not enabled because dependency intellij.python.parser is not available
+Module intellij.dataspell.jupyter.customCells.sql.frontend is not enabled because dependency intellij.dataspell.jupyter.customCells.sql.common is not available
+Module intellij.jupyter.split.frontend.py is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.jupyter.split.frontend is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.kotlin.jupyter.debug.renders is not enabled because dependency intellij.debugger.collections.visualizer.jvm is not available
+Module intellij.kotlin.jupyter.k1 is not enabled because dependency kotlin.base.scripting.k1 is not available
+Module intellij.ml.llm.jupyter.kotlin.completion is not enabled because dependency intellij.ml.llm.libraries.grazie is not available
+Module intellij.jupyter.py is not enabled because dependency intellij.jupyter.py.psi is not available
+Module intellij.ml.llm.jupyter.python.completion is not enabled because dependency intellij.fullLine.python is not available
+Module intellij.dataspell.jupyter.customCells is not enabled because dependency intellij.jupyter.py is not available
+Module intellij.dataspell.jupyter.customCells.sql.backend is not enabled because dependency intellij.dataspell.jupyter.customCells.sql.common is not available
+Module intellij.jupyter.py.wsl is not enabled because dependency intellij.jupyter.py is not available
+Module intellij.jupyter.py.ift is not enabled because dependency intellij.jupyter.py is not available
+Module intellij.jupyter.py.pro is not enabled because dependency intellij.jupyter.py is not available
+Module intellij.jupyter.py.dap is not enabled because dependency intellij.jupyter.py is not available
+Module intellij.jupyter.split.backend.py is not enabled because dependency intellij.scientific.py.tables is not available
+2026-06-11 12:56:29,783 [ 195980]   INFO - #c.i.u.i.FileBasedIndexTumbler - Turning on file-based index. Reason: `Plugin loaded/unloaded`. Nested level count: before=1, after=0
+2026-06-11 12:56:29,783 [ 195980]   INFO - #c.i.u.i.FileBasedIndexImpl - Loading indexes
+2026-06-11 12:56:29,783 [ 195980]   INFO - #c.i.u.i.d.AppIndexingDependenciesService - Invalidating all indexing flags. Reason: Plugin loaded/unloaded
+2026-06-11 12:56:29,784 [ 195981]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-11 12:56:29,784 [ 195981]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 105. Index: 105 Path: C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\.intellijPlatform\sandbox\WindowAccent\IU-2026.1\system\index\dirty-file-ids.
+2026-06-11 12:56:29,786 [ 195983]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 0. Index: 99 Path: C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\jetbrains-window-accent\.intellijPlatform\sandbox\WindowAccent\IU-2026.1\system\index\dirty-file-queues\ede7c168.
+2026-06-11 12:56:29,902 [ 196099]   INFO - #c.i.u.i.FileBasedIndexImpl - Indices to be built:FilenameIndex(v = 258)
+2026-06-11 12:56:29,902 [ 196099]   INFO - #c.i.u.i.FileBasedIndexImpl - Using simple flusher for indexes
+2026-06-11 12:56:29,906 [ 196103]   INFO - #c.i.u.i.IndexDataInitializer - Index data initialization done: 122 ms. Initialized indexes: [Trigram.Index, SchemaTypeInheritance, filetypes, XsltSymbolIndex, FilenameIndex, FrameworkDetectionIndex, IdIndex, sql.types.count.index, sql.routine.index, RelaxSymbolIndex, XmlTagNames, XmlNamespaces, json.file.root.values, html5.custom.attributes.index, DomFileIndex, xmlProperties, editorconfig.index.name, http.request.execution.environment, http.request.completion.host, http.request.headers.values.index, http.request.name.index, OpenapiSpecificationContentIndexer, SwReferencesIndex, java.auto.module.name, java.source.module.name, java.null.method.argument, java.fun.expression, java.binary.plus.expression, bytecodeAnalysis, org.jetbrains.kotlin.idea.versions.KotlinJvmMetadataVersionIndex, org.jetbrains.kotlin.idea.versions.KotlinJsMetadataVersionIndex, TodoIndex, HashFragmentIndex, fileIncludes, org.jetbrains.kotlin.idea.vfilefinder.KotlinPartialPackageNamesIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinClassFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinJavaScriptMetaFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinMetadataFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinMetadataFilePackageIndex, KotlinPackageSourcesMemberNamesIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinModuleMappingIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinJvmModuleAnnotationsIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinBuiltInsMetadataIndex, javafx.id.name, org.jetbrains.kotlin.idea.vfilefinder.KotlinStdlibIndex, org.jetbrains.kotlin.idea.vfilefinder.KlibMetaFileIndex, KotlinTopLevelCallableByPackageShortNameIndex, KotlinBinaryRootToPackageIndex, protoeditor.java.outer.class.index, KotlinTopLevelClassLikeDeclarationByPackageShortNameIndex, Stubs, com.intellij.jpa.jpb.model.EntityRegisterFileIndex, JavaFxControllerClassIndex, LombokConfigIndex, javafx.custom.component, PropertyCodeReferenceIndex, js.string.literal.words.index, HtmlTagIdIndex, CssIndex, css.template.selectors, js.test.names, js.package.index, js.custom.single.entry.index, js.implicit.elements.index, js.test.names.extensible, HtmlScriptSrcIndex, TypeScriptExternalPathCandidates, WebComponentsIndex].
+2026-06-11 12:56:29,907 [ 196104]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-11 12:56:29,907 [ 196104]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [JetbrainsPluginDemo] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-11 12:56:29,907 [ 196104]   INFO - #c.i.u.i.FileBasedIndexTumbler - Index rescanning has been started. Reason: `Plugin loaded/unloaded`
+2026-06-11 12:56:29,909 [ 196106]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@74522f03
+2026-06-11 12:56:29,909 [ 196106]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=1): DelayedPushProperties
+2026-06-11 12:56:29,916 [ 196113]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-11 12:56:30,139 [ 196336]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-11 12:56:30,227 [ 196424]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [JetbrainsPluginDemo]
+2026-06-11 12:56:30,294 [ 196491]   INFO - #c.i.u.i.IndexDataInitializer - Index data initialization done: 387 ms. Initialized stub indexes: {properties.index, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelTypeAliasFqNameIndex, protobuf.byQualifiedName, java.record.component.name, gr.script.fqn.s, java.class.shortname, org.jetbrains.kotlin.idea.stubindex.KotlinFunctionShortNameIndex, Css.attr, js.namespace.index, amd.baseUrl.index, gr.anonymous.class, jvm.static.member.type, sql.names, org.jetbrains.kotlin.idea.stubindex.KotlinFileFacadeShortNameIndex, java.method.name, org.jetbrains.kotlin.idea.stubindex.KotlinScriptFqnIndex, js.local.namespace.members.index, js.typedef.index2, markdown.header.anchor, KotlinTypeAliasByExpansionShortNameIndex, Css.id, js.amd.modules, gr.script.class, KotlinTopLevelExpectFunctionFqNameIndex, es6.assignment.index, org.jetbrains.kotlin.idea.stubindex.KotlinExactPackagesIndex, js.symbol.index2, Css.custom.mixin, org.jetbrains.kotlin.idea.stubindex.KotlinClassShortNameIndex, js.class.index2, org.jetbrains.kotlin.idea.stubindex.KotlinMultifileClassPartIndex, js.element.qualifiedName, org.jetbrains.kotlin.idea.stubindex.KotlinInnerTypeAliasClassIdIndex, java.unnamed.class, js.lazy.packages, js.generics.index, Css.ampersand.selector, JS.class.implements, gr.field.name, org.jetbrains.kotlin.idea.stubindex.KotlinPropertyShortNameIndex, KotlinTopLevelPropertyByPackageIndex, js.global.symbol.index, KotlinTopLevelExtensionsByReceiverTypeIndex, java.annotations, es6.side.effect.import.index, js.symbol.qualified.names.index, protobuf.byShortName, gr.method.name, es6.exported.index, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelFunctionFqnNameIndex, js.nonglobal.symbol.index, js.imported.bindings.index, java.class.extlist, org.jetbrains.kotlin.idea.stubindex.KotlinSubclassObjectNameIndex, gr.annot.method.name, js.gcl.modules, JS.subclass.stub.index, KotlinProbablyContractedFunctionShortNameIndex, gr.class.fqn.s, java.method.parameter.types, JS.class.super, JS.framework.markers.index, java.anonymous.baseref, ts.embedded.content.index, js.exported.index, ts.external.module.index, js.used.remote.modules, Css.custom.property, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelClassByPackageIndex, js.export.default.react.component.index, KotlinProbablyNothingFunctionShortNameIndex, Css.custom.variable, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelPropertyFqnNameIndex, java.class.fqn, org.jetbrains.kotlin.idea.stubindex.KotlinJvmNameAnnotationIndex, redis.dml.shortName, sql.table.shortName, KotlinTopLevelFunctionByPackageIndex, org.jetbrains.kotlin.idea.stubindex.KotlinSuperClassIndex, sql.column.name, ts.external.module.name.index, dom.elementClass, kotlin.primeIndexKey, org.jetbrains.kotlin.idea.stubindex.KotlinTypeAliasShortNameIndex, amd.requirePaths.index, org.jetbrains.kotlin.idea.stubindex.KotlinFullClassNameIndex, ts.local.classes, java.module.name, KotlinTopLevelExpectPropertyFqNameIndex, KotlinTopLevelTypeAliasByPackageIndex, org.jetbrains.kotlin.idea.stubindex.KotlinFilePartClassIndex, jvm.static.member.name, gr.class.super, ts.global.exported.index, js.doc.modules, js.qualified.shortName, gr.annot.members, JS.global.qualified.elements, org.jetbrains.kotlin.idea.stubindex.KotlinFileFacadeFqNameIndex, KotlinProbablyNothingPropertyShortNameIndex, JS.base.types.index, KotlinProbablyInjectedFunctionShortNameIndex, KotlinExtensionsInObjectsByReceiverTypeIndex, KotlinOverridableInternalMembersShortNameIndex, KotlinFileFacadeClassByPackageIndex, dom.namespaceKey, org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex, Css.class, java.field.name, markdown.header}.
+2026-06-11 12:56:30,299 [ 196496]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] Started scanning for indexing of [JetbrainsPluginDemo]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-11 12:56:30,302 [ 196499]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=1): CreatingIterators
+2026-06-11 12:56:30,307 [ 196504]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=1): CollectingIndexableFiles
+2026-06-11 12:56:30,307 [ 196504]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [JetbrainsPluginDemo] uses 15 scanning threads
+2026-06-11 12:56:30,323 [ 196520]   INFO - #c.i.p.u.i.s.e.DurableEnumeratorFactory - [enumerator.mmapped]: .valueHashToId (in memory) was filled (35 records)
+2026-06-11 12:56:30,431 [ 196628]   INFO - #c.i.i.p.m.MarketplaceRequests - Looking for the last compatible plugin updates for:
+[com.intellij.microservices.ui, org.jetbrains.security.package-checker, com.intellij.beanValidation, org.jetbrains.plugins.docker.gateway, Git4Idea, tanvd.grazi, Docker, intellij.jupyter, XPathView, Karma, com.jetbrains.restClient, com.intellij.spring.integration, com.intellij.javaee.reverseEngineering, com.intellij.mcpServer, org.jetbrains.idea.maven, com.jetbrains.restWebServices, intellij.nextjs, intellij.ktor, org.jetbrains.kotlin, com.intellij.quarkus, intellij.prettierJS, com.intellij.jsp, com.intellij.tasks.timeTracking, com.intellij.plugins.webcomponents, org.jetbrains.plugins.kotlin.jupyter, com.deadlock.scsyntax, WindowAccent, com.intellij.liquibase, com.intellij.properties, com.intellij.LineProfiler, org.jetbrains.plugins.terminal, com.intellij.spring.data, org.jetbrains.plugins.node-remote-interpreter, org.intellij.plugins.markdown, com.intellij.spring, org.intellij.groovy, com.intellij.spring.messaging, com.intellij.hibernate, com.intellij.kubernetes, com.intellij.copyright, org.jetbrains.plugins.textmate, tslint, org.jetbrains.plugins.github, org.jetbrains.plugins.vue, com.intellij.velocity, NodeJS, org.jetbrains.plugins.gradle, com.intellij.javaee.el, com.intellij.jsonpath, com.intellij.javaee.extensions, com.intellij.ko, com.intellij.spring.boot, idea.plugin.protoeditor, com.intellij.swagger, com.intellij.java-i18n, com.intellij.thymeleaf, com.jetbrains.performancePlugin, com.intellij.micronaut, intellij.webp, org.toml.lang, Refactor-X, com.intellij.javaee, com.intellij.cron, com.jetbrains.plugins.webDeployment, intellij.vitejs, com.intellij.spring.cloud, com.intellij.settingsSync, HtmlTools, com.intellij.javaee.jakarta.data, com.intellij.javaee.jpa, com.jetbrains.sh, Tomcat, com.intellij.react, com.intellij.spring.boot.initializr, com.intellij.java, com.intellij.spring.security, training, com.intellij.zh, com.intellij.flyway, org.jetbrains.plugins.remote-run, com.intellij.tasks, JavaScript, org.jetbrains.debugger.streams, com.intellij.cdi, com.intellij.database, org.jetbrains.plugins.gitlab, com.intellij.freemarker, JBoss, JavaScriptDebugger, org.jetbrains.plugins.yaml, intellij.webpack, org.editorconfig.editorconfigjetbrains, com.intellij.ja, com.intellij.spring.mvc, com.intellij.debugger.collections.visualizer, org.jetbrains.completion.full.line, com.intellij.notebooks.core]
+send machine ID: true
+2026-06-11 12:56:30,450 [ 196647]   INFO - #c.i.i.p.DynamicPlugins - Successfully unloaded plugin WindowAccent (classloader unload checked=false)
+2026-06-11 12:56:31,212 [ 197409]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] Scanning completed for [JetbrainsPluginDemo]. Number of scanned files: 68032; number of files for indexing: 0
+2026-06-11 12:56:31,213 [ 197410]   INFO - #c.i.u.i.PerProjectIndexingQueue - Finished for [JetbrainsPluginDemo]. No files to index with loading content.
+2026-06-11 12:56:31,213 [ 197410]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Task finished (scanning id=1): com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@74522f03
