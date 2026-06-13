@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [1.2.7]
+
+### Fixed
+
+- Pass 011 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Moved `LOG` in `PluginLifecycleListener` from an instance field to a `companion object` field.
+      The platform message bus holds the `PluginLifecycleListener` instance after plugin unload;
+      an instance-field logger holds a reference to `PluginLifecycleListener.class`, keeping the
+      plugin classloader reachable during IntelliJ's GC check. Moving it to the companion makes it
+      a static field within the plugin classloader (not held externally via the bus instance).
+    - Improved `WindowAccentSettings.disposeUIResources` to also call `panel.removeAll()` and
+      `form.removeAll()`, clearing the Swing component tree so that if IntelliJ's configurable
+      cache retains the instance, it no longer holds plugin class references via component fields.
+
 ## [1.2.6]
 
 ### Fixed
