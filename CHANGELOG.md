@@ -2,44 +2,70 @@
 
 ## [Unreleased]
 
+## [1.2.6]
+
+### Fixed
+
+- Pass 010 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Added `resetCleanupState()` to `WindowAccentApplicationService` and call it from
+      `PluginLifecycleListener.pluginLoaded` so each new load cycle starts with a clean slate for the next unload
+
+### Diagnostic notes (from log analysis)
+
+- **Suspected Root cause**: `cleanupCompleted` (`AtomicBoolean` in `WindowAccentApplicationService` companion) was
+  never reset between plugin load cycles. After the first update, the flag remained `true`, causing `performCleanup`
+  to skip all cleanup on every subsequent unload — leaving AWT listeners, panels, and Disposer entries alive and
+  preventing the classloader from being GC'd.
+- **Fix**: Added `resetCleanupState()` to `WindowAccentApplicationService` and call it from
+  `PluginLifecycleListener.pluginLoaded` so each new load cycle starts with a clean slate for the next unload.
+- **Test**: Added `cleanupStateIsResetOnPluginReload` to `PluginUnloadingVerificationTest` to verify the
+  reset/unload cycle behaves correctly.
+
 ## [1.2.5]
 
 ### Fixed
 
 - Pass 009 of improving Plugin Unloading to avoid unnecessary project restarts
-  - **Hypothesis A — Introspector cache**: Call `Introspector.flushFromCaches(clazz)` for all 4 persistence service classes in `performCleanup` to release any hard `Class<?>` keys
-  - **Hypothesis B — tool window button listeners**: Track all 6 `ActionListener` lambdas statically and call `removeAllButtonListeners()` in `performCleanup` to drop captured service/singleton references
-  - **Hypothesis C — settings configurable fields**: Null all 4 project service fields in `WindowAccentSettings.disposeUIResources()` so a cached configurable instance cannot retain classloader references
-  - **Diagnostic improvement**: Changed "cleanup already completed" log from `DEBUG` to `INFO`
-  - Removed `flushEdtQueue()` that caused EAP 2026.2 (262.7132.23) compatibility failures
+    - **Hypothesis A — Introspector cache**: Call `Introspector.flushFromCaches(clazz)` for all 4 persistence service
+      classes in `performCleanup` to release any hard `Class<?>` keys
+    - **Hypothesis B — tool window button listeners**: Track all 6 `ActionListener` lambdas statically and call
+      `removeAllButtonListeners()` in `performCleanup` to drop captured service/singleton references
+    - **Hypothesis C — settings configurable fields**: Null all 4 project service fields in
+      `WindowAccentSettings.disposeUIResources()` so a cached configurable instance cannot retain classloader references
+    - **Diagnostic improvement**: Changed "cleanup already completed" log from `DEBUG` to `INFO`
+    - Removed `flushEdtQueue()` that caused EAP 2026.2 (262.7132.23) compatibility failures
 
 ### Diagnostic notes (from log analysis)
 
-- **Disable skips the GC check**: Disabling produces `classloader unload checked=false` — only a marketplace **update** triggers the real GC check (`checked=true`)
-- **`"Application Service created"` absent**: `pluginLoaded` only fires on dynamic enable, not on IDE-startup loads — expected absent
-- **`"pluginUnloaded"` absent**: Listener is intentionally unregistered in `beforePluginUnload` before this event fires — expected absent
-- **EDT flush was always skipped on disable path**: `beforePluginUnload` runs on the EDT, confirming `flushEdtQueue()` was dead code for that path and only activated on the background-thread `dispose()` path
+- **Disable skips the GC check**: Disabling produces `classloader unload checked=false` — only a marketplace **update**
+  triggers the real GC check (`checked=true`)
+- **`"Application Service created"` absent**: `pluginLoaded` only fires on dynamic enable, not on IDE-startup loads —
+  expected absent
+- **`"pluginUnloaded"` absent**: Listener is intentionally unregistered in `beforePluginUnload` before this event
+  fires — expected absent
+- **EDT flush was always skipped on disable path**: `beforePluginUnload` runs on the EDT, confirming `flushEdtQueue()`
+  was dead code for that path and only activated on the background-thread `dispose()` path
 
 ## [1.2.4]
 
 ### Fixed
 
 - Pass 008 of improving Plugin Unloading to avoid unnecessary project restarts
-  - **Root cause identified from log analysis**: `WindowAccentApplicationService.dispose()` was
-    never called during unload because the service was never instantiated (lazy services are only
-    disposed if they have been created). Fixed by force-instantiating the service in `pluginLoaded`
-    so IntelliJ will call `dispose()` on every subsequent unload.
-  - Fixed ordering bug in `addColoredPanel`: the old Disposer holder's cleanup callback
-    (`removeTrackedPanels`) was fired after `addedPanels` was updated to the new panel, causing the
-    newly-added panel to be immediately removed. Cleanup now runs in correct order:
-    remove old panels → dispose old holder → track new panel → register new holder.
+    - **Root cause identified from log analysis**: `WindowAccentApplicationService.dispose()` was
+      never called during unload because the service was never instantiated (lazy services are only
+      disposed if they have been created). Fixed by force-instantiating the service in `pluginLoaded`
+      so IntelliJ will call `dispose()` on every subsequent unload.
+    - Fixed ordering bug in `addColoredPanel`: the old Disposer holder's cleanup callback
+      (`removeTrackedPanels`) was fired after `addedPanels` was updated to the new panel, causing the
+      newly-added panel to be immediately removed. Cleanup now runs in correct order:
+      remove old panels → dispose old holder → track new panel → register new holder.
 
 ## [1.2.3]
 
 ### Fixed
 
 - Pass 007 of improving Plugin Unloading to avoid unnecessary project restarts
-  - Register WindowColorApplier panels for cleanup
+    - Register WindowColorApplier panels for cleanup
 
 ## [1.2.2]
 
@@ -51,7 +77,7 @@
 ### Added
 
 - Brought in additional tests to try prevent regression with plugin updating leading to restart
-  - Updating the plugin should NOT require a restart - so attempts are being made to prevent this
+    - Updating the plugin should NOT require a restart - so attempts are being made to prevent this
 
 ## [1.2.1]
 
@@ -70,42 +96,42 @@
 ### Fixed
 
 - Improved Plugin description
-  - Leverage header tags and emojis to improve readability
-  - Review phrasing of description
+    - Leverage header tags and emojis to improve readability
+    - Review phrasing of description
 
 ### Added
 
 - Brought in a button in the Tool Window to cycle Color Panel Location
-  - One can now quickly set the location of the Color Panel: NSWE
+    - One can now quickly set the location of the Color Panel: NSWE
 
 ## [1.1.0]
 
 ### Added
 
 - Added ability to set a custom window title, separate from the window numbering
-  - Adding a custom title will appear alongside the title number, if enabled: `[1 - customTitle] ...`
+    - Adding a custom title will appear alongside the title number, if enabled: `[1 - customTitle] ...`
 
 ## [1.0.13]
 
 ### Fixed
 
 - Fourth pass of improving Plugin Unloading to avoid unnecessary project restarts
-  - Define WindowAccentApplicationService to manage lifecyle
-  - Refine cleanup code where possible
+    - Define WindowAccentApplicationService to manage lifecyle
+    - Refine cleanup code where possible
 
 ## [1.0.12]
 
 ### Fixed
 
 - Third pass of improving Plugin Unloading to avoid unnecessary project restarts
-  - Use Alarm.ThreadToUse.SWING_THREAD to try release references to plugin-code synchronously
+    - Use Alarm.ThreadToUse.SWING_THREAD to try release references to plugin-code synchronously
 
 ## [1.0.11]
 
 ### Fixed
 
 - Second pass of improving Plugin Unloading to avoid unnecessary project restarts
-  - leverage `scope.cancel()` when unloading
+    - leverage `scope.cancel()` when unloading
 
 ## [1.0.10]
 
@@ -225,25 +251,48 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.5...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.6...HEAD
+
+[1.2.6]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.5...1.2.6
+
 [1.2.5]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.4...1.2.5
+
 [1.2.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.3...1.2.4
+
 [1.2.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.2...1.2.3
+
 [1.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...1.2.2
+
 [1.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...1.2.1
+
 [1.2.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.1.0...1.2.0
+
 [1.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...1.1.0
+
 [1.0.13]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...1.0.13
+
 [1.0.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.11...1.0.12
+
 [1.0.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.10...1.0.11
+
 [1.0.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.9...1.0.10
+
 [1.0.9]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.8...1.0.9
+
 [1.0.8]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.7...1.0.8
+
 [1.0.7]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.6...1.0.7
+
 [1.0.6]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.5...1.0.6
+
 [1.0.5]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.4...1.0.5
+
 [1.0.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.3...1.0.4
+
 [1.0.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.2...1.0.3
+
 [1.0.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.1...1.0.2
+
 [1.0.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.0...1.0.1
+
 [1.0.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/commits/1.0.0
