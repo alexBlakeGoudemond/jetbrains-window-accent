@@ -2,7 +2,9 @@
 
 This repository uses a centralized AI playbook.
 
-To speed up Agent / AI Model onboarding, please see [window-accent-overview.md](.ai-resources/repository-information/window-accent-overview.md)
+To speed up Agent / AI Model onboarding, please refer to the directory `.ai-resources`.
+Several resources are available here. In particular:
+- [window-accent-overview.md](.ai-resources/repository-information/window-accent-overview.md) for a high level overview of the codebases in this repository.
 
 Primary source of truth:
 

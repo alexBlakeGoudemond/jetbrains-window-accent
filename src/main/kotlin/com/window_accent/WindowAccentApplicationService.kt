@@ -58,6 +58,10 @@ class WindowAccentApplicationService : Disposable {
          */
         private val cleanupCompleted = AtomicBoolean(false)
 
+        fun resetCleanupState() {
+            cleanupCompleted.set(false)
+        }
+
         fun performCleanup(reason: String) {
             if (cleanupCompleted.compareAndSet(false, true)) {
                 LOG.info("[Window Accent] Running final cleanup (reason=$reason)")

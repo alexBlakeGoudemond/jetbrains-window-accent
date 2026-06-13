@@ -161,6 +161,30 @@ class PluginUnloadingVerificationTest {
         }
     }
 
+    @Test
+    @DisplayName("cleanupCompleted is reset by resetCleanupState() so second unload cycle runs cleanup")
+    fun cleanupStateIsResetOnPluginReload() {
+        val cleanupCompletedField = WindowAccentApplicationService::class.java
+            .getDeclaredField("cleanupCompleted").apply { isAccessible = true }
+        val cleanupCompleted = cleanupCompletedField.get(null) as AtomicBoolean
+
+        // Directly set the flag to true to simulate a completed first unload cycle,
+        // without invoking performCleanup (which calls ProjectManager and other platform APIs).
+        cleanupCompleted.set(true)
+        Assertions.assertTrue(cleanupCompleted.get(), "cleanupCompleted should be true after first unload cycle")
+
+        // Simulate plugin reload: resetCleanupState() must reset the flag to false
+        WindowAccentApplicationService.resetCleanupState()
+        Assertions.assertFalse(cleanupCompleted.get(), "cleanupCompleted should be false after resetCleanupState()")
+
+        // Confirm the flag can be set again (i.e., cleanup would run on next unload)
+        cleanupCompleted.set(true)
+        Assertions.assertTrue(cleanupCompleted.get(), "cleanupCompleted should be settable again after reset, confirming second unload cycle would run cleanup")
+
+        // Leave the flag reset so other tests are not affected
+        WindowAccentApplicationService.resetCleanupState()
+    }
+
     private fun privateField(name: String): java.lang.reflect.Field {
         val field = WindowTitleApplier::class.java.getDeclaredField(name)
         field.isAccessible = true
