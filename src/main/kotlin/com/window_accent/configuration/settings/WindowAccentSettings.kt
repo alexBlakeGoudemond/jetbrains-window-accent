@@ -242,6 +242,14 @@ open class WindowAccentSettings(
         customColorSettings = null
         titleNumberingSettings = null
         customTitleSettings = null
+
+        // Remove all Swing components from the panel hierarchy. IntelliJ's configurable tree
+        // may hold this WindowAccentSettings instance after plugin unload. Each Swing component
+        // field (sideCombo, checkboxes, buttons, etc.) is a plugin class instance — as long as
+        // they are reachable from this instance, the plugin classloader cannot be GC'd.
+        // Clearing the component tree breaks those references.
+        panel.removeAll()
+        form.removeAll()
     }
 
     private fun updateSettingsFromUi(): Unit? {

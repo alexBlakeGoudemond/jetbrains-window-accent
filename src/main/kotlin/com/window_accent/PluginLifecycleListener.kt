@@ -21,7 +21,9 @@ import com.window_accent.feature.window_title.WindowTitleApplier
  */
 class PluginLifecycleListener : DynamicPluginListener {
 
-    private val LOG = logger<PluginLifecycleListener>()
+    companion object {
+        private val LOG = logger<PluginLifecycleListener>()
+    }
 
     init {
         LOG.info("[Window Accent] Lifecycle Listener registered")
