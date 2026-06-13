@@ -2,19 +2,44 @@
 
 ## [Unreleased]
 
+## [1.2.8]
+
+### Fixed
+
+- Pass 012 of improving Plugin Unloading to avoid unnecessary project restarts
+    - `WindowColorApplier` and `WindowTitleApplier` `Alarm` instances are now created with the Application Thread. 
+
+### Diagnostic notes (from log analysis)
+
+- Fixed classloader leak caused by `Alarm` instances in `WindowColorApplier` and
+  `WindowTitleApplier` being created without a parent disposable. When cleanup called
+  `Disposer.dispose(retryAlarm)`, the platform posted a final EDT cancellation task that
+  held a reference chain (`EDT task → Alarm → singleton class → plugin classloader`).
+  The GC check fired before that task ran, causing the "class loader cannot be unloaded" warning.
+- Fix: pass `ApplicationManager.getApplication()` as the parent disposable to both
+  `Alarm` constructors. The platform now owns the alarm lifecycle; `cancelAllRequests()`
+  alone is sufficient to release all pending task references, and no EDT cancellation
+  task is posted on unload.
+- Removed now-unused `retryAlarmDisposed` `AtomicBoolean` fields from both appliers.
+
 ## [1.2.7]
 
 ### Fixed
 
 - Pass 011 of improving Plugin Unloading to avoid unnecessary project restarts
-    - Moved `LOG` in `PluginLifecycleListener` from an instance field to a `companion object` field.
-      The platform message bus holds the `PluginLifecycleListener` instance after plugin unload;
-      an instance-field logger holds a reference to `PluginLifecycleListener.class`, keeping the
-      plugin classloader reachable during IntelliJ's GC check. Moving it to the companion makes it
-      a static field within the plugin classloader (not held externally via the bus instance).
     - Improved `WindowAccentSettings.disposeUIResources` to also call `panel.removeAll()` and
-      `form.removeAll()`, clearing the Swing component tree so that if IntelliJ's configurable
-      cache retains the instance, it no longer holds plugin class references via component fields.
+      `form.removeAll()`.
+
+### Diagnostic notes (from log analysis)
+
+- Moved `LOG` in `PluginLifecycleListener` from an instance field to a `companion object` field.
+  The platform message bus holds the `PluginLifecycleListener` instance after plugin unload;
+  an instance-field logger holds a reference to `PluginLifecycleListener.class`, keeping the
+  plugin classloader reachable during IntelliJ's GC check. Moving it to the companion makes it
+  a static field within the plugin classloader (not held externally via the bus instance).
+- Improved `WindowAccentSettings.disposeUIResources` to also call `panel.removeAll()` and
+  `form.removeAll()`, clearing the Swing component tree so that if IntelliJ's configurable
+  cache retains the instance, it no longer holds plugin class references via component fields.
 
 ## [1.2.6]
 
@@ -265,7 +290,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.7...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.8...HEAD
+[1.2.8]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.7...1.2.8
 [1.2.7]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.6...1.2.7
 [1.2.6]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.5...1.2.6
 [1.2.5]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.4...1.2.5

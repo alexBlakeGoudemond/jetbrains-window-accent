@@ -82,10 +82,11 @@ class PluginUnloadingVerificationTest {
             "isShuttingDown should be true after cleanup"
         )
 
+        // retryAlarm is now parented to the application disposable — the platform owns its lifecycle.
+        // We verify it is not disposed (platform manages it) but has no pending requests after cleanup.
         val retryAlarm = privateField("retryAlarm").get(windowTitleApplier) as Alarm
-        val retryAlarmDisposed = privateField("retryAlarmDisposed").get(windowTitleApplier) as AtomicBoolean
-        Assertions.assertTrue(retryAlarmDisposed.get(), "retryAlarmDisposed flag should be true after cleanup")
-        Assertions.assertTrue(Disposer.isDisposed(retryAlarm), "retryAlarm should be disposed after cleanup")
+        Assertions.assertFalse(Disposer.isDisposed(retryAlarm), "retryAlarm should NOT be self-disposed — platform owns its lifecycle")
+        Assertions.assertEquals(0, retryAlarm.activeRequestCount, "retryAlarm should have no pending requests after cleanup")
     }
 
     @Test
@@ -95,16 +96,16 @@ class PluginUnloadingVerificationTest {
 
         val clazz = WindowColorApplier::class.java
         val retryAlarmField = clazz.getDeclaredField("retryAlarm").apply { isAccessible = true }
-        val retryAlarmDisposedField = clazz.getDeclaredField("retryAlarmDisposed").apply { isAccessible = true }
         val isShuttingDownField = clazz.getDeclaredField("isShuttingDown").apply { isAccessible = true }
 
         val retryAlarm = retryAlarmField.get(WindowColorApplier) as Alarm
-        val retryAlarmDisposed = retryAlarmDisposedField.get(WindowColorApplier) as AtomicBoolean
         val isShuttingDown = isShuttingDownField.getBoolean(WindowColorApplier)
 
         Assertions.assertTrue(isShuttingDown, "WindowColorApplier should be marked as shutting down")
-        Assertions.assertTrue(retryAlarmDisposed.get(), "WindowColorApplier retry alarm should be marked disposed")
-        Assertions.assertTrue(Disposer.isDisposed(retryAlarm), "WindowColorApplier retry alarm should be disposed")
+        // retryAlarm is now parented to the application disposable — the platform owns its lifecycle.
+        // We verify it is not self-disposed but has no pending requests after cleanup.
+        Assertions.assertFalse(Disposer.isDisposed(retryAlarm), "WindowColorApplier retry alarm should NOT be self-disposed — platform owns its lifecycle")
+        Assertions.assertEquals(0, retryAlarm.activeRequestCount, "WindowColorApplier retry alarm should have no pending requests after cleanup")
     }
 
     @Test
