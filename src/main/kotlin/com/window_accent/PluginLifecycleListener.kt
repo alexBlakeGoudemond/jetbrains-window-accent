@@ -29,6 +29,11 @@ class PluginLifecycleListener : DynamicPluginListener {
 
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         if (pluginDescriptor.pluginId.idString == "WindowAccent") {
+            // Reset the cleanup guard so the next unload cycle can perform cleanup.
+            // Without this, cleanupCompleted stays true from the previous unload and
+            // performCleanup() is skipped entirely on the next update, leaving listeners
+            // and panels alive — preventing the classloader from being GC'd.
+            WindowAccentApplicationService.resetCleanupState()
             ensureApplicationServiceHasBeenInstantiated()
             LOG.info("[Window Accent] Window Accent enabled/loaded: Restoring decorations")
             restoreDecorations()
