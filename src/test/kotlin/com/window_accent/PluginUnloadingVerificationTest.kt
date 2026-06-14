@@ -82,11 +82,8 @@ class PluginUnloadingVerificationTest {
             "isShuttingDown should be true after cleanup"
         )
 
-        // retryAlarm is now parented to the application disposable — the platform owns its lifecycle.
-        // We verify it is not disposed (platform manages it) but has no pending requests after cleanup.
         val retryAlarm = privateField("retryAlarm").get(windowTitleApplier) as Alarm
-        Assertions.assertFalse(Disposer.isDisposed(retryAlarm), "retryAlarm should NOT be self-disposed — platform owns its lifecycle")
-        Assertions.assertEquals(0, retryAlarm.activeRequestCount, "retryAlarm should have no pending requests after cleanup")
+        Assertions.assertTrue(Disposer.isDisposed(retryAlarm), "retryAlarm should be disposed after cleanup")
     }
 
     @Test
@@ -102,10 +99,7 @@ class PluginUnloadingVerificationTest {
         val isShuttingDown = isShuttingDownField.getBoolean(WindowColorApplier)
 
         Assertions.assertTrue(isShuttingDown, "WindowColorApplier should be marked as shutting down")
-        // retryAlarm is now parented to the application disposable — the platform owns its lifecycle.
-        // We verify it is not self-disposed but has no pending requests after cleanup.
-        Assertions.assertFalse(Disposer.isDisposed(retryAlarm), "WindowColorApplier retry alarm should NOT be self-disposed — platform owns its lifecycle")
-        Assertions.assertEquals(0, retryAlarm.activeRequestCount, "WindowColorApplier retry alarm should have no pending requests after cleanup")
+        Assertions.assertTrue(Disposer.isDisposed(retryAlarm), "WindowColorApplier retry alarm should be disposed after cleanup")
     }
 
     @Test

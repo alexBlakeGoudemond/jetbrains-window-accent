@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [1.2.9]
+
+### Fixed
+
+- Pass 013 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Reverted the 1.2.8 approach of parenting `Alarm` to `ApplicationManager.getApplication()`
+    - Enabled heap snapshot generation on classloader GC check
+      failure, allowing precise diagnosis of any remaining leaks via `.hprof` analysis.
+
+### Diagnostic notes (from log analysis)
+
+- Reverted the 1.2.8 approach of parenting `Alarm` to `ApplicationManager.getApplication()`.
+  Parenting to the application caused the platform's Disposer tree to hold a reference chain
+  `Application → retryAlarm → Alarm internals → plugin class → PluginClassLoader`, which is an
+  **external** reference from platform code into the plugin classloader — exactly what the GC
+  check detects. The fix is to create `Alarm` with no parent and call `cancelAllRequests()` then
+  `Disposer.dispose(retryAlarm)` explicitly during cleanup, so no platform-owned object retains
+  a reference to the alarm after unload.
+    - Added `-XX:+UnlockDiagnosticVMOptions` and `ide.plugins.snapshot.on.unload.fail=true` to
+      `runIde` in `build.gradle.kts` to enable heap snapshot generation on classloader GC check
+      failure, allowing precise diagnosis of any remaining leaks via `.hprof` analysis.
+
 ## [1.2.8]
 
 ### Fixed
@@ -290,7 +312,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.8...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.9...HEAD
+[1.2.9]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.8...1.2.9
 [1.2.8]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.7...1.2.8
 [1.2.7]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.6...1.2.7
 [1.2.6]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.5...1.2.6

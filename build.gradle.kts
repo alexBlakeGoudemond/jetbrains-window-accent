@@ -94,5 +94,10 @@ tasks {
     // not building gradle plugin, so dont load it
     runIde {
         systemProperty("idea.max.content.load.filesize", "2000000")
+        // Enable heap snapshot on plugin unload failure for classloader leak diagnosis.
+        // When ide.plugins.snapshot.on.unload.fail=true, a .hprof is written to the user
+        // home directory if a plugin fails the classloader GC check during dynamic unload.
+        jvmArgs("-XX:+UnlockDiagnosticVMOptions")
+        systemProperty("ide.plugins.snapshot.on.unload.fail", "true")
     }
 }

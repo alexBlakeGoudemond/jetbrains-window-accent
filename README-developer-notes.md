@@ -282,3 +282,75 @@ Updated PluginLifecycleListenerTest to reflect new delegation pattern.
 
 This should eliminate the 'Plugin WindowAccent is not unload-safe' message and
 allow dynamic updates without restart.
+
+---
+
+### Classloader leak resolution — passes 010–013 (v1.2.6–v1.2.9)
+
+After v1.2.3, the plugin still required a restart on marketplace updates. Four further passes
+were needed to fully resolve the classloader leak. The fix was confirmed via Eclipse Memory
+Analyser Tool (MAT) heap dump analysis — the WindowAccent classloader was absent from the heap
+after v1.2.9, proving successful GC.
+
+#### Pass 010 — v1.2.6: `cleanupCompleted` never reset between load cycles
+
+`cleanupCompleted` (an `AtomicBoolean` in `WindowAccentApplicationService` companion object)
+was never reset to `false` after cleanup. On the second update, the new plugin instance's
+`performCleanup` saw `cleanupCompleted = true` and skipped all cleanup entirely.
+
+**Fix:** Added `resetCleanupState()` companion method; called from `PluginLifecycleListener.pluginLoaded`
+so each new load cycle starts fresh.
+
+#### Pass 011 — v1.2.7: Instance-field logger and Swing component tree
+
+Two external references survived cleanup:
+
+1. `PluginLifecycleListener.LOG` was an instance field. The platform message bus holds the
+   listener instance after unload; an instance-field logger holds a reference to the class,
+   keeping the classloader reachable. **Fix:** Moved `LOG` to `companion object`.
+
+2. IntelliJ's configurable cache may retain the `WindowAccentSettings` instance. Each Swing
+   component field (checkboxes, buttons, combos) is a plugin class instance. **Fix:** Added
+   `panel.removeAll()` and `form.removeAll()` to `disposeUIResources()`.
+
+#### Pass 012 — v1.2.8: Alarm parented to Application (reverted in 013)
+
+Attempted fix: parent `Alarm` to `ApplicationManager.getApplication()`. This caused the
+platform's Disposer tree to hold `Application → retryAlarm → Alarm internals → plugin class →
+PluginClassLoader` — an external reference. **Reverted in v1.2.9.**
+
+#### Pass 013 — v1.2.9: Explicit Alarm disposal (confirmed fix)
+
+**Fix:** Create `Alarm` with no parent (`Alarm(Alarm.ThreadToUse.SWING_THREAD)`). During cleanup,
+call `cancelAllRequests()` then `Disposer.dispose(retryAlarm)` explicitly. This ensures no
+platform-owned object retains a reference to the alarm after unload.
+
+**Confirmed via heap dump:** After v1.2.9, the WindowAccent classloader was not present in the
+heap dump at all — it was successfully garbage collected. The `.hprof` was triggered by other
+plugins (Discord, SonarLint, IdeaVim, GitToolBox) failing the GC check, not WindowAccent.
+
+#### How to verify dynamic unloadability locally (sandbox simulation)
+
+1. Temporarily set `pluginVersion=1.2.9-test` in `gradle.properties`, run `.\gradlew buildPlugin`,
+   copy the zip, then restore `pluginVersion=1.2.9`.
+2. Run `.\gradlew runIde` — the sandbox starts with `1.2.9` pre-installed.
+3. Inside the running sandbox: **Settings → Plugins → ⚙️ → Install Plugin from Disk…** →
+   select `WindowAccent-1.2.9-test.zip`.
+4. Click **"Restart IDE"** when prompted.
+5. Check `C:\Users\<you>\` for a `.hprof` file — absence means the classloader was GC'd (fix works).
+6. Check the sandbox log at `.intellijPlatform\sandbox\WindowAccent\IU-<version>\log\idea.log`
+   and search for `"class loader cannot be unloaded"` — absence confirms success.
+
+> **Note:** Sandbox *disable* does not trigger the GC check (`checked=false` in log). Only a
+> plugin *update* (unload old + load new) exercises the classloader GC check.
+
+#### Heap dump analysis (Eclipse MAT)
+
+If a future `.hprof` is generated, use Eclipse MAT (https://eclipse.dev/mat/downloads.php):
+
+1. **File → Open Heap Dump…** → select the `.hprof`.
+2. Run **OQL:** `SELECT * FROM com.window_accent.WindowAccentApplicationService` — any result
+   means that class is still alive after unload.
+3. Right-click a result → **"Path to GC Roots"** → **"exclude weak/soft references"** — this
+   shows the exact external reference chain keeping the classloader alive.
+4. The **first non-`window_accent` object** in the chain is the leak source to fix.

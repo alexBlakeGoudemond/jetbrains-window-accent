@@ -49,7 +49,7 @@ object WindowColorApplier {
      * releases all pending request runnables synchronously — leaving no plugin-classloader
      * references in any platform scheduler when the plugin is unloaded.
      */
-    private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, ApplicationManager.getApplication())
+    private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
 
     /**
      * Tracks added panels per-project for belt-and-suspenders cleanup.
@@ -72,9 +72,10 @@ object WindowColorApplier {
         // Set the flag FIRST so any EDT task still in the queue skips re-adding panels
         isShuttingDown = true
         retryAlarm.cancelAllRequests()
-        // retryAlarm is parented to the application disposable, so we do not call
-        // Disposer.dispose(retryAlarm) here — the platform owns its lifecycle.
-        // cancelAllRequests() is sufficient to release all pending task references.
+        // Dispose the alarm explicitly so the platform's Disposer tree holds no reference
+        // to it (and transitively to this plugin class) after cleanup. cancelAllRequests()
+        // is called first to clear pending runnables before disposal.
+        Disposer.dispose(retryAlarm)
         disposeAllTrackedDisposables()
     }
 
