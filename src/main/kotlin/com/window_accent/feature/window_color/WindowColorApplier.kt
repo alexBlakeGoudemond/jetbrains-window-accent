@@ -12,7 +12,6 @@ import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JRootPane
@@ -50,8 +49,7 @@ object WindowColorApplier {
      * releases all pending request runnables synchronously — leaving no plugin-classloader
      * references in any platform scheduler when the plugin is unloaded.
      */
-    private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD)
-    private val retryAlarmDisposed = AtomicBoolean(false)
+    private val retryAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, ApplicationManager.getApplication())
 
     /**
      * Tracks added panels per-project for belt-and-suspenders cleanup.
@@ -74,9 +72,9 @@ object WindowColorApplier {
         // Set the flag FIRST so any EDT task still in the queue skips re-adding panels
         isShuttingDown = true
         retryAlarm.cancelAllRequests()
-        if (retryAlarmDisposed.compareAndSet(false, true)) {
-            Disposer.dispose(retryAlarm)
-        }
+        // retryAlarm is parented to the application disposable, so we do not call
+        // Disposer.dispose(retryAlarm) here — the platform owns its lifecycle.
+        // cancelAllRequests() is sufficient to release all pending task references.
         disposeAllTrackedDisposables()
     }
 
