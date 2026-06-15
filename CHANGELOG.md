@@ -9,6 +9,7 @@
 - Added a button to the Tool Window to reset the Title Numbering
   - If several window instances have opened and closed, numbering can become haphazard; drifting from 1, 2, 3, ... to 3, 7, 9, 13, ...
   - Click a button in the tool window to reset the numbering to start from 1, with the current window being number 1
+- Added a border pulse animation to the Tool Window buttons to show when they have been clicked
 
 ## [1.2.12]
 
