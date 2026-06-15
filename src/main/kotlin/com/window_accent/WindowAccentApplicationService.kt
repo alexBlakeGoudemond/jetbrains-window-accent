@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.util.IconLoader
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -32,6 +33,11 @@ import java.util.concurrent.atomic.AtomicBoolean
  * - All pending retry-alarm requests are cancelled via [com.intellij.util.Alarm.cancelAllRequests]
  *   and the alarm itself is disposed via [com.intellij.openapi.util.Disposer.dispose], which nullifies
  *   any EDT-queued task wrappers that held lambda references.
+ * - IntelliJ's global icon cache ([com.intellij.openapi.util.IconLoader]) is cleared via
+ *   [IconLoader.clearCache]. Without this, [com.intellij.ui.icons.ImageDataByPathLoader] objects
+ *   stored as keys in the Caffeine icon cache retain a direct strong reference to the
+ *   `PluginClassLoader` — preventing it from being GC'd during the dynamic-unload check.
+ *   This was the confirmed root cause identified via hprof snapshot analysis (v1.2.10).
  *
  * Note: an earlier version of this class also called [ApplicationManager.getApplication().invokeAndWait]
  * to drain the EDT queue of already-dispatched alarm task wrappers. This was removed because:
@@ -72,6 +78,7 @@ class WindowAccentApplicationService : Disposable {
 
                 flushToolWindowListeners()
                 flushIntrospectorCaches()
+                flushIconLoaderCache()
 
                 LOG.info("[Window Accent] Final cleanup completed successfully")
             } else {
@@ -108,6 +115,27 @@ class WindowAccentApplicationService : Disposable {
             )
             classesToFlush.forEach { Introspector.flushFromCaches(it) }
             LOG.info("[Window Accent] Flushed Introspector BeanInfo caches for ${classesToFlush.size} service classes")
+        }
+
+        /**
+         * Clears IntelliJ's global icon-loading cache.
+         *
+         * When an icon is loaded via [IconLoader], a [com.intellij.ui.icons.ImageDataByPathLoader]
+         * is created that stores the plugin ClassLoader so it can later resolve the icon resource
+         * path. That loader object is kept as a key in a Caffeine [com.github.benmanes.caffeine.cache.BoundedLocalCache],
+         * reachable from a Global JNI root, forming a strong reference chain:
+         *
+         *   Global JNI → PathClassLoader.classes → Class → Caffeine cache
+         *     → CachedImageIcon (key) → ImageDataByPathLoader → PluginClassLoader
+         *
+         * Calling [IconLoader.clearCache] evicts all entries from that cache, releasing
+         * the `PluginClassLoader` reference before IntelliJ runs its GC collectibility check.
+         *
+         * Root cause confirmed via hprof snapshot analysis during v1.2.10 plugin-disable test.
+         */
+        private fun flushIconLoaderCache() {
+            IconLoader.clearCache()
+            LOG.info("[Window Accent] Flushed IconLoader cache to release ImageDataByPathLoader → PluginClassLoader references")
         }
     }
 

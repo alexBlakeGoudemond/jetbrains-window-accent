@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+## [1.2.10]
+
+### Fixed
+
+- Passes 014 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Introduced `ClassLoaderLeakDiagnostics` utility (internal/sandbox only) to assist with diagnosing
+      future classloader leaks using thread-stack scanning and `LeakHunter` reflection.
+    - Confirmed clean unload via log `Successfully unloaded plugin WindowAccent (classloader unload checked=true)` in sandbox logs
+    - Fixed classloader leak caused by IntelliJ's global Caffeine icon cache retaining a
+      `PluginClassLoader` reference via `ImageDataByPathLoader`. Added `IconLoader.clearCache()`
+      to `WindowAccentApplicationService.performCleanup()` to evict all cached icon entries before
+      IntelliJ runs its GC collectibility check.
+
+### Diagnostic notes (from log analysis)
+
+- **Pass 014 — icon cache leak (log 001):** hprof snapshot revealed the reference path:
+  `Global JNI → PathClassLoader.classes → Class → Caffeine BoundedLocalLoadingCache →
+  CachedImageIcon → ImageDataByPathLoader → PluginClassLoader`. Cleared by `IconLoader.clearCache()`.
+- **Pass 015 — diagnostic lambda captured classloader directly (log 002):** `ClassLoaderLeakDiagnostics`
+  dispatched a lambda that captured the `ClassLoader` parameter, keeping it strongly reachable on the
+  pooled thread's stack frame during IntelliJ's GC check. Fixed by passing only a `WeakReference`
+  across the thread boundary and obtaining the strong reference after GC rounds.
+- **Pass 016 — lambda class object retained classloader (log 003):** Even without a captured variable,
+  the lambda's own class object (`ClassLoaderLeakDiagnostics$$Lambda`) keeps the `PluginClassLoader`
+  alive via `Class.classLoader`. Fundamental constraint: any plugin code executing on any thread
+  during the GC check window makes the classloader reachable. Resolved by removing the
+  `scheduleLeakCheck` call from `beforePluginUnload` entirely. The method call is preserved as a
+  commented-out line for future ad-hoc investigation.
+- **GC check behaviour update:** Sandbox plugin *disable* (not just marketplace *update*) now triggers
+  the classloader GC check (`classloader unload checked=true`) in IU-261.22158.277 (2026.1).
+
 ## [1.2.9]
 
 ### Fixed
@@ -312,7 +343,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.9...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.10...HEAD
+[1.2.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.9...1.2.10
 [1.2.9]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.8...1.2.9
 [1.2.8]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.7...1.2.8
 [1.2.7]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.6...1.2.7

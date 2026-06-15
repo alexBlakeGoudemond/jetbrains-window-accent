@@ -57,6 +57,21 @@ class PluginLifecycleListener : DynamicPluginListener {
         if (pluginId == "WindowAccent") {
             LOG.info("[Window Accent] Plugin unload triggered (update=$isUpdate) — running cleanup")
             WindowAccentApplicationService.performCleanup("before-plugin-unload")
+            // NOTE: ClassLoaderLeakDiagnostics.scheduleLeakCheck is intentionally NOT called here.
+            // Scheduling any async task during the unload path means a plugin-class lambda will be
+            // alive on a pooled thread when IntelliJ runs its GC collectibility check. Any class
+            // loaded by the PluginClassLoader keeps it reachable (via Class.classLoader), so the
+            // diagnostic always causes the very leak it is trying to detect.
+            //
+            // To temporarily re-enable for investigation, uncomment the lines below, run
+            // ./gradlew runIde, trigger a disable/update, then remove again before committing:
+            //
+            // val classLoader = pluginDescriptor.pluginClassLoader
+            // if (classLoader != null) { ClassLoaderLeakDiagnostics.scheduleLeakCheck(classLoader) }
+            //
+            // The companion ide.plugins.snapshot.on.unload.fail=true system property (set in
+            // build.gradle.kts) will also produce a .hprof with a reference path on any genuine
+            // unload failure.
         }
     }
 
