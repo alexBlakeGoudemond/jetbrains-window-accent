@@ -4,6 +4,10 @@
 
 ## [1.2.12]
 
+### Fixed
+
+- Reviewed Changelog to confirm that all entries are present
+
 ## [1.2.11]
 
 ### Fixed
