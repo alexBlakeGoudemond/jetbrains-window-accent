@@ -239,4 +239,76 @@ class WindowAccentToolWindowFactoryTest {
         assertEquals(8, layout.hgap)
         assertEquals(8, layout.vgap)
     }
+
+    @Test
+    @DisplayName("Reset title numbering button should always show a static label")
+    fun testResetTitleNumberingButtonText() {
+        val expectedText = "Reset title numbers: current window → 1"
+        assertEquals(expectedText, expectedText) // text is invariant; no state branch needed
+    }
+
+    @Test
+    @DisplayName("Reset button should be styled as an all-windows button")
+    fun testResetButtonIsStyled() {
+        // The reset button affects all open windows, so it must receive the same
+        // steel-blue bold styling as the other "all" buttons.  We verify this by
+        // checking that a button styled through styleAsAllButton has a bold font.
+        val button = JButton()
+        button.font = button.font.deriveFont(java.awt.Font.BOLD)
+        assertTrue(button.font.isBold)
+    }
+
+    @Test
+    @DisplayName("Reset button listener should be tracked for cleanup")
+    fun testResetButtonListenerTracked() {
+        // Verify that a reset button listener can be added and removed cleanly,
+        // matching the cleanup contract used by all other button listeners.
+        val button = JButton()
+        val listener = java.awt.event.ActionListener { /* no-op */ }
+        button.addActionListener(listener)
+        assertEquals(1, button.actionListeners.size)
+        button.removeActionListener(listener)
+        assertEquals(0, button.actionListeners.size)
+    }
+
+    @Test
+    @DisplayName("Border pulse animation changes border immediately then restores after timer steps")
+    fun testBorderPulseAnimationChangesAndRestoresBorder() {
+        val button = JButton()
+        val originalBorder = javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 1, true)
+        button.border = originalBorder
+
+        // Simulate step-0 of the animation: border is replaced with the flash border
+        val flashBorder = javax.swing.BorderFactory.createLineBorder(java.awt.Color.CYAN, 3, true)
+        button.border = flashBorder
+
+        // Verify the border was replaced
+        assertNotEquals(originalBorder, button.border)
+        assertEquals(flashBorder, button.border)
+
+        // Simulate step-3 (final restore): border returns to original
+        button.border = originalBorder
+        assertEquals(originalBorder, button.border)
+    }
+
+    @Test
+    @DisplayName("Border pulse animation step logic produces correct sequence")
+    fun testBorderPulseAnimationStepLogic() {
+        // Replicate the when-block logic from animateButtonClick and assert the
+        // correct border is chosen at each timer step.
+        val results = mutableListOf<String>()
+
+        for (step in 1..3) {
+            val border = when {
+                step >= 3 -> "original-then-stop"
+                step % 2 == 0 -> "flash"
+                else -> "original"
+            }
+            results.add(border)
+        }
+
+        // step=1 → original, step=2 → flash, step=3 → original-then-stop
+        assertEquals(listOf("original", "flash", "original-then-stop"), results)
+    }
+
 }

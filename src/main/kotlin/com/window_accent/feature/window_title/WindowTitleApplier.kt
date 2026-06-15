@@ -37,6 +37,7 @@ class WindowTitleApplier {
         fun removeFromAllOpenProjectsSync() = getInstance().removeFromAllOpenProjectsSync()
         fun cancelAllPendingOperations() = getInstance().cancelAllPendingOperations()
         fun resetProjectNumbering() = getInstance().resetProjectNumbering()
+        fun renumberAllOpenWindows(focusedProject: Project) = getInstance().renumberAllOpenWindows(focusedProject)
     }
 
     private val logger = logger<WindowTitleApplier>()
@@ -387,4 +388,43 @@ class WindowTitleApplier {
         projectNumbers.clear()
         counter.set(1)
     }
+
+    /**
+     * Renumbers all open IDE windows sequentially starting from 1.
+     *
+     * [focusedProject] is assigned number 1; the remaining open projects receive
+     * 2, 3, … in their current iteration order.  The new numbers are written into
+     * [projectNumbers] before titles are re-applied, so every title listener
+     * immediately picks up the updated values.
+     *
+     * Because title numbering is a purely in-memory ("alive") feature, this
+     * operation has no persistence side-effects.
+     */
+    fun renumberAllOpenWindows(focusedProject: Project) {
+        runOnEdt {
+            val openProjects = ProjectManager.getInstance().openProjects.toList()
+
+            projectNumbers.clear()
+            counter.set(1)
+
+            // Focused project always gets number 1
+            projectNumbers[focusedProject] = counter.getAndIncrement()
+
+            // Remaining open projects get 2, 3, … in iteration order
+            openProjects.filter { it !== focusedProject }.forEach { project ->
+                projectNumbers[project] = counter.getAndIncrement()
+            }
+
+            // Re-apply titles so every window reflects its new number immediately.
+            // applyToCurrentOpenProject respects each project's enabled/disabled state.
+            openProjects.forEach { project -> applyToCurrentOpenProject(project) }
+
+            // Ensure the focused project title is updated even if it is not yet
+            // in the ProjectManager list (e.g. still initialising).
+            if (focusedProject !in openProjects) {
+                applyToCurrentOpenProject(focusedProject)
+            }
+        }
+    }
+
 }
