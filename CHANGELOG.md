@@ -4,6 +4,11 @@
 
 ## [1.2.11]
 
+### Fixed
+
+- Pass 015 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Added additional classes to WindowAccentApplicationService.flushIntrospectorCaches()
+
 ## [1.2.10]
 
 ### Fixed
