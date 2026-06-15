@@ -1,0 +1,21 @@
+# IntelliJ Plugin Verifier — ignored problems
+#
+# Each non-comment line is a Java regex pattern matched against the full problem description
+# produced by the plugin verifier. Lines starting with # are comments.
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# PLATFORM BUG: DaemonFusReporter read-action violation (2026.1 / 2026.2)
+#
+# DaemonFusReporter.daemonCanceled accesses CodeInsightContextManagerImpl.getPreferredContext
+# without a read action from within beforeWriteActionStart, which fires before any lock is
+# held on a coroutine write-action thread. No plugin code appears in the stack trace.
+#
+# First observed: v1.2.5 on EAP 2026.2 (triggered indirectly by flushEdtQueue — now removed).
+# Re-observed:    v1.2.10 on IU-261.22158.277 (2026.1) — triggered purely by platform code.
+#
+# Analysis: docs/compatibility-verification/compatibility-verification-failure-analysis-1.2.10-001.md
+# ──────────────────────────────────────────────────────────────────────────────
+.*DaemonFusReporter.*
+.*CodeInsightContextManagerImpl.*getPreferredContext.*
+.*Read access is allowed from inside read-action only.*DaemonFusReporter.*
+
