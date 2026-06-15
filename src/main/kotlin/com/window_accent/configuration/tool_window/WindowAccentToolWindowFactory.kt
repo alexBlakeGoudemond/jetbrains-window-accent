@@ -85,11 +85,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         val toggleAllTitlesButton = JButton()
         val toggleCurrentTitleButton = JButton()
+        val resetTitleNumberingButton = JButton()
 
         val toggleCurrentCustomTitleButton = JButton()
 
         styleAsAllButton(toggleAllColorsButton)
         styleAsAllButton(toggleAllTitlesButton)
+        styleAsResetButton(resetTitleNumberingButton)
         styleAsCurrentButton(toggleCurrentColorButton)
         styleAsCurrentButton(toggleCurrentTitleButton)
         styleAsCurrentButton(toggleCurrentCustomTitleButton)
@@ -118,6 +120,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 if (titlesEnabled) "Disable title number for current window"
                 else "Enable title number for current window"
             )
+            resetTitleNumberingButton.text = wrapTextInHtmlCenter("Reset title numbers: current window → 1")
+            resetTitleNumberingButton.toolTipText = "Renumber all open windows starting from 1, with this window first"
 
             toggleCurrentCustomTitleButton.text = wrapTextInHtmlCenter(
                 if (customTitleSettings.isCustomTitleEnabled()) "Disable custom title for current window"
@@ -161,6 +165,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             WindowTitleApplier.applyToCurrentOpenProject(project, enabled)
             refreshButtonText()
         }
+        val resetTitleNumberingListener = ActionListener {
+            WindowTitleApplier.renumberAllOpenWindows(project)
+        }
         val toggleCurrentCustomTitleListener = ActionListener {
             val enabled = customTitleSettings.isCustomTitleDisabled()
             customTitleSettings.setCustomTitleEnabled(enabled)
@@ -173,13 +180,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         cyclePanelDirectionButton.addActionListener(cyclePanelDirectionListener)
         toggleAllTitlesButton.addActionListener(toggleAllTitlesListener)
         toggleCurrentTitleButton.addActionListener(toggleCurrentTitleListener)
+        resetTitleNumberingButton.addActionListener(resetTitleNumberingListener)
         toggleCurrentCustomTitleButton.addActionListener(toggleCurrentCustomTitleListener)
 
         refreshButtonText()
 
         panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
         panel.add(Box.createVerticalStrut(8))
-        panel.add(buildButtonRow(toggleAllTitlesButton, toggleCurrentTitleButton))
+        panel.add(buildButtonRow(toggleAllTitlesButton, toggleCurrentTitleButton, resetTitleNumberingButton))
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleCurrentCustomTitleButton))
 
@@ -192,6 +200,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             cyclePanelDirectionButton to cyclePanelDirectionListener,
             toggleAllTitlesButton to toggleAllTitlesListener,
             toggleCurrentTitleButton to toggleCurrentTitleListener,
+            resetTitleNumberingButton to resetTitleNumberingListener,
             toggleCurrentCustomTitleButton to toggleCurrentCustomTitleListener,
         )
         allButtonListeners[project] = listenerPairs
@@ -242,6 +251,17 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
      */
     private fun styleAsCycleButton(button: JButton) {
         val borderColor = JBColor(Color(0xB8860B), Color(0xD29922))
+        button.border = BorderFactory.createLineBorder(borderColor, 1, true)
+    }
+
+    /**
+     * Styles the reset button.
+     *
+     * Applies a warm-amber border (theme-aware via [JBColor]) to distinguish
+     * it as a mode/configuration control rather than an enable/disable toggle.
+     */
+    private fun styleAsResetButton(button: JButton) {
+        val borderColor = JBColor(Color(0xdc4fe3), Color(0xdc4fe3))
         button.border = BorderFactory.createLineBorder(borderColor, 1, true)
     }
 
