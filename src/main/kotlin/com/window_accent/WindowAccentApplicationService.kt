@@ -107,14 +107,34 @@ class WindowAccentApplicationService : Disposable {
          * Flushing the cache breaks that reference so the classloader becomes collectible.
          */
         private fun flushIntrospectorCaches() {
+            // Flush both the service classes (PersistentStateComponent implementations) AND
+            // their nested State data classes. IntelliJ's BeanBinding calls
+            // Introspector.getBeanInfo() on the *state type* (T in PersistentStateComponent<T>)
+            // when serializing/deserializing. The resulting BeanInfo is cached in
+            // ThreadGroupContext.getBeanInfoCache() (a WeakHashMap<Class, BeanInfo>). The cache
+            // value (BeanInfo) holds PropertyDescriptors → Methods → the State class itself,
+            // creating a strong back-reference to the WeakHashMap key and preventing GC.
+            // Without flushing the State classes, the retention chain is:
+            //   ThreadGroup → ThreadGroupContext → BeanInfoCache → BeanInfo → Method
+            //     → State.class → PluginClassLoader
+            // flushFromCaches() is a no-op for classes not in the cache, so including
+            // extra classes here is always safe.
             val classesToFlush = listOf(
+                // Service classes (PersistentStateComponent implementations)
                 WindowPanelAppearanceStateService::class.java,
                 WindowCustomColorStateService::class.java,
                 WindowTitleNumberingStateService::class.java,
                 WindowCustomTitleStateService::class.java,
+                // Nested State data classes — the types actually introspected by BeanBinding
+                WindowPanelAppearanceStateService.State::class.java,
+                WindowCustomColorStateService.State::class.java,
+                WindowTitleNumberingStateService.State::class.java,
+                WindowCustomTitleStateService.State::class.java,
+                // Nested enum — may be introspected when serializing the Side property
+                WindowPanelAppearanceStateService.Side::class.java,
             )
             classesToFlush.forEach { Introspector.flushFromCaches(it) }
-            LOG.info("[Window Accent] Flushed Introspector BeanInfo caches for ${classesToFlush.size} service classes")
+            LOG.info("[Window Accent] Flushed Introspector BeanInfo caches for ${classesToFlush.size} classes (services + state types)")
         }
 
         /**
