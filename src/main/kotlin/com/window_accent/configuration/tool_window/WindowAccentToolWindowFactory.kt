@@ -23,6 +23,7 @@ import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JPanel
+import javax.swing.Timer
 
 /**
  * DumbAware is an IntelliJ Platform marker interface used in JetBrains IDE plugins.
@@ -58,13 +59,52 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         private val allButtonListeners =
             ConcurrentHashMap<Project, List<Pair<JButton, ActionListener>>>()
 
+        /**
+         * Tracks every [Timer] currently running a border-pulse animation.
+         *
+         * While a [Timer] is running, Swing's [javax.swing.TimerQueue] holds a strong reference
+         * to it, which in turn holds a reference to the [ActionListener] lambda, whose class is
+         * loaded by the plugin classloader.  That creates the chain:
+         *
+         * ```
+         * TimerQueue (JDK) → Timer → lambda (plugin class) → PluginClassLoader
+         * ```
+         *
+         * [stopAllAnimationTimers] is called from [removeAllButtonListeners] during plugin unload
+         * so that [javax.swing.TimerQueue] releases every in-flight animation timer before
+         * IntelliJ runs its classloader GC check.
+         */
+        private val runningAnimationTimers = java.util.concurrent.CopyOnWriteArrayList<Timer>()
+
         fun removeAllButtonListeners() {
+            // Stop all in-flight border animations first so TimerQueue releases their lambdas
+            // before the classloader GC check runs.
+            stopAllAnimationTimers()
             val snapshot = HashMap(allButtonListeners)
             allButtonListeners.clear()
             snapshot.values.flatten().forEach { (button, listener) ->
                 button.removeActionListener(listener)
             }
         }
+
+        /**
+         * Stops every currently-running border-pulse animation timer and clears the tracking list.
+         *
+         * Calling [Timer.stop] removes the timer from Swing's [javax.swing.TimerQueue], breaking
+         * the external reference chain that would otherwise keep the plugin classloader reachable
+         * during IntelliJ's unload GC check.
+         */
+        private fun stopAllAnimationTimers() {
+            val snapshot = ArrayList(runningAnimationTimers)
+            runningAnimationTimers.clear()
+            snapshot.forEach { it.stop() }
+        }
+
+        /** Duration of each step in the border pulse animation, in milliseconds. */
+        private const val PULSE_STEP_MS = 120
+
+        /** Border thickness used during the flash phase of the pulse animation. */
+        private const val FLASH_BORDER_THICKNESS = 3
     }
 
     /** Cycle order for the panel direction button: N → S → W → E → N */
@@ -135,18 +175,21 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         // by IntelliJ's ContentManager after the plugin is unloaded, the plugin classloader stays
         // reachable and IntelliJ's GC check fails, forcing an unnecessary restart.
         val toggleAllColorsListener = ActionListener {
+            animateButtonClick(toggleAllColorsButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = colorSettings.panelIsDisabled()
             colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
         val toggleCurrentColorListener = ActionListener {
+            animateButtonClick(toggleCurrentColorButton, JBColor(Color(0x90EE90), Color(0x56D364)))
             val enabled = colorSettings.panelIsDisabled()
             colorSettings.setPanelEnabled(enabled)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
         val cyclePanelDirectionListener = ActionListener {
+            animateButtonClick(cyclePanelDirectionButton, JBColor(Color(0xFFD700), Color(0xFFE566)))
             val currentIndex = sidesCycleOrder.indexOf(colorSettings.getSide())
             val nextSide = sidesCycleOrder[(currentIndex + 1) % sidesCycleOrder.size]
             colorSettings.setSide(nextSide)
@@ -154,21 +197,25 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             refreshButtonText()
         }
         val toggleAllTitlesListener = ActionListener {
+            animateButtonClick(toggleAllTitlesButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = titleSettings.isTitleNumberingDisabled()
             titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
         val toggleCurrentTitleListener = ActionListener {
+            animateButtonClick(toggleCurrentTitleButton, JBColor(Color(0x90EE90), Color(0x56D364)))
             val enabled = titleSettings.isTitleNumberingDisabled()
             titleSettings.setTitleNumberingEnabled(enabled)
             WindowTitleApplier.applyToCurrentOpenProject(project, enabled)
             refreshButtonText()
         }
         val resetTitleNumberingListener = ActionListener {
+            animateButtonClick(resetTitleNumberingButton, JBColor(Color(0xFF80FF), Color(0xFF80FF)))
             WindowTitleApplier.renumberAllOpenWindows(project)
         }
         val toggleCurrentCustomTitleListener = ActionListener {
+            animateButtonClick(toggleCurrentCustomTitleButton, JBColor(Color(0x90EE90), Color(0x56D364)))
             val enabled = customTitleSettings.isCustomTitleDisabled()
             customTitleSettings.setCustomTitleEnabled(enabled)
             WindowTitleApplier.applyToCurrentOpenProject(project)
@@ -273,4 +320,49 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         buttons.forEach { row.add(it) }
         return row
     }
+
+    /**
+     * Plays a double-pulse border animation on [button] to give immediate visual feedback.
+     *
+     * The sequence (each step is [PULSE_STEP_MS] ms) is:
+     *
+     * ```
+     * click → [flashBorder] → [originalBorder] → [flashBorder] → [originalBorder]  (stop)
+     * ```
+     *
+     * The flash border uses [flashColor] at a fixed thickness of [FLASH_BORDER_THICKNESS] px,
+     * which is always wider than the resting border so the pulse is clearly visible regardless
+     * of the button's normal style.
+     *
+     * **Unload safety:** while a [Timer] is running, Swing's [javax.swing.TimerQueue] holds a
+     * strong reference to it.  The timer is therefore tracked in [runningAnimationTimers] so that
+     * [stopAllAnimationTimers] (called from [removeAllButtonListeners] during plugin unload) can
+     * call [Timer.stop] before IntelliJ's classloader GC check runs.  The timer also removes
+     * itself from the list when it self-terminates in normal operation, keeping the list small.
+     */
+    private fun animateButtonClick(button: JButton, flashColor: Color) {
+        val originalBorder = button.border
+        val flashBorder = BorderFactory.createLineBorder(flashColor, FLASH_BORDER_THICKNESS, true)
+
+        button.border = flashBorder
+
+        var step = 0
+        val timer = Timer(PULSE_STEP_MS, null)
+        runningAnimationTimers.add(timer)
+        timer.addActionListener {
+            step++
+            when {
+                step >= 3 -> {
+                    button.border = originalBorder
+                    timer.stop()
+                    runningAnimationTimers.remove(timer)
+                }
+                step % 2 == 0 -> button.border = flashBorder
+                else -> button.border = originalBorder
+            }
+        }
+        timer.isRepeats = true
+        timer.start()
+    }
+
 }

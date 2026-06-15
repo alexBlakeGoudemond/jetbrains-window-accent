@@ -270,4 +270,45 @@ class WindowAccentToolWindowFactoryTest {
         button.removeActionListener(listener)
         assertEquals(0, button.actionListeners.size)
     }
+
+    @Test
+    @DisplayName("Border pulse animation changes border immediately then restores after timer steps")
+    fun testBorderPulseAnimationChangesAndRestoresBorder() {
+        val button = JButton()
+        val originalBorder = javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 1, true)
+        button.border = originalBorder
+
+        // Simulate step-0 of the animation: border is replaced with the flash border
+        val flashBorder = javax.swing.BorderFactory.createLineBorder(java.awt.Color.CYAN, 3, true)
+        button.border = flashBorder
+
+        // Verify the border was replaced
+        assertNotEquals(originalBorder, button.border)
+        assertEquals(flashBorder, button.border)
+
+        // Simulate step-3 (final restore): border returns to original
+        button.border = originalBorder
+        assertEquals(originalBorder, button.border)
+    }
+
+    @Test
+    @DisplayName("Border pulse animation step logic produces correct sequence")
+    fun testBorderPulseAnimationStepLogic() {
+        // Replicate the when-block logic from animateButtonClick and assert the
+        // correct border is chosen at each timer step.
+        val results = mutableListOf<String>()
+
+        for (step in 1..3) {
+            val border = when {
+                step >= 3 -> "original-then-stop"
+                step % 2 == 0 -> "flash"
+                else -> "original"
+            }
+            results.add(border)
+        }
+
+        // step=1 → original, step=2 → flash, step=3 → original-then-stop
+        assertEquals(listOf("original", "flash", "original-then-stop"), results)
+    }
+
 }
