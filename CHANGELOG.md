@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [1.3.0]
+
+### Added
+
+- Added a button to the Tool Window to reset the Title Numbering
+  - If several window instances have opened and closed, numbering can become haphazard; drifting from 1, 2, 3, ... to 3, 7, 9, 13, ...
+  - Click a button in the tool window to reset the numbering to start from 1, with the current window being number 1
+- Added a border pulse animation to the Tool Window buttons to show when they have been clicked
+
 ## [1.2.12]
 
 ### Fixed
@@ -356,7 +365,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.12...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.0...HEAD
+[1.3.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.12...1.3.0
 [1.2.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.11...1.2.12
 [1.2.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.10...1.2.11
 [1.2.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.9...1.2.10
