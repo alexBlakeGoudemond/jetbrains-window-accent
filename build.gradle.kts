@@ -99,5 +99,8 @@ tasks {
         // home directory if a plugin fails the classloader GC check during dynamic unload.
         jvmArgs("-XX:+UnlockDiagnosticVMOptions")
         systemProperty("ide.plugins.snapshot.on.unload.fail", "true")
+        // Enable internal mode so ClassLoaderLeakDiagnostics (and other internal tooling
+        // such as LeakHunter) is active during runIde sessions.
+        systemProperty("idea.is.internal", "true")
     }
 }

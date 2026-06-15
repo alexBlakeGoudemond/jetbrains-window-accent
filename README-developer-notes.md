@@ -341,8 +341,13 @@ plugins (Discord, SonarLint, IdeaVim, GitToolBox) failing the GC check, not Wind
 6. Check the sandbox log at `.intellijPlatform\sandbox\WindowAccent\IU-<version>\log\idea.log`
    and search for `"class loader cannot be unloaded"` — absence confirms success.
 
-> **Note:** Sandbox *disable* does not trigger the GC check (`checked=false` in log). Only a
-> plugin *update* (unload old + load new) exercises the classloader GC check.
+> **Note:** ~~Sandbox *disable* does not trigger the GC check (`checked=false` in log). Only a plugin
+> *update* (unload old + load new) exercises the classloader GC check.~~
+>
+> **Updated (2026.1+):** Sandbox *disable* now **does** trigger the classloader GC check.
+> Log 004 (v1.2.10 sandbox disable, IU-261.22158.277) confirmed `classloader unload checked=true`
+> on a plain disable. Either this behaviour changed in 2026.1 or the original observation was
+> environment-specific. In either case, both disable and update paths now exercise the GC check.
 
 #### Heap dump analysis (Eclipse MAT)
 
@@ -354,3 +359,108 @@ If a future `.hprof` is generated, use Eclipse MAT (https://eclipse.dev/mat/down
 3. Right-click a result → **"Path to GC Roots"** → **"exclude weak/soft references"** — this
    shows the exact external reference chain keeping the classloader alive.
 4. The **first non-`window_accent` object** in the chain is the leak source to fix.
+
+---
+
+### Classloader leak resolution — passes 014–016 (v1.2.10 → v1.2.11)
+
+After v1.2.9, the plugin was confirmed clean via heap dump. However, a fresh sandbox environment
+running v1.2.10 under IU-261.22158.277 (2026.1) re-introduced a classloader leak. Three further
+issues were identified and resolved using the new `ClassLoaderLeakDiagnostics` utility and IntelliJ's
+built-in hprof snapshot analysis (`ide.plugins.snapshot.on.unload.fail=true`).
+
+Confirmed fix: `Successfully unloaded plugin WindowAccent (classloader unload checked=true)` — log 004.
+
+#### Pass 014 — v1.2.11: Caffeine icon cache retaining `PluginClassLoader` via `ImageDataByPathLoader`
+
+**hprof reference path (log 001):**
+```
+ROOT: Global JNI
+  └─ PathClassLoader.classes (ArrayList)
+       └─ java.lang.Class
+            └─ classLoader → Caffeine BoundedLocalLoadingCache   (icon cache)
+                 └─ ConcurrentHashMap
+                      └─ key: CachedImageIcon
+                           └─ loader: ImageDataByPathLoader
+                                └─ classLoader: PluginClassLoader  ★
+```
+
+When an icon is loaded via `IconLoader`, an `ImageDataByPathLoader` is created that stores the
+`PluginClassLoader` so it can later resolve the icon resource path. That loader is kept as a
+key in IntelliJ's global Caffeine icon cache, reachable from a Global JNI root.
+
+**Fix:** Added `IconLoader.clearCache()` to `WindowAccentApplicationService.performCleanup()`.
+This evicts all `CachedImageIcon` entries — including those whose `ImageDataByPathLoader` holds a
+reference to the plugin classloader — before IntelliJ runs its GC collectibility check.
+
+```kotlin
+private fun flushIconLoaderCache() {
+    IconLoader.clearCache()
+    LOG.info("[Window Accent] Flushed IconLoader cache ...")
+}
+```
+
+#### Pass 015–016 — v1.2.11: `ClassLoaderLeakDiagnostics` self-interference
+
+During investigation a new utility (`ClassLoaderLeakDiagnostics`) was introduced that scheduled
+an async background task from `beforePluginUnload` to check whether the `PluginClassLoader` was
+GC-eligible. This caused two further self-inflicted leaks that required fixing in turn.
+
+**Pass 015 — lambda captured `classLoader` directly (log 002):**
+
+The lambda dispatched to `executeOnPooledThread` captured the `ClassLoader` parameter:
+```kotlin
+// BAD: lambda keeps classLoader strongly reachable for its entire execution lifetime
+executeOnPooledThread { performLeakCheck(weakRef, classLoader) }
+```
+IntelliJ's GC check ran while the lambda was sleeping (3 s delay), finding the classloader
+strongly reachable from the pooled thread's stack frame.
+
+**Fix:** Only the `WeakReference` crosses the thread boundary. The strong reference is obtained
+from `weakRef.get()` only *after* all GC rounds have run:
+```kotlin
+executeOnPooledThread { performLeakCheck(weakRef) }  // classLoader NOT captured
+
+private fun performLeakCheck(weakRef: WeakReference<ClassLoader>) {
+    // ... sleep and GC rounds ...
+    val leakedClassLoader = weakRef.get() ?: return  // obtain strong ref only if still alive
+```
+
+**Pass 016 — lambda's own class object retained the classloader (log 003):**
+
+Even after pass 015, the hprof showed:
+```
+ROOT: Java Frame: ClassLoaderLeakDiagnostics$$Lambda.run(Native method)
+  └─ ClassLoaderLeakDiagnostics$$Lambda  (the running lambda object)
+       └─ <class>: java.lang.Class
+            └─ cachedConstructor: PluginClassLoader  ★
+```
+
+This is a fundamental constraint: **any class loaded by the `PluginClassLoader` — including the
+lambda class itself — keeps the classloader alive via `Class.classLoader`.** As long as any plugin
+code executes on any thread during IntelliJ's GC check window, the classloader is reachable. There
+is no way to schedule an async plugin lambda during the unload path that does not self-interfere.
+
+**Fix:** Removed the `ClassLoaderLeakDiagnostics.scheduleLeakCheck(...)` call from
+`PluginLifecycleListener.beforePluginUnload` entirely. The class is retained in the codebase for
+ad-hoc investigation but must not be called from any plugin lifecycle hook.
+
+#### Key rule added
+
+| Rule | Why |
+|------|-----|
+| Never schedule async plugin code from the unload path | Any plugin lambda executing during IntelliJ's GC check keeps the `PluginClassLoader` alive via `Class.classLoader` — the lambda's own class is loaded by the plugin classloader |
+| Call `IconLoader.clearCache()` during cleanup | `ImageDataByPathLoader` entries in IntelliJ's global Caffeine icon cache store the `PluginClassLoader` and are reachable from a Global JNI root |
+
+#### `ClassLoaderLeakDiagnostics` — ad-hoc usage only
+
+`ClassLoaderLeakDiagnostics` was introduced to diagnose leaks and was instrumental in confirming
+the icon cache fix. To use it for future investigations:
+
+1. Temporarily re-add the `scheduleLeakCheck` call to `beforePluginUnload`.
+2. Run `./gradlew runIde` (`idea.is.internal=true` and `ide.plugins.snapshot.on.unload.fail=true`
+   are already set in `build.gradle.kts`).
+3. Trigger a plugin disable/update.
+4. Read the `LeakDiagnostics`-tagged log entries and any generated `.hprof`.
+5. **Remove the call again before committing** — the diagnostic itself will always appear as the
+   retaining root and will cause the unload check to fail.
