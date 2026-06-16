@@ -217,6 +217,7 @@ re-runs the full cleanup sequence. This provides a guaranteed final sweep even i
 | **Force-instantiate the app service on load** | Application services are lazily created; if never accessed, `dispose()` is never called and the service cleanup never runs |
 | Dispose old Disposer holders before updating tracked-panel state | If the old holder's callback fires after `addedPanels` is updated to the new panel, it removes the new panel. Always: remove → dispose old → track new → register new |
 | Run both `beforePluginUnload` and `dispose()` cleanup through a shared idempotent gate | Guarantees exactly-once cleanup regardless of which hook fires first |
+| **Track and explicitly dispose any lambda registered with `toolWindow.disposable`** | During `isUpdate=true`, IntelliJ does NOT close the tool window before the classloader GC check. `toolWindow.disposable` remains alive, keeping any registered plugin-class lambda reachable. Disable (`isUpdate=false`) does close the tool window first, which is why this bug is invisible in disable tests. Always use a named `Disposer.newDisposable(...)` child, store it in a `ConcurrentHashMap<Project, Disposable>`, and call `Disposer.dispose(it)` from the plugin-unload cleanup path. |
 
 ### Additional unload-safety hardening (post-v1.2.0)
 
@@ -464,3 +465,77 @@ the icon cache fix. To use it for future investigations:
 4. Read the `LeakDiagnostics`-tagged log entries and any generated `.hprof`.
 5. **Remove the call again before committing** — the diagnostic itself will always appear as the
    retaining root and will cause the unload check to fail.
+
+---
+
+### Classloader leak — pass 017 (v1.3.0 → v1.3.1): `toolWindow.disposable` lambda not disposed on `isUpdate=true`
+
+#### Symptom
+
+v1.3.0 required a restart when installed as a marketplace update from v1.2.12.
+Preceding disable tests (v1.2.11 → v1.2.12, `isUpdate=false`) had all passed, masking the bug.
+
+#### Root cause
+
+`WindowAccentToolWindowFactory.createToolWindowContent` registered a belt-and-suspenders cleanup
+lambda directly with `toolWindow.disposable`:
+
+```kotlin
+Disposer.register(toolWindow.disposable) {          // ← anonymous Disposable wrapping a plugin lambda
+    allButtonListeners.remove(project)?.forEach { (button, listener) ->
+        button.removeActionListener(listener)
+    }
+}
+```
+
+This created the chain:
+
+```
+IntelliJ Disposer tree → toolWindow.disposable (platform) → anonymous Disposable (plugin class) → PluginClassLoader
+```
+
+**Why disable (`isUpdate=false`) passed:** IntelliJ closes the tool window before the GC check
+when a plugin is disabled. Closing the tool window disposes `toolWindow.disposable`, which fires
+the lambda and removes it from the Disposer tree — no reference survives.
+
+**Why update (`isUpdate=true`) failed:** IntelliJ does NOT close the tool window during a plugin
+update. `toolWindow.disposable` stays alive with the lambda still registered, keeping the
+classloader reachable when the GC check runs.
+
+This bug was present since the first tool window implementation but was only exposed by the first
+real marketplace update (`isUpdate=true`) in v1.3.0.
+
+#### Fix (v1.3.1)
+
+Replace the anonymous `Disposer.register(toolWindow.disposable) { lambda }` with a named,
+tracked intermediate `Disposable`:
+
+```kotlin
+val cleanupDisposable = Disposer.newDisposable("WindowAccent-toolwindow-button-cleanup")
+toolWindowCleanupDisposables[project] = cleanupDisposable
+Disposer.register(toolWindow.disposable, cleanupDisposable)
+Disposer.register(cleanupDisposable) {
+    allButtonListeners.remove(project)?.forEach { (button, listener) ->
+        button.removeActionListener(listener)
+    }
+    toolWindowCleanupDisposables.remove(project)   // self-remove on natural disposal
+}
+```
+
+During plugin unload, `removeAllButtonListeners()` explicitly disposes every entry in
+`toolWindowCleanupDisposables`, removing the plugin-class lambda from `toolWindow.disposable`'s
+Disposer children before the GC check runs:
+
+```kotlin
+val disposablesSnapshot = HashMap(toolWindowCleanupDisposables)
+toolWindowCleanupDisposables.clear()
+disposablesSnapshot.values.forEach { Disposer.dispose(it) }
+```
+
+#### Key rule added
+
+Always use a named intermediate `Disposable` when registering a cleanup lambda with a platform
+lifecycle object (`toolWindow.disposable`, `project`, etc.) so that the lambda can be explicitly
+removed from the Disposer tree during plugin unload. Never rely on the platform object being
+disposed first — for `isUpdate=true`, it will not be.
+
