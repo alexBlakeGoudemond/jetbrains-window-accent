@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.3.1]
+
+### Fixed
+
+- Fix classloader leak by ensuring toolWindow.disposable lambda is explicitly disposed during plugin updates
+
 ## [1.3.0]
 
 ### Added
@@ -365,7 +371,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.1...HEAD
+[1.3.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.12...1.3.0
 [1.2.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.11...1.2.12
 [1.2.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.10...1.2.11

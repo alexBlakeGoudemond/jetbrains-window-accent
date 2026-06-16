@@ -1,5 +1,6 @@
 package com.window_accent.configuration.tool_window
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -48,11 +49,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
          * During plugin unload we must remove every [ActionListener] from every [JButton]
          * before IntelliJ's classloader GC check runs.  Each listener lambda captures plugin
          * objects (service instances, [WindowColorApplier], [WindowTitleApplier]) via the
-         * [refreshButtonText] closure.  As long as those lambdas are registered with a
+         * refreshButtonText closure.  As long as those lambdas are registered with a
          * Swing component held by IntelliJ's [com.intellij.ui.content.ContentManager], the
          * plugin classloader remains reachable and the GC check fails.
          *
-         * [removeAllButtonListeners] is called from [com.window_accent.WindowAccentApplicationService.performCleanup]
+         * removeAllButtonListeners is called from [com.window_accent.WindowAccentApplicationService.performCleanup]
          * which runs inside [com.window_accent.PluginLifecycleListener.beforePluginUnload],
          * guaranteeing cleanup before the GC check.
          */
@@ -70,20 +71,54 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
          * TimerQueue (JDK) → Timer → lambda (plugin class) → PluginClassLoader
          * ```
          *
-         * [stopAllAnimationTimers] is called from [removeAllButtonListeners] during plugin unload
+         * stopAllAnimationTimers is called from removeAllButtonListeners during plugin unload
          * so that [javax.swing.TimerQueue] releases every in-flight animation timer before
          * IntelliJ runs its classloader GC check.
          */
         private val runningAnimationTimers = java.util.concurrent.CopyOnWriteArrayList<Timer>()
 
+        /**
+         * Tracks the per-project [Disposable] wrapper that is registered as a child of
+         * [ToolWindow.disposable] as a belt-and-suspenders cleanup for the normal project-close path.
+         *
+         * **Why this matters for dynamic unload (update=true):**
+         * When a plugin is *disabled* (`isUpdate=false`), IntelliJ closes the tool window before
+         * the classloader GC check, which disposes [ToolWindow.disposable] and fires the lambda —
+         * removing it from the Disposer tree. When a plugin is *updated* (`isUpdate=true`), the
+         * tool window stays open: [ToolWindow.disposable] remains alive with the lambda (a plugin-
+         * class object) still registered as a child, creating the chain:
+         *
+         * ```
+         * Disposer tree → toolWindow.disposable (platform) → lambda (plugin class) → PluginClassLoader
+         * ```
+         *
+         * removeAllButtonListeners explicitly [Disposer.dispose]s each tracked entry, which
+         * removes it from [ToolWindow.disposable]'s child tree and breaks the reference chain
+         * before IntelliJ runs its GC collectibility check.
+         */
+        private val toolWindowCleanupDisposables = ConcurrentHashMap<Project, Disposable>()
+
         fun removeAllButtonListeners() {
-            // Stop all in-flight border animations first so TimerQueue releases their lambdas
-            // before the classloader GC check runs.
+            // Stop in-flight border animations so TimerQueue releases their lambdas.
             stopAllAnimationTimers()
+
+            // Remove all button ActionListeners.
             val snapshot = HashMap(allButtonListeners)
             allButtonListeners.clear()
             snapshot.values.flatten().forEach { (button, listener) ->
                 button.removeActionListener(listener)
+            }
+
+            // Explicitly dispose the Disposer entries registered under toolWindow.disposable.
+            // During a plugin UPDATE (isUpdate=true), the tool window is NOT closed before the
+            // classloader GC check, so toolWindow.disposable remains alive and any lambda
+            // registered as its child (a plugin class) would keep the classloader reachable.
+            // Calling Disposer.dispose on each tracked entry removes it from
+            // toolWindow.disposable's child tree, breaking the external reference chain.
+            val disposablesSnapshot = HashMap(toolWindowCleanupDisposables)
+            toolWindowCleanupDisposables.clear()
+            disposablesSnapshot.values.forEach { disposable ->
+                Disposer.dispose(disposable)
             }
         }
 
@@ -252,12 +287,23 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         )
         allButtonListeners[project] = listenerPairs
 
-        // Also clean up when the project closes normally (belt-and-suspenders alongside the
-        // explicit removeAllButtonListeners() call in performCleanup for the update/unload path).
-        Disposer.register(toolWindow.disposable) {
+        // Register a belt-and-suspenders cleanup for the normal project-close path.
+        //
+        // The disposable is tracked in toolWindowCleanupDisposables so that
+        // removeAllButtonListeners() can explicitly Disposer.dispose() it during plugin
+        // UPDATE (isUpdate=true), where the tool window is NOT closed before the GC check
+        // and toolWindow.disposable would otherwise remain alive with this plugin-class
+        // lambda still registered as a child.
+        val cleanupDisposable = Disposer.newDisposable("WindowAccent-toolwindow-button-cleanup")
+        toolWindowCleanupDisposables[project] = cleanupDisposable
+        Disposer.register(toolWindow.disposable, cleanupDisposable)
+        Disposer.register(cleanupDisposable) {
             allButtonListeners.remove(project)?.forEach { (button, listener) ->
                 button.removeActionListener(listener)
             }
+            // Self-remove from tracking when naturally disposed (project/tool-window close),
+            // so removeAllButtonListeners() does not try to dispose an already-disposed entry.
+            toolWindowCleanupDisposables.remove(project)
         }
     }
 
