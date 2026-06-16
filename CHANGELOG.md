@@ -4,6 +4,10 @@
 
 ## [1.3.1]
 
+### Fixed
+
+- Fix classloader leak by ensuring toolWindow.disposable lambda is explicitly disposed during plugin updates
+
 ## [1.3.0]
 
 ### Added
