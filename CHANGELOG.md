@@ -4,6 +4,10 @@
 
 ## [1.4.0]
 
+### Added
+
+- Extended tests to improve test coverage
+
 ## [1.3.1]
 
 ### Fixed
