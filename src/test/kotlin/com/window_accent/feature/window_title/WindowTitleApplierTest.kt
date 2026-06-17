@@ -13,6 +13,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import java.awt.Frame
+import java.awt.event.WindowAdapter
+import java.beans.PropertyChangeListener
+import java.util.concurrent.ConcurrentHashMap
 import javax.swing.JFrame
 
 @DisplayName("WindowTitleApplier Tests")
@@ -314,5 +318,287 @@ class WindowTitleApplierTest {
         applier.resetProjectNumbering()
         assertEquals(1, applier.getWindowProjectNumber(mockProject1))
         assertEquals(2, applier.getWindowProjectNumber(mockProject2))
+    }
+
+    // -------------------------------------------------------------------------
+    // Reflection helpers
+    // -------------------------------------------------------------------------
+
+    /** Reads the private `isShuttingDown` field from [applier]. */
+    private fun getIsShuttingDown(): Boolean {
+        val field = WindowTitleApplier::class.java.getDeclaredField("isShuttingDown")
+        field.isAccessible = true
+        return field.get(applier) as Boolean
+    }
+
+    /** Writes the private `isShuttingDown` field on [applier]. */
+    private fun setIsShuttingDown(value: Boolean) {
+        val field = WindowTitleApplier::class.java.getDeclaredField("isShuttingDown")
+        field.isAccessible = true
+        field.set(applier, value)
+    }
+
+    /** Returns the private `projectNumbers` map from [applier]. */
+    @Suppress("UNCHECKED_CAST")
+    private fun getProjectNumbers(): ConcurrentHashMap<Project, Int> {
+        val field = WindowTitleApplier::class.java.getDeclaredField("projectNumbers")
+        field.isAccessible = true
+        return field.get(applier) as ConcurrentHashMap<Project, Int>
+    }
+
+    /** Invokes the private `createFocusListener` method on [applier]. */
+    private fun createFocusListenerViaReflection(project: Project, frame: Frame): WindowAdapter {
+        val method = WindowTitleApplier::class.java.getDeclaredMethod(
+            "createFocusListener", Project::class.java, Frame::class.java
+        )
+        method.isAccessible = true
+        return method.invoke(applier, project, frame) as WindowAdapter
+    }
+
+    /** Invokes the private `createTitleListener` method on [applier]. */
+    private fun createTitleListenerViaReflection(project: Project, frame: Frame): PropertyChangeListener {
+        val method = WindowTitleApplier::class.java.getDeclaredMethod(
+            "createTitleListener", Project::class.java, Frame::class.java
+        )
+        method.isAccessible = true
+        return method.invoke(applier, project, frame) as PropertyChangeListener
+    }
+
+    /** Invokes the private `replaceFocusListener` method on [applier]. */
+    private fun replaceFocusListenerViaReflection(project: Project, frame: Frame, listener: WindowAdapter) {
+        val method = WindowTitleApplier::class.java.getDeclaredMethod(
+            "replaceFocusListener", Project::class.java, Frame::class.java, WindowAdapter::class.java
+        )
+        method.isAccessible = true
+        method.invoke(applier, project, frame, listener)
+    }
+
+    /** Invokes the private `replaceTitleListener` method on [applier]. */
+    private fun replaceTitleListenerViaReflection(project: Project, frame: Frame, listener: PropertyChangeListener) {
+        val method = WindowTitleApplier::class.java.getDeclaredMethod(
+            "replaceTitleListener", Project::class.java, Frame::class.java, PropertyChangeListener::class.java
+        )
+        method.isAccessible = true
+        method.invoke(applier, project, frame, listener)
+    }
+
+    /** Invokes the private `removeListeners` method on [applier]. */
+    private fun removeListenersViaReflection(project: Project) {
+        val method = WindowTitleApplier::class.java.getDeclaredMethod("removeListeners", Project::class.java)
+        method.isAccessible = true
+        method.invoke(applier, project)
+    }
+
+    // -------------------------------------------------------------------------
+    // Focus listener tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("Focus listener does nothing when isShuttingDown is true")
+    fun testFocusListenerSkipsWhenShuttingDown() {
+        getProjectNumbers()[mockProject1] = 1
+        val listener = createFocusListenerViaReflection(mockProject1, mockFrame1)
+
+        setIsShuttingDown(true)
+        val titleBefore = mockFrame1.title
+        listener.windowGainedFocus(null)
+
+        assertEquals(titleBefore, mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Focus listener does nothing when project has no assigned number")
+    fun testFocusListenerSkipsWhenProjectHasNoNumber() {
+        // projectNumbers is empty — mockProject1 has no number
+        val listener = createFocusListenerViaReflection(mockProject1, mockFrame1)
+        val titleBefore = mockFrame1.title
+        listener.windowGainedFocus(null)
+
+        assertEquals(titleBefore, mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Focus listener updates window title when focus is gained")
+    fun testFocusListenerUpdatesTitle() {
+        getProjectNumbers()[mockProject1] = 3
+        mockFrame1.title = "My Project"
+
+        val listener = createFocusListenerViaReflection(mockProject1, mockFrame1)
+        listener.windowGainedFocus(null)
+
+        assertEquals("[3] My Project", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Focus listener uses custom title when both numbering and custom title are enabled")
+    fun testFocusListenerAppliesCombinedPrefix() {
+        val customTitleService = mockProject1.getService(WindowCustomTitleStateService::class.java)
+        customTitleService.setCustomTitle("dattebayo")
+        customTitleService.setCustomTitleEnabled(true)
+        mockProject1.getService(WindowTitleNumberingStateService::class.java).setTitleNumberingEnabled(true)
+
+        getProjectNumbers()[mockProject1] = 2
+        mockFrame1.title = "My Project"
+
+        val listener = createFocusListenerViaReflection(mockProject1, mockFrame1)
+        listener.windowGainedFocus(null)
+
+        assertEquals("[2 - dattebayo] My Project", mockFrame1.title)
+    }
+
+    // -------------------------------------------------------------------------
+    // Title listener tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("Title listener does nothing when isShuttingDown is true")
+    fun testTitleListenerSkipsWhenShuttingDown() {
+        getProjectNumbers()[mockProject1] = 1
+        val listener = createTitleListenerViaReflection(mockProject1, mockFrame1)
+
+        setIsShuttingDown(true)
+        mockFrame1.title = "My Project"
+
+        val event = java.beans.PropertyChangeEvent(mockFrame1, "title", "[1] My Project", "My Project")
+        listener.propertyChange(event)
+
+        assertEquals("My Project", mockFrame1.title) // no restoration while shutting down
+    }
+
+    @Test
+    @DisplayName("Title listener does nothing when project has no assigned number")
+    fun testTitleListenerSkipsWhenProjectHasNoNumber() {
+        // projectNumbers is empty — mockProject1 has no number
+        val listener = createTitleListenerViaReflection(mockProject1, mockFrame1)
+        mockFrame1.title = "My Project"
+
+        val event = java.beans.PropertyChangeEvent(mockFrame1, "title", "[1] My Project", "My Project")
+        listener.propertyChange(event)
+
+        assertEquals("My Project", mockFrame1.title) // no update since no project number
+    }
+
+    @Test
+    @DisplayName("Title listener does not update when prefix is already correct")
+    fun testTitleListenerSkipsWhenPrefixAlreadyCorrect() {
+        getProjectNumbers()[mockProject1] = 2
+        val listener = createTitleListenerViaReflection(mockProject1, mockFrame1)
+
+        mockFrame1.title = "[2] My Project"
+        val event = java.beans.PropertyChangeEvent(mockFrame1, "title", "My Project", "[2] My Project")
+        listener.propertyChange(event)
+
+        assertEquals("[2] My Project", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Title listener re-applies prefix when it is stripped from the title")
+    fun testTitleListenerReappliesMissingPrefix() {
+        getProjectNumbers()[mockProject1] = 2
+        val listener = createTitleListenerViaReflection(mockProject1, mockFrame1)
+
+        mockFrame1.title = "My Project"
+        val event = java.beans.PropertyChangeEvent(mockFrame1, "title", "[2] My Project", "My Project")
+        listener.propertyChange(event)
+
+        assertEquals("[2] My Project", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Title listener ignores non-title property change events")
+    fun testTitleListenerIgnoresNonTitleEvents() {
+        getProjectNumbers()[mockProject1] = 1
+        val listener = createTitleListenerViaReflection(mockProject1, mockFrame1)
+
+        mockFrame1.title = "My Project"
+        val event = java.beans.PropertyChangeEvent(mockFrame1, "background", "old", "new")
+        listener.propertyChange(event)
+
+        assertEquals("My Project", mockFrame1.title)
+    }
+
+    // -------------------------------------------------------------------------
+    // Listener lifecycle tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("replaceFocusListener removes the previous listener from its stored frame")
+    fun testReplaceFocusListenerRemovesOldListener() {
+        val firstListener = object : WindowAdapter() {}
+        replaceFocusListenerViaReflection(mockProject1, mockFrame1, firstListener)
+        assertTrue(mockFrame1.windowFocusListeners.any { it === firstListener })
+
+        val secondListener = object : WindowAdapter() {}
+        replaceFocusListenerViaReflection(mockProject1, mockFrame1, secondListener)
+
+        assertFalse(mockFrame1.windowFocusListeners.any { it === firstListener }, "Old listener should be removed")
+        assertTrue(mockFrame1.windowFocusListeners.any { it === secondListener }, "New listener should be registered")
+    }
+
+    @Test
+    @DisplayName("replaceTitleListener removes the previous listener from its stored frame")
+    fun testReplaceTitleListenerRemovesOldListener() {
+        val firstListener = PropertyChangeListener { }
+        replaceTitleListenerViaReflection(mockProject1, mockFrame1, firstListener)
+
+        val titleListeners1 = mockFrame1.getPropertyChangeListeners("title")
+        assertTrue(titleListeners1.any { it === firstListener })
+
+        val secondListener = PropertyChangeListener { }
+        replaceTitleListenerViaReflection(mockProject1, mockFrame1, secondListener)
+
+        val titleListeners2 = mockFrame1.getPropertyChangeListeners("title")
+        assertFalse(titleListeners2.any { it === firstListener }, "Old listener should be removed")
+        assertTrue(titleListeners2.any { it === secondListener }, "New listener should be registered")
+    }
+
+    @Test
+    @DisplayName("removeListeners removes focus and title listeners from stored frame")
+    fun testRemoveListenersClearsProject() {
+        val focusListener = object : WindowAdapter() {}
+        val titleListener = PropertyChangeListener { }
+
+        replaceFocusListenerViaReflection(mockProject1, mockFrame1, focusListener)
+        replaceTitleListenerViaReflection(mockProject1, mockFrame1, titleListener)
+
+        assertTrue(mockFrame1.windowFocusListeners.any { it === focusListener })
+        assertTrue(mockFrame1.getPropertyChangeListeners("title").any { it === titleListener })
+
+        removeListenersViaReflection(mockProject1)
+
+        assertFalse(mockFrame1.windowFocusListeners.any { it === focusListener }, "Focus listener should be removed")
+        assertFalse(
+            mockFrame1.getPropertyChangeListeners("title").any { it === titleListener },
+            "Title listener should be removed"
+        )
+    }
+
+    @Test
+    @DisplayName("removeListeners is idempotent — calling twice does not throw")
+    fun testRemoveListenersIsIdempotent() {
+        val focusListener = object : WindowAdapter() {}
+        replaceFocusListenerViaReflection(mockProject1, mockFrame1, focusListener)
+
+        assertDoesNotThrow {
+            removeListenersViaReflection(mockProject1)
+            removeListenersViaReflection(mockProject1) // second call should be a no-op
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Shutdown flag tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("cancelAllPendingOperations sets isShuttingDown to true")
+    fun testCancelAllPendingOperationsSetsShuttingDownFlag() {
+        assertFalse(getIsShuttingDown())
+        try {
+            applier.cancelAllPendingOperations()
+        } catch (_: Exception) {
+            // Platform Disposer may not be fully initialised in the test environment;
+            // isShuttingDown is set as the very first statement so we can still assert it.
+        }
+        assertTrue(getIsShuttingDown())
     }
 }
