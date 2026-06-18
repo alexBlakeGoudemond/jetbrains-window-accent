@@ -140,10 +140,21 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         /** Border thickness used during the flash phase of the pulse animation. */
         private const val FLASH_BORDER_THICKNESS = 3
-    }
 
-    /** Cycle order for the panel direction button: N → S → W → E → N */
-    private val sidesCycleOrder = listOf(Side.NORTH, Side.SOUTH, Side.WEST, Side.EAST)
+        /**
+         * Cycle order for the panel direction button: N → S → W → E → N.
+         *
+         * Kept in the companion (static) rather than as an instance field so that the
+         * [WindowAccentToolWindowFactory] instance — which IntelliJ's tool-window registry
+         * may hold after plugin unload — carries no plugin-class references in its own fields.
+         * An instance field holding [Side] enum values would create the chain:
+         *   IntelliJ tool-window registry → factory instance → sidesCycleOrder
+         *     → Side[] → Side.class → PluginClassLoader
+         * In the companion the list is only reachable through the plugin ClassLoader's own
+         * class graph, not through any externally-held instance reference.
+         */
+        private val sidesCycleOrder = listOf(Side.NORTH, Side.SOUTH, Side.WEST, Side.EAST)
+    }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)

@@ -4,6 +4,38 @@
 
 ## [1.4.1]
 
+### Fixed
+
+- Pass 017 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Added `LOG.info` to `WindowAccentSettings#disposeUIResources()` so the next update log
+      will reveal whether IntelliJ calls it before or after the classloader GC check
+    - `WindowAccentSettings.disposeUIResources()` now also calls `sideCombo.removeAllItems()`
+      to clear `Side` enum values from the `DefaultComboBoxModel`, and removes ActionListeners
+      from the color/title buttons (plugin lambdas capturing `this`)
+    - Added `WeakReference` instance tracking in `WindowAccentSettings.companion` and
+      `disposeAllTrackedInstances()`, called from `WindowAccentApplicationService.performCleanup()`
+      to ensure `disposeUIResources()` runs deterministically before the GC check regardless of
+      IntelliJ's internal configurable-disposal ordering
+    - Moved `sidesCycleOrder` from an instance field to the companion object of
+      `WindowAccentToolWindowFactory` so the factory instance holds no plugin-class references
+      in its own fields (IntelliJ's tool-window registry may hold the factory instance briefly
+      after unload)
+
+### Diagnostic notes (from log analysis — update from 1.3.1 to 1.4.0, IU-261.22158.277)
+
+- **Confirmed retention path:** User had visited Settings > Appearance > Window Accent (to set a
+  custom title), causing IntelliJ to cache a `WindowAccentSettings` instance per open project (4
+  projects open). The instance's `sideCombo` (`JComboBox`) held `Side` enum values in its
+  `DefaultComboBoxModel`, creating:
+  `IntelliJ configurable cache → WindowAccentSettings → sideCombo → DefaultComboBoxModel
+    → Side[] → Side.class → PluginClassLoader`
+- **`disposeUIResources()` timing unknown:** The existing log had no entry for this method being
+  called, making it impossible to determine whether IntelliJ called it before or after the GC
+  check at `10:41:06,591`. The new `LOG.info` statement will resolve this in the next update.
+- **Secondary path also addressed:** `WindowAccentToolWindowFactory.sidesCycleOrder` was an
+  instance field holding all 4 `Side` values. Moving it to companion eliminates the secondary
+  chain: `IntelliJ tool-window registry → factory instance → sidesCycleOrder → Side.class → ClassLoader`
+
 ## [1.4.0]
 
 ### Added
