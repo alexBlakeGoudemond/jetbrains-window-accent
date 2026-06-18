@@ -11,6 +11,7 @@ Primary source of truth:
 - .ai-playbook/instructions/AGENTS.md
 - .ai-playbook/instructions/CONVENTIONS.md
 - .ai-playbook/instructions/CONTEXT.md
+- .ai-playbook/skills/ contains available Skills that you should be aware of
 
 Follow these rules when generating or modifying code:
 
