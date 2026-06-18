@@ -9,6 +9,7 @@ import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
@@ -77,6 +78,7 @@ class WindowAccentApplicationService : Disposable {
                 WindowTitleApplier.removeFromAllOpenProjectsSync()
 
                 flushToolWindowListeners()
+                flushSettingsConfigurables()
                 flushIntrospectorCaches()
                 flushIconLoaderCache()
 
@@ -95,6 +97,31 @@ class WindowAccentApplicationService : Disposable {
         // during the GC check.
         private fun flushToolWindowListeners() {
             WindowAccentToolWindowFactory.removeAllButtonListeners()
+        }
+
+        /**
+         * Calls [WindowAccentSettings.disposeAllTrackedInstances] to ensure all live
+         * [WindowAccentSettings] instances have [WindowAccentSettings.disposeUIResources]
+         * called **before** IntelliJ's classloader GC collectibility check runs.
+         *
+         * If the user opened the Settings panel before the plugin update, IntelliJ's
+         * configurable cache holds one [WindowAccentSettings] instance per open project.
+         * The instance's [sideCombo][javax.swing.JComboBox] stores
+         * [WindowPanelAppearanceStateService.Side] enum values (plugin class instances),
+         * creating the chain:
+         *
+         *   IntelliJ configurable cache → WindowAccentSettings → sideCombo
+         *     → DefaultComboBoxModel → Side[] → Side.class → PluginClassLoader
+         *
+         * Calling [WindowAccentSettings.disposeUIResources] clears the combo model,
+         * removes button ActionListeners, and nulls service references — breaking all
+         * plugin-class reference chains from the configurable instance before the GC check.
+         *
+         * The timing of IntelliJ's own configurable disposal (relative to the GC check)
+         * is not guaranteed; this call makes the disposal deterministic.
+         */
+        private fun flushSettingsConfigurables() {
+            WindowAccentSettings.disposeAllTrackedInstances()
         }
 
         /**
