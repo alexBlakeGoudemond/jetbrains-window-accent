@@ -409,4 +409,213 @@ class WindowColorApplierTest {
         override fun getGlassPane(): Component = rootPane.glassPane
     }
 
+    // -------------------------------------------------------------------------
+    // findExistingColoredPanel tests
+    // -------------------------------------------------------------------------
+
+    private fun invokeFindExistingColoredPanel(container: Container): Component? {
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "findExistingColoredPanel", Container::class.java
+        )
+        method.isAccessible = true
+        return method.invoke(WindowColorApplier, container) as Component?
+    }
+
+    @Test
+    @DisplayName("findExistingColoredPanel returns the marked panel when present")
+    fun testFindExistingColoredPanelFound() {
+        val container = JPanel()
+        val markedPanel = JPanel()
+        markedPanel.putClientProperty("com.window_accent.windowAccent", true)
+        container.add(markedPanel)
+
+        val result = invokeFindExistingColoredPanel(container)
+        assertEquals(markedPanel, result)
+    }
+
+    @Test
+    @DisplayName("findExistingColoredPanel returns null when no panel is marked")
+    fun testFindExistingColoredPanelNotFound() {
+        val container = JPanel()
+        container.add(JPanel()) // plain, unmarked panel
+
+        val result = invokeFindExistingColoredPanel(container)
+        assertNull(result)
+    }
+
+    @Test
+    @DisplayName("findExistingColoredPanel returns null for an empty container")
+    fun testFindExistingColoredPanelEmptyContainer() {
+        val result = invokeFindExistingColoredPanel(JPanel())
+        assertNull(result)
+    }
+
+    @Test
+    @DisplayName("findExistingColoredPanel ignores panels whose client property is false")
+    fun testFindExistingColoredPanelIgnoresFalseProperty() {
+        val container = JPanel()
+        val panel = JPanel()
+        panel.putClientProperty("com.window_accent.windowAccent", false)
+        container.add(panel)
+
+        val result = invokeFindExistingColoredPanel(container)
+        assertNull(result)
+    }
+
+    // -------------------------------------------------------------------------
+    // removeColoredPanel tests
+    // -------------------------------------------------------------------------
+
+    private fun invokeRemoveColoredPanel(existingPanel: Component?, rootContentPane: Container) {
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "removeColoredPanel", Component::class.java, Container::class.java
+        )
+        method.isAccessible = true
+        method.invoke(WindowColorApplier, existingPanel, rootContentPane)
+    }
+
+    @Test
+    @DisplayName("removeColoredPanel removes the panel from the container")
+    fun testRemoveColoredPanelRemovesPanel() {
+        val container = JPanel()
+        val panel = JPanel()
+        container.add(panel)
+        assertEquals(1, container.componentCount)
+
+        invokeRemoveColoredPanel(panel, container)
+
+        assertEquals(0, container.componentCount)
+    }
+
+    @Test
+    @DisplayName("removeColoredPanel handles a null panel without throwing")
+    fun testRemoveColoredPanelHandlesNull() {
+        val container = JPanel()
+        assertDoesNotThrow {
+            invokeRemoveColoredPanel(null, container)
+        }
+        assertEquals(0, container.componentCount)
+    }
+
+    // -------------------------------------------------------------------------
+    // createColoredPanel tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("createColoredPanel sets the windowAccent client property to true")
+    fun testCreateColoredPanelHasClientProperty() {
+        val panelSettings = WindowPanelAppearanceStateService()
+        val customColorSettings = WindowCustomColorStateService()
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+        org.mockito.Mockito.`when`(project.name).thenReturn("TestProject")
+
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "createColoredPanel",
+            WindowPanelAppearanceStateService::class.java,
+            WindowCustomColorStateService::class.java,
+            com.intellij.openapi.project.Project::class.java
+        )
+        method.isAccessible = true
+        val panel = method.invoke(WindowColorApplier, panelSettings, customColorSettings, project) as JPanel
+
+        assertEquals(true, (panel as javax.swing.JComponent).getClientProperty("com.window_accent.windowAccent"))
+    }
+
+    @Test
+    @DisplayName("createColoredPanel preferred size reflects the active side")
+    fun testCreateColoredPanelPreferredSizeForSide() {
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "createColoredPanel",
+            WindowPanelAppearanceStateService::class.java,
+            WindowCustomColorStateService::class.java,
+            com.intellij.openapi.project.Project::class.java
+        )
+        method.isAccessible = true
+
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+        org.mockito.Mockito.`when`(project.name).thenReturn("TestProject")
+
+        // NORTH → height 20, width 0
+        val northSettings = WindowPanelAppearanceStateService().apply { setSide(WindowPanelAppearanceStateService.Side.NORTH) }
+        val northPanel = method.invoke(WindowColorApplier, northSettings, WindowCustomColorStateService(), project) as JPanel
+        assertEquals(20, northPanel.preferredSize.height)
+        assertEquals(0, northPanel.preferredSize.width)
+
+        // EAST → width 20, height 0
+        val eastSettings = WindowPanelAppearanceStateService().apply { setSide(WindowPanelAppearanceStateService.Side.EAST) }
+        val eastPanel = method.invoke(WindowColorApplier, eastSettings, WindowCustomColorStateService(), project) as JPanel
+        assertEquals(20, eastPanel.preferredSize.width)
+        assertEquals(0, eastPanel.preferredSize.height)
+    }
+
+    // -------------------------------------------------------------------------
+    // resolveColor tests
+    // -------------------------------------------------------------------------
+
+    private fun invokeResolveColor(
+        customColorSettings: WindowCustomColorStateService,
+        project: com.intellij.openapi.project.Project
+    ): java.awt.Color {
+        val method = WindowColorApplier::class.java.getDeclaredMethod(
+            "resolveColor",
+            WindowCustomColorStateService::class.java,
+            com.intellij.openapi.project.Project::class.java
+        )
+        method.isAccessible = true
+        return method.invoke(WindowColorApplier, customColorSettings, project) as java.awt.Color
+    }
+
+    @Test
+    @DisplayName("resolveColor uses the custom color when it is enabled and set")
+    fun testResolveColorUsesCustomColorWhenEnabled() {
+        val settings = WindowCustomColorStateService().apply {
+            setUseCustomColor(true)
+            setCustomColor(java.awt.Color.RED)
+        }
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+
+        val color = invokeResolveColor(settings, project)
+
+        // Compare RGB ignoring alpha, because the returned Color may be a JBColor wrapper
+        assertEquals(java.awt.Color.RED.red, color.red)
+        assertEquals(java.awt.Color.RED.green, color.green)
+        assertEquals(java.awt.Color.RED.blue, color.blue)
+    }
+
+    @Test
+    @DisplayName("resolveColor falls back to generated color when custom color is null")
+    fun testResolveColorFallsBackToGeneratedWhenCustomNull() {
+        val settings = WindowCustomColorStateService().apply {
+            setUseCustomColor(true)
+            // custom color not set → null
+        }
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+        org.mockito.Mockito.`when`(project.name).thenReturn("FallbackProject")
+
+        val generateMethod = WindowColorApplier::class.java.getDeclaredMethod("generateColor", String::class.java)
+        generateMethod.isAccessible = true
+        val expected = generateMethod.invoke(WindowColorApplier, "FallbackProject") as java.awt.Color
+
+        val color = invokeResolveColor(settings, project)
+        assertEquals(expected.rgb, color.rgb)
+    }
+
+    @Test
+    @DisplayName("resolveColor uses generated color when custom color is disabled")
+    fun testResolveColorUsesGeneratedWhenDisabled() {
+        val settings = WindowCustomColorStateService().apply {
+            setUseCustomColor(false)
+            setCustomColor(java.awt.Color.BLUE) // set but disabled
+        }
+        val project = mock(com.intellij.openapi.project.Project::class.java)
+        org.mockito.Mockito.`when`(project.name).thenReturn("GeneratedProject")
+
+        val generateMethod = WindowColorApplier::class.java.getDeclaredMethod("generateColor", String::class.java)
+        generateMethod.isAccessible = true
+        val expected = generateMethod.invoke(WindowColorApplier, "GeneratedProject") as java.awt.Color
+
+        val color = invokeResolveColor(settings, project)
+        assertEquals(expected.rgb, color.rgb)
+    }
+
 }

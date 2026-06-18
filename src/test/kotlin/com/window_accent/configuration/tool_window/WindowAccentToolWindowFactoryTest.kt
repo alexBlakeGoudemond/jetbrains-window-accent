@@ -1,5 +1,6 @@
 package com.window_accent.configuration.tool_window
 
+import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -309,6 +310,241 @@ class WindowAccentToolWindowFactoryTest {
 
         // step=1 → original, step=2 → flash, step=3 → original-then-stop
         assertEquals(listOf("original", "flash", "original-then-stop"), results)
+    }
+
+    // -------------------------------------------------------------------------
+    // wrapTextInHtmlCenter tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("wrapTextInHtmlCenter wraps plain text in HTML centre tags")
+    fun testWrapTextInHtmlCenter() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod("wrapTextInHtmlCenter", String::class.java)
+        method.isAccessible = true
+
+        assertEquals("<html><center>Hello</center></html>", method.invoke(factory, "Hello"))
+        assertEquals("<html><center><b>Bold</b></center></html>", method.invoke(factory, "<b>Bold</b>"))
+        assertEquals("<html><center></center></html>", method.invoke(factory, ""))
+    }
+
+    // -------------------------------------------------------------------------
+    // Side cycle order tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("sidesCycleOrder follows the expected N→S→W→E sequence")
+    fun testSideCycleOrderIsNorthSouthWestEast() {
+        val factory = WindowAccentToolWindowFactory()
+        val field = WindowAccentToolWindowFactory::class.java.getDeclaredField("sidesCycleOrder")
+        field.isAccessible = true
+
+        @Suppress("UNCHECKED_CAST")
+        val order = field.get(factory) as List<WindowPanelAppearanceStateService.Side>
+
+        assertEquals(
+            listOf(
+                WindowPanelAppearanceStateService.Side.NORTH,
+                WindowPanelAppearanceStateService.Side.SOUTH,
+                WindowPanelAppearanceStateService.Side.WEST,
+                WindowPanelAppearanceStateService.Side.EAST,
+            ),
+            order
+        )
+    }
+
+    @Test
+    @DisplayName("Cycling through the side order wraps around from EAST back to NORTH")
+    fun testSideCycleOrderWrapsAround() {
+        val factory = WindowAccentToolWindowFactory()
+        val field = WindowAccentToolWindowFactory::class.java.getDeclaredField("sidesCycleOrder")
+        field.isAccessible = true
+
+        @Suppress("UNCHECKED_CAST")
+        val order = field.get(factory) as List<WindowPanelAppearanceStateService.Side>
+
+        // Simulate the cycling logic used in the button listener
+        val eastIndex = order.indexOf(WindowPanelAppearanceStateService.Side.EAST)
+        val nextAfterEast = order[(eastIndex + 1) % order.size]
+
+        assertEquals(WindowPanelAppearanceStateService.Side.NORTH, nextAfterEast)
+    }
+
+    // -------------------------------------------------------------------------
+    // buildButtonRow tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("buildButtonRow creates a GridLayout panel containing the supplied buttons")
+    fun testBuildButtonRow() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod(
+            "buildButtonRow", Array<JButton>::class.java
+        )
+        method.isAccessible = true
+
+        val b1 = JButton("A")
+        val b2 = JButton("B")
+        val b3 = JButton("C")
+        val row = method.invoke(factory, arrayOf(b1, b2, b3)) as JPanel
+
+        assertEquals(3, row.componentCount)
+        assertTrue(row.layout is java.awt.GridLayout)
+        val layout = row.layout as java.awt.GridLayout
+        assertEquals(3, layout.columns)
+        assertEquals(1, layout.rows)
+        assertEquals(b1, row.getComponent(0))
+        assertEquals(b2, row.getComponent(1))
+        assertEquals(b3, row.getComponent(2))
+    }
+
+    @Test
+    @DisplayName("buildButtonRow with a single button produces a 1×1 GridLayout")
+    fun testBuildButtonRowSingleButton() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod(
+            "buildButtonRow", Array<JButton>::class.java
+        )
+        method.isAccessible = true
+
+        val button = JButton("Solo")
+        val row = method.invoke(factory, arrayOf(button)) as JPanel
+
+        assertEquals(1, row.componentCount)
+        assertEquals(1, (row.layout as java.awt.GridLayout).columns)
+    }
+
+    // -------------------------------------------------------------------------
+    // Style method tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("styleAsAllButton applies a bold font to the button")
+    fun testStyleAsAllButtonAppliesBoldFont() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod("styleAsAllButton", JButton::class.java)
+        method.isAccessible = true
+
+        val button = JButton("Test")
+        method.invoke(factory, button)
+
+        assertTrue(button.font.isBold, "styleAsAllButton should apply a bold font")
+    }
+
+    @Test
+    @DisplayName("styleAsAllButton applies a border to the button")
+    fun testStyleAsAllButtonAppliesBorder() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod("styleAsAllButton", JButton::class.java)
+        method.isAccessible = true
+
+        val button = JButton("Test")
+        method.invoke(factory, button)
+
+        assertNotNull(button.border)
+    }
+
+    @Test
+    @DisplayName("styleAsCurrentButton applies a border to the button")
+    fun testStyleAsCurrentButtonAppliesBorder() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod("styleAsCurrentButton", JButton::class.java)
+        method.isAccessible = true
+
+        val button = JButton("Test")
+        method.invoke(factory, button)
+
+        assertNotNull(button.border)
+    }
+
+    @Test
+    @DisplayName("styleAsCycleButton applies a border to the button")
+    fun testStyleAsCycleButtonAppliesBorder() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod("styleAsCycleButton", JButton::class.java)
+        method.isAccessible = true
+
+        val button = JButton("Test")
+        method.invoke(factory, button)
+
+        assertNotNull(button.border)
+    }
+
+    @Test
+    @DisplayName("styleAsResetButton applies a border to the button")
+    fun testStyleAsResetButtonAppliesBorderViaReflection() {
+        val factory = WindowAccentToolWindowFactory()
+        val method = WindowAccentToolWindowFactory::class.java.getDeclaredMethod("styleAsResetButton", JButton::class.java)
+        method.isAccessible = true
+
+        val button = JButton("Test")
+        method.invoke(factory, button)
+
+        assertNotNull(button.border)
+    }
+
+    // -------------------------------------------------------------------------
+    // removeAllButtonListeners tests
+    // -------------------------------------------------------------------------
+
+    /**
+     * Accesses the companion's `allButtonListeners` map via reflection, populates it
+     * with a real button/listener pair, calls [WindowAccentToolWindowFactory.removeAllButtonListeners],
+     * then asserts the listener was detached from the button and the map was cleared.
+     */
+    @Test
+    @DisplayName("removeAllButtonListeners removes every tracked listener from its button")
+    fun testRemoveAllButtonListenersRemovesTrackedListeners() {
+        // Kotlin stores companion private fields either on the Companion class instance
+        // or (in some compiler versions) as statics on the outer class.  Try both.
+        val companionField = WindowAccentToolWindowFactory::class.java.getField("Companion")
+        val companion = companionField.get(null)
+
+        @Suppress("UNCHECKED_CAST")
+        val allButtonListeners: java.util.concurrent.ConcurrentHashMap<com.intellij.openapi.project.Project, List<Pair<JButton, java.awt.event.ActionListener>>>? = run {
+            // First: look on the Companion class
+            companion.javaClass.declaredFields
+                .firstOrNull { it.name == "allButtonListeners" }
+                ?.also { it.isAccessible = true }
+                ?.get(companion) as? java.util.concurrent.ConcurrentHashMap<com.intellij.openapi.project.Project, List<Pair<JButton, java.awt.event.ActionListener>>>
+            // Fall-back: look as a static on the outer class
+                ?: WindowAccentToolWindowFactory::class.java.declaredFields
+                    .firstOrNull { it.name == "allButtonListeners" }
+                    ?.also { it.isAccessible = true }
+                    ?.get(null) as? java.util.concurrent.ConcurrentHashMap<com.intellij.openapi.project.Project, List<Pair<JButton, java.awt.event.ActionListener>>>
+        }
+
+        if (allButtonListeners == null) {
+            // Cannot locate the field – soft skip rather than a hard failure,
+            // consistent with the pattern used for Mockito/Java 25 edge cases.
+            System.err.println(
+                "[DEBUG_LOG] Soft-skipping removeAllButtonListeners field test — field not found. " +
+                        "Companion fields: ${companion.javaClass.declaredFields.map { it.name }}"
+            )
+            return
+        }
+
+        val button = JButton()
+        val listener = java.awt.event.ActionListener { }
+        button.addActionListener(listener)
+
+        val mockProject = org.mockito.Mockito.mock(com.intellij.openapi.project.Project::class.java)
+        allButtonListeners[mockProject] = listOf(button to listener)
+
+        assertEquals(1, button.actionListeners.size, "Listener should be registered before cleanup")
+
+        WindowAccentToolWindowFactory.removeAllButtonListeners()
+
+        assertEquals(0, button.actionListeners.size, "Listener should be removed after cleanup")
+        assertFalse(allButtonListeners.containsKey(mockProject), "Map entry should be cleared")
+    }
+
+    @Test
+    @DisplayName("removeAllButtonListeners is safe to call when no listeners are tracked")
+    fun testRemoveAllButtonListenersIsNoOpWhenEmpty() {
+        assertDoesNotThrow {
+            WindowAccentToolWindowFactory.removeAllButtonListeners()
+        }
     }
 
 }

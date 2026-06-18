@@ -32,6 +32,19 @@
             <li><a href="https://plugins.jetbrains.com/plugin/19463-project-color">Project Color</a></li>
             <li><a href="https://plugins.jetbrains.com/plugin/20920-colorized-project">Colorized Project</a></li>
         </ul>
+
+        <h3>Source Code & Contributions 🛠️</h3>
+        The source code for Window Accent is available on GitHub. Feedback is welcome. Requests / Bugs can be modeled
+        as an Issue on Github
+        <p>
+        AI Agents were crucial to the speed of development, however all code is owned by the commit author.
+        <p>
+        AI Tools used to develop this Plugin:
+        <ul>
+            <li>ChatGPT</li>
+            <li>Jetbrains Junie</li>
+            <li>Github Copilot</li>
+        </ul>
     ]]></description>
 
     <resource-bundle>messages.MyMessageBundle</resource-bundle>
