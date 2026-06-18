@@ -1,6 +1,7 @@
 package com.window_accent.configuration.settings
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
@@ -12,6 +13,8 @@ import com.window_accent.configuration.persistence.WindowTitleNumberingStateServ
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.*
+import java.lang.ref.WeakReference
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.swing.*
 import javax.swing.JTextField
 
@@ -34,6 +37,41 @@ interface IWindowAccentSettings {
 open class WindowAccentSettings(
     private val project: Project
 ) : Configurable, IWindowAccentSettings {
+
+    companion object {
+        private val LOG = logger<WindowAccentSettings>()
+
+        /**
+         * WeakReference tracking so [disposeAllTrackedInstances] can call
+         * [disposeUIResources] on every live instance during plugin unload, before
+         * IntelliJ runs its classloader GC collectibility check.
+         *
+         * WeakReferences are used deliberately: if IntelliJ has already released an
+         * instance (it was GC'd before our cleanup fires), the ref resolves to null
+         * and we skip it — correct behaviour.  Strong references would prevent GC of
+         * the very instances we are trying to make collectable.
+         *
+         * Called from [com.window_accent.WindowAccentApplicationService.performCleanup].
+         */
+        private val trackedInstances = CopyOnWriteArrayList<WeakReference<WindowAccentSettings>>()
+
+        internal fun disposeAllTrackedInstances() {
+            val snapshot = ArrayList(trackedInstances)
+            trackedInstances.clear()
+            var disposed = 0
+            snapshot.forEach { ref ->
+                ref.get()?.let {
+                    it.disposeUIResources()
+                    disposed++
+                }
+            }
+            LOG.info("[Window Accent] disposeAllTrackedInstances completed ($disposed live instance(s) disposed, ${snapshot.size - disposed} already GC'd)")
+        }
+    }
+
+    init {
+        trackedInstances.add(WeakReference(this))
+    }
 
     @VisibleForTesting
     internal val panel = JPanel(BorderLayout())
@@ -235,6 +273,8 @@ open class WindowAccentSettings(
     }
 
     override fun disposeUIResources() {
+        LOG.info("[Window Accent] WindowAccentSettings#disposeUIResources() called (project=${project.name})")
+
         // Null out plugin service references so that if IntelliJ's configurable cache retains
         // this instance after plugin unload, it no longer holds strong references to plugin
         // class instances that would prevent classloader garbage collection.
@@ -243,11 +283,25 @@ open class WindowAccentSettings(
         titleNumberingSettings = null
         customTitleSettings = null
 
-        // Remove all Swing components from the panel hierarchy. IntelliJ's configurable tree
-        // may hold this WindowAccentSettings instance after plugin unload. Each Swing component
-        // field (sideCombo, checkboxes, buttons, etc.) is a plugin class instance — as long as
-        // they are reachable from this instance, the plugin classloader cannot be GC'd.
-        // Clearing the component tree breaks those references.
+        // Clear Side enum values from the sideCombo model.
+        // form.removeAll() removes sideCombo from its container but does NOT clear the
+        // DefaultComboBoxModel. The model holds Side[] entries (plugin class instances),
+        // creating the chain:
+        //   IntelliJ configurable cache → WindowAccentSettings → sideCombo
+        //     → DefaultComboBoxModel → Side[] → Side.class → PluginClassLoader
+        // Calling removeAllItems() severs that chain.
+        sideCombo.removeAllItems()
+
+        // Remove ActionListeners from buttons — each listener is a plugin lambda capturing
+        // `this` (a plugin class instance).  If IntelliJ retains this configurable instance
+        // after plugin unload, these listeners would keep the classloader reachable via:
+        //   IntelliJ → WindowAccentSettings → JButton → ActionListener lambda → PluginClassLoader
+        chooseColorButton.actionListeners.toList().forEach { chooseColorButton.removeActionListener(it) }
+        dropperButton.actionListeners.toList().forEach { dropperButton.removeActionListener(it) }
+        customColorCheckBox.actionListeners.toList().forEach { customColorCheckBox.removeActionListener(it) }
+
+        // Remove all Swing components from the panel hierarchy so no component subtree
+        // is reachable from this instance via panel/form fields.
         panel.removeAll()
         form.removeAll()
     }
