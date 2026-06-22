@@ -4,6 +4,47 @@
 
 ## [1.4.2]
 
+### Fixed
+
+- Pass 018 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Added `WindowAccentSettings.findContainingWindows()` — finds the Swing window that
+      contains the settings panel **before** `disposeAllTrackedInstances()` clears the component
+      hierarchy (which would sever the ancestor chain). Returns the set of windows to close.
+    - Updated `flushSettingsConfigurables()` to call `window.dispose()` on any Settings dialog
+      found to contain our panel. `window.dispose()` posts a `WINDOW_CLOSED` event to the EDT
+      queue. The observed ~1–2 s gap between `beforePluginUnload` and the classloader GC check
+      is sufficient for the EDT to process that event — prompting IntelliJ to clear its
+      configurable cache and release its reference to the (now-internals-cleared)
+      `WindowAccentSettings` instance before the GC check runs.
+
+### Diagnostic notes (from log analysis — update logs 001 and 002, IU-261.22158.277, 2026-06-18)
+
+- **Two logs compared — same IDE build, same day, same target version 1.4.1:**
+    - **Log 001** (13:57): `1.4.0 → 1.4.1`, Settings NOT opened → `isUpdate=true` →
+      hot-reload succeeded (`Plugin WindowAccent loaded without restart in 32 ms`) ✅
+    - **Log 002** (14:00): `1.3.1 → 1.4.1`, Settings WERE opened (user visited
+      `Settings > Appearance > Window Accent` and set a custom title) → `isUpdate=false` →
+      classloader could not be unloaded
+      (`Plugin WindowAccent is not unload-safe because class loader cannot be unloaded`) ❌
+- **Settings being open is confirmed as the direct cause — not a coincidence.** Version 1.3.1
+  lacked `sideCombo.removeAllItems()` and proactive `disposeAllTrackedInstances()`. The
+  `sideCombo`'s `DefaultComboBoxModel` still held `Side[]` enum values, forming the chain:
+  `IntelliJ configurable cache → WindowAccentSettings → sideCombo → DefaultComboBoxModel
+    → Side[] → Side.class → PluginClassLoader`
+- **`isUpdate=false` in log 002:** Indicates IntelliJ either pre-detected the classloader was
+  not GC-able (due to the cached `WindowAccentSettings` configurable in the open Settings
+  dialog) and switched to the "requires restart" path, or converted to it after the GC check
+  failed. Either way, cleanup still ran and the root cause is the residual configurable reference.
+- **Open question carried into 1.4.2:** The 1.4.1 fix clears the `WindowAccentSettings`
+  instance's internals via `disposeAllTrackedInstances()`, but IntelliJ's configurable cache
+  may still hold the **instance itself**. Since the instance is a plugin class, the JVM type
+  pointer alone keeps the classloader reachable:
+  `IntelliJ cache → WindowAccentSettings instance → WindowAccentSettings.class → PluginClassLoader`
+  The `window.dispose()` call added in 1.4.2 addresses this by prompting IntelliJ to clear its
+  configurable cache (via the `WINDOW_CLOSED` handler) before the GC check runs. The `LOG.info`
+  added to `disposeUIResources()` in 1.4.1 will confirm whether this resolves the issue in the
+  next update log.
+
 ## [1.4.1]
 
 ### Fixed
