@@ -32,7 +32,6 @@
       `@BeforeEach` to prevent cross-test `cleanupCompleted` state pollution.
 
 ### Diagnostic notes (from hprof analysis —
-`unload-WindowAccent-23.06.2026_05.55.00.hprof`, IU-261.22158.277, 2026-06-23)
 
 - **hprof Classes view (filtered to `com.window_accent`):**
     - `WindowAccentSettings` — Count=1, Retained=11.46 kB → **primary retention root** (alive at GC
@@ -548,7 +547,7 @@
 - Title numbering options
 
 [Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.4...HEAD
-[1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...1.4.4
+[1.4.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.0...1.4.1
