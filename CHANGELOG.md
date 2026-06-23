@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+### Diagnostic notes (from log analysis — update logs 001 and 002, IU-261.22158.277, 2026-06-23)
+
+- **Two logs compared — same source version 1.4.1, same target version 1.4.2, same IDE build:**
+    - **Log 001**: `1.4.1 → 1.4.2`, Settings NOT opened, custom title `customTitleNew` previously set →
+      `isUpdate=false`, `0 live instances disposed` →
+      classloader could **not** be unloaded
+      (`Plugin WindowAccent is not unload-safe because class loader cannot be unloaded`) ❌
+    - **Log 002**: `1.4.1 → 1.4.2`, Settings NOT opened, custom title `customTitleNew` previously set →
+      `isUpdate=false`, `0 live instances disposed` →
+      classloader **unloaded successfully**
+      (`Successfully unloaded plugin WindowAccent (classloader unload checked=true)`,
+      `Plugin WindowAccent loaded without restart in 252 ms`) ✅
+- **Identical surface conditions, different outcomes — the failure is non-deterministic.**
+  The settings-open retention chain (fixed in 1.4.1) was not involved in either log. A second,
+  intermittent retention root exists that does not require the Settings panel to have been opened.
+  Likely candidates: GC timing (a `WeakReference` that hasn't been cleared at the moment of IntelliJ's
+  GC check), a coroutine scope that hasn't fully cancelled, or an IntelliJ-internal cache that varies
+  per session.
+- **`isUpdate=false` is confirmed NOT a predictor of failure.** Both log 001 (❌) and log 002 (✅)
+  show `update=false`; the flag does not determine whether the classloader is successfully released.
+- **Settings-open case appears resolved.** Both logs had `0 live instances disposed`, confirming the
+  1.4.1 `disposeAllTrackedInstances()` / `sideCombo.removeAllItems()` fix correctly handles the
+  settings-open retention chain. No further regression observed on that path.
+- **No hprof generated for log 001's failure.** The `-Dide.plugins.snapshot.on.unload.fail=true` VM
+  option was added to `AppData\Roaming\JetBrains\IntelliJIdea2026.1\idea64.exe.vmoptions` after
+  log 001 was captured. Note: this file is **shared across all custom JetBrains configurations**
+  (custom configs only isolate plugins, settings dir, and system cache — not the JVM). The option
+  is now active for all environments; the next failure will write an `unload-WindowAccent-*.hprof`
+  to `C:\Users\<userDirectory>\` regardless of which custom config triggers the update.
+- **Next step:** Reproduce the intermittent failure (update away from 1.4.2 with settings not open)
+  and capture the hprof to identify the second retention root before adding further code fixes.
+
 ## [1.4.2]
 
 ### Fixed
