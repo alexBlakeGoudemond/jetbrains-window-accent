@@ -4,3 +4,4 @@
 build
 /.kotlin/
 /.ai-playbook/
+/.ai-resources/plugin-hprof/*.hprof
