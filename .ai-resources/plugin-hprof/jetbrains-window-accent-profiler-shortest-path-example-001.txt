@@ -1,0 +1,216 @@
+com.intellij.ide.plugins.cl.PluginClassLoader 0x80c96d10 13,47 MB
+	_pluginClassLoader of com.intellij.ide.plugins.PluginMainDescriptor 0x825fae18 29,33 kB
+	java.lang.ClassLoader[187] 0x91949b68 768 B
+		allParents of com.intellij.util.lang.MultiParentClassLoaderHelper 0x80d498e0 816 B
+			multiParentClassLoaderHelper of com.intellij.ide.plugins.cl.PluginClassLoader 0x80d492f8 45,78 kB
+				_pluginClassLoader of com.intellij.ide.plugins.PluginMainDescriptor 0x82649e98 13,06 kB
+					pluginDescriptor of com.intellij.openapi.extensions.impl.SimpleConstructorInjectionAdapter 0x810c4808 48 B
+						java.lang.Object[8] 0x845ec4a0 432 B
+							elements of java.util.ImmutableCollections$ListN 0x845ec488 456 B
+								adapters of com.intellij.openapi.extensions.impl.InterfaceExtensionPoint 0x810c47a0 1,74 kB
+									arg$1 of com.intellij.openapi.extensions.impl.ExtensionPointImpl$$Lambda+0x000000002e4468f8 0x83a2e2f8 24 B
+										handler of kotlinx.coroutines.InvokeOnCompletion 0x83a2de80 56 B
+											_next$volatile of kotlinx.coroutines.InvokeOnCompletion 0x83a2de60 48 B
+												_next$volatile of kotlinx.coroutines.NodeList 0x83a2de48 24 B
+													_state$volatile of com.intellij.platform.util.coroutines.ChildScope 0x83a2de28 80 B
+														childJob of kotlinx.coroutines.ChildHandleNode 0x83a28e90 48 B
+															_prev$volatile of kotlinx.coroutines.ChildHandleNode 0x83a28e70 32 B
+																_parentHandle$volatile of com.intellij.platform.util.coroutines.ChildScope 0x82d9a5d8 192 B
+																	coroutineScope of com.intellij.diagnostic.PerformanceWatcherImpl, GC Root: Java Frame: com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:415) 0x82d9aa58 272 B
+	java.lang.ClassLoader[178] 0x9182ff20 728 B
+		allParents of com.intellij.util.lang.MultiParentClassLoaderHelper 0x80de2708 776 B
+			multiParentClassLoaderHelper of com.intellij.ide.plugins.cl.PluginClassLoader 0x80de2070 285,43 kB
+				arg$5 of com.intellij.openapi.actionSystem.impl.ActionManagerImpl$$Lambda+0x000000002e584bb0 0x84bc6848 56 B
+					templatePresentation of com.intellij.openapi.actionSystem.ActionStub 0x84bc67f8 136 B
+						java.lang.Object[22] 0x83b3ddd8 104 B
+							elementData of java.util.ArrayList 0x84b4b4a8 128 B
+								mySortedChildren of com.intellij.openapi.actionSystem.DefaultActionGroup 0x84b4b3b8 1,47 kB
+									java.lang.Object[15] 0x8e9807d0 80 B
+										elementData of java.util.ArrayList 0x8e9807b8 104 B
+											visibleActions of com.intellij.platform.ide.menu.JMenuBasedIdeMenuBarHelper 0x8613f658 152 B
+												menuBarHelper of com.intellij.openapi.wm.impl.headertoolbar.MergedMainMenu 0x86712528 7,87 kB
+													component of javax.swing.KeyboardManager$ComponentKeyStrokePair 0x8b4f3cd8 24 B
+														key of java.util.Hashtable$Entry 0x8b4f3cb8 56 B
+															java.util.Hashtable$Entry[191] 0x8a6f4c90 5,26 kB
+																table of java.util.Hashtable 0x8fc74200 5,31 kB
+																	componentKeyStrokeMap of javax.swing.KeyboardManager 0x8fc737c8 9,42 kB
+																		currentManager of javax.swing.KeyboardManager, GC Root: Sticky class 0x8fc72f60 9,63 kB
+	java.lang.ClassLoader[382] 0x9194ec98 1,54 kB
+		allParents of com.intellij.util.lang.MultiParentClassLoaderHelper 0x80c6c430 1,59 kB
+			multiParentClassLoaderHelper of com.intellij.ide.plugins.cl.PluginClassLoader 0x80c6baa0 5,66 MB
+				classLoader of com.intellij.ui.icons.ImageDataByPathResourceLoader 0x85960890 104 B
+					loader of com.intellij.ui.icons.CachedImageIcon 0x85960858 688 B
+						icon of com.intellij.openapi.wm.impl.status.TextPanel$WithIconAndArrows 0x895d21a8 1,14 kB
+							componentAdjusting of java.awt.GridBagLayout 0x861350e0 3,18 kB
+								rightPanelLayout of com.intellij.openapi.wm.impl.status.IdeStatusBarImpl 0x86134be0 2,91 kB
+									statusBar of com.intellij.openapi.wm.impl.IdeProjectFrameHelper 0x8593bae8 144 B
+										arg$1 of com.intellij.openapi.wm.impl.ProjectFrameHelper$$Lambda+0x000000002ebb0000 0x902cc248 16 B
+											colorfulToolbar of com.intellij.openapi.wm.impl.IdeGlassPaneImpl 0x8593c530 3,34 kB
+												myGlassPane of com.intellij.toolWindow.ToolWindowDragHelper 0x85941a88 648 B
+													item of java.util.LinkedList$Node 0x8b49a100 24 B
+														first of java.util.LinkedList 0x8b49a0e0 104 B
+															keyEventDispatchers of com.intellij.ide.IdeKeyboardFocusManager 0x82a3d320 2,3 kB
+																value of java.util.HashMap$Node 0x82a3cde8 32 B
+																	java.util.HashMap$Node[64] 0x8b49a130 459,51 kB
+																		table of java.util.HashMap 0x82a3cc70 459,56 kB
+																			table of sun.awt.AppContext 0x82a3cc38 459,92 kB
+																				appContext of javax.swing.JPanel 0x911e6d80 792 B
+																					myRoot of com.intellij.openapi.progress.util.ProgressDialog$createDialogPrevious$1 0x911e6ce8 992 B
+																						popup of com.intellij.openapi.progress.util.ProgressDialog 0x911ef480 160 B
+																							myDialog of com.intellij.openapi.progress.util.PotemkinProgress, GC Root: Java Frame: com.intellij.openapi.progress.impl.CoreProgressManager.lambda$runProcess$2(CoreProgressManager.java:286) 0x911e0e00 272 B
+																				mainAppContext of sun.awt.AppContext, GC Root: Sticky class 0x82007f48 1,38 kB
+																				appContext of com.intellij.openapi.ui.impl.DialogWrapperPeerImpl$MyDialog 0x911e5d78 1,5 kB
+																					target of sun.awt.windows.WDialogPeer, GC Root: Global JNI 0x911e1550 400 B
+																					java.lang.Object[10] 0x80d4f9b0 56 B
+																						elementData of sun.awt.util.IdentityArrayList 0x80d4f998 80 B
+																							allWindows of java.awt.Window, GC Root: Sticky class 0x82097a88 3,06 kB
+																					java.lang.Object[64] 0x80774878 272 B
+																						table of java.util.IdentityHashMap 0x80774850 312 B
+																							peerMap of sun.awt.AWTAutoShutdown, GC Root: Java Frame: sun.awt.AWTAutoShutdown.run(AWTAutoShutdown.java:289) 0x803297f8 544 B
+										this$0 of com.intellij.openapi.wm.impl.ProjectFrameHelper$2 0x8477e398 16 B
+											frameHelper of com.intellij.openapi.wm.impl.IdeFrameImpl, GC Root: Global JNI 0x86d3c210 1,42 kB
+									this$0 of com.intellij.openapi.wm.impl.status.IdeStatusBarImpl$3 0x861359f8 16 B
+										java.lang.Object[7] 0x91b4e348 104 B
+											array of com.intellij.util.containers.LockFreeCopyOnWriteArrayList 0x82a405c0 120 B
+												nonLockingDispatchers of com.intellij.ide.IdeEventQueue, GC Root: Java Frame: com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:720) 0x82a3c8f8 4,51 kB
+									south of java.awt.BorderLayout 0x8593d0e0 56 B
+										layoutMgr of javax.swing.JPanel 0x8593c0e0 712 B
+											contentPane of com.intellij.openapi.wm.impl.IdeRootPane 0x8593c3a8 8,58 kB
+												focusOwner of java.awt.KeyboardFocusManager, GC Root: Sticky class 0x82a3ce08 2,89 kB
+												awtFocussedComponent of sun.awt.windows.WInputMethod, GC Root: Global JNI 0x89a0ec30 56 B
+												currentClientComponent of sun.awt.im.InputMethodContext 0x86c8a318 104 B
+													inputMethodWindowContext of sun.awt.im.InputContext, GC Root: Sticky class 0x888b1ad0 360 B
+													currentInputContext of sun.awt.im.ExecutableInputMethodManager 0x803fdac0 280 B
+														inputMethodManager of sun.awt.im.InputMethodManager, GC Root: Sticky class 0x80fc6b48 472 B
+				_pluginClassLoader of com.intellij.ide.plugins.PluginMainDescriptor 0x8189aff8 84,53 kB
+					module of com.intellij.util.messages.impl.DescriptorBasedMessageBusConnection 0x919644c0 104 B
+						item of java.util.concurrent.ConcurrentLinkedQueue$Node 0x919644a8 192 B
+							tail of java.util.concurrent.ConcurrentLinkedQueue 0x8107cda0 20,8 kB
+								subscribers of com.intellij.util.messages.impl.RootBus 0x81079cd8 35,72 kB
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x88d890e0 80 B
+										arg$1 of com.intellij.util.messages.impl.MessageBusImpl$$Lambda+0x000000002e6294b0 0x88d890d0 16 B
+											handler of kotlinx.coroutines.InvokeOnCompletion 0x88d886a8 48 B
+												_next$volatile of kotlinx.coroutines.NodeList 0x88d88690 24 B
+													_state$volatile of com.intellij.platform.util.coroutines.ChildScope 0x88d88670 80 B
+														childJob of kotlinx.coroutines.ChildHandleNode 0x88d82df0 48 B
+															_next$volatile of kotlinx.coroutines.ChildHandleNode 0x88d82dd0 48 B
+																_next$volatile of kotlinx.coroutines.ChildHandleNode 0x88d82db0 32 B
+																	_next$volatile of kotlinx.coroutines.ChildHandleNode 0x88d82d90 48 B
+																		_parentHandle$volatile of com.intellij.platform.util.coroutines.ChildScope 0x88d89160 80 B
+																			job of kotlinx.coroutines.ChildHandleNode 0x88d891b8 32 B
+																				_parentHandle$volatile of kotlinx.coroutines.StandaloneCoroutine 0x88d891d8 24 B
+																					job of kotlinx.coroutines.ChildContinuation 0x836fb3a8 32 B
+																						_parentHandle$volatile of kotlinx.coroutines.CancellableContinuationImpl 0x836fb3c8 48 B
+																							value of java.util.concurrent.atomic.AtomicReference 0x879ec9b8 16 B
+																								_state of kotlinx.coroutines.flow.StateFlowSlot 0x879ec9a8 32 B
+																									kotlinx.coroutines.flow.StateFlowSlot[4] 0x919d8ef0 64 B
+																										slots of kotlinx.coroutines.flow.StateFlowImpl 0x86d843a8 104 B
+																											$$delegate_0 of kotlinx.coroutines.flow.ReadonlyStateFlow 0x86d84390 24 B
+																												$flow$inlined of kotlinx.coroutines.flow.FlowKt__ZipKt$combine$$inlined$unsafeFlow$1 0x8654e988 24 B
+																													$this_combine$inlined of kotlinx.coroutines.flow.FlowKt__ZipKt$combine$$inlined$unsafeFlow$1 0x8654e970 24 B
+																														$this_unsafeTransform$inlined of com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$nextTaskExecutionAllowed$$inlined$map$1, GC Root: Java Frame: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$1.invokeSuspend(UnindexedFilesScannerExecutorImpl.kt:157) 0x8654e960 40 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x8631f6e8 80 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x84b2fb40 80 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x8a7a6e18 88 B
+									bus of com.intellij.util.messages.impl.ToDirectChildrenMessagePublisher 0x8fce24e0 24 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x8351ac78 136 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x92e9dc08 152 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x85bad428 80 B
+									bus of com.intellij.util.messages.impl.ToDirectChildrenMessagePublisher 0x8ad273b8 24 B
+									bus of com.intellij.util.messages.impl.MessageBusConnectionImpl 0x8572be80 64 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x81ae6648 80 B
+									bus of com.intellij.util.messages.impl.ToDirectChildrenMessagePublisher 0x80b17c28 24 B
+									bus of com.intellij.util.messages.impl.MessagePublisher 0x847a02a0 24 B
+									bus of com.intellij.util.messages.impl.SimpleMessageBusConnectionImpl 0x8572c1f8 136 B
+									$this_subscribeAsFlow of com.intellij.platform.trialPromotion.common.TrialStateUtils$subscribeAsFlow$1 0x8133f258 64 B
+									bus of com.intellij.util.messages.impl.ToDirectChildrenMessagePublisher 0x911e2f30 24 B
+	java.lang.ClassLoader[343] 0x918301f8 1,39 kB
+		allParents of com.intellij.util.lang.MultiParentClassLoaderHelper 0x80de1f60 1,44 kB
+			multiParentClassLoaderHelper of com.intellij.ide.plugins.cl.PluginClassLoader 0x80de16c0 1,66 MB
+				_pluginClassLoader of com.intellij.ide.plugins.PluginMainDescriptor 0x81841c20 64,66 kB
+					val$descriptor of com.intellij.ide.T.z.P 0x83a5a578 16 B
+						P of com.intellij.ide.T.i.wi 0x85acb938 712 B
+							java.lang.Object[10] 0x830f4dd0 848 B
+								elementData of java.util.ArrayList 0x80cfc6a0 872 B
+									j of com.intellij.ide.T.H.H 0x80cfc590 1,87 kB
+										arg$2 of com.intellij.ide.T.i.we$$Lambda+0x000000002fd86518 0x8e950d68 24 B
+											arg$2 of com.intellij.ide.T.i.we$$Lambda+0x000000002fd86780 0x8e950d50 48 B
+												task of java.util.concurrent.Executors$RunnableAdapter 0x8e950d38 72 B
+													myCallable of com.intellij.util.concurrency.ContextCallable 0x8e950ce0 104 B
+														callable of com.intellij.util.concurrency.CancellationScheduledFutureTask 0x8e950c98 248 B
+															java.lang.Object[102] 0x8a713e08 1,7 kB
+																queue of java.util.PriorityQueue 0x82dfb630 1,74 kB
+																	q of com.intellij.util.concurrency.AppDelayQueue, GC Root: Java Frame: java.util.concurrent.DelayQueue.take(DelayQueue.java:256) 0x82dfa3a8 1,79 kB
+	_pluginClassLoader of com.intellij.ide.plugins.ContentModuleDescriptor 0x83302df0 880 B
+	java.lang.ClassLoader[156] 0x91756360 640 B
+		allParents of com.intellij.util.lang.MultiParentClassLoaderHelper 0x80d43530 688 B
+			multiParentClassLoaderHelper of com.intellij.ide.plugins.cl.PluginClassLoader 0x80d42f70 21,13 kB
+				_pluginClassLoader of com.intellij.ide.plugins.PluginMainDescriptor 0x82605ac0 14,93 kB
+					pluginDescriptor of com.intellij.lang.LanguageExtensionPoint 0x873df168 40 B
+						java.lang.Object[18] 0x873df1a8 88 B
+							elements of java.util.ImmutableCollections$ListN 0x873df190 112 B
+								cachedExtensions of com.intellij.openapi.extensions.impl.BeanExtensionPoint 0x831c6728 1,92 kB
+									arg$1 of com.intellij.openapi.extensions.impl.ExtensionPointImpl$$Lambda+0x000000002e4468f8 0x8599e650 24 B
+										handler of kotlinx.coroutines.InvokeOnCompletion 0x8650cb60 56 B
+											_next$volatile of kotlinx.coroutines.ChildHandleNode 0x8650cb80 48 B
+												_next$volatile of kotlinx.coroutines.ChildHandleNode 0x8650cba0 48 B
+													_next$volatile of kotlinx.coroutines.ChildHandleNode 0x8650cbc0 32 B
+														_next$volatile of kotlinx.coroutines.ChildHandleNode 0x8650cbe0 32 B
+															_next$volatile of kotlinx.coroutines.ChildHandleNode 0x8650cc00 48 B
+																_parentHandle$volatile of com.intellij.platform.util.coroutines.ChildScope 0x8651df20 192 B
+																	childJob of kotlinx.coroutines.ChildHandleNode 0x8651e0d0 32 B
+																		_state$volatile of kotlinx.coroutines.SupervisorJobImpl 0x82d6ef78 24 B
+																			left of kotlin.coroutines.CombinedContext 0x82d6ef60 48 B
+																				coroutineContext of kotlinx.coroutines.internal.ContextScope 0x82d6ef50 64 B
+																					scope of com.intellij.ide.plugins.cl.PluginClassLoader 0x82d6def0 27,14 kB
+																						bundleClassLoader of com.intellij.DynamicBundle 0x873699e8 72 B
+																							arg$1 of com.intellij.AbstractBundle$$Lambda+0x000000002eb3f210 0x8ff3c4d8 24 B
+																								nameSupplier of com.intellij.codeInsight.hints.Option 0x8ff3c480 56 B
+																									isShowHintsForNewExpressions of com.intellij.codeInsight.hints.JavaInlayParameterHintsProvider 0x92f08a80 2,42 kB
+																										java.lang.Object[17] 0x8dffa2c8 216 B
+																											value of com.intellij.util.keyFMap.MapBackedFMap 0x8dffa230 368 B
+																												value of com.intellij.lang.java.JavaLanguage 0x81e1b468 568 B
+																													myLanguage of com.intellij.psi.tree.java.IJavaDocElementType 0x89634a68 24 B
+																														com.intellij.psi.tree.IElementType[5326] 0x8dff39f8 21,34 kB
+																															ourRegistry of com.intellij.psi.tree.IElementType 0x8553b8f8 22,32 kB
+																																java.lang.Class[1] 0x88bd9798 24 B
+																																	ptypes of java.lang.invoke.MethodType 0x88bd9770 64 B
+																																		java.lang.Object[77] 0x80f1e260 4,14 kB
+																																			<resolved_references> of com.intellij.psi.stubs.SerializationManagerImpl 0x835bf168 4,25 kB
+																																				java.lang.Object[32] 0x90ddaaf8 144 B
+																																					java.lang.Object[7] 0x90dda9b8 688 B
+																																						backtrace of java.lang.Exception 0x90dda990 904 B
+																																							value of java.util.HashMap$Node 0x90dda970 936 B
+																																								java.util.HashMap$Node[2048] 0x85bcebc8 847,52 kB
+																																									table of java.util.HashMap 0x835bea58 847,57 kB
+																																										stackTracesOfStorageRegistration of com.intellij.util.io.FilePageCache, GC Root: Java Frame: com.intellij.util.io.FilePageCache.get(FilePageCache.java:239) 0x835be9a0 904,22 kB
+	java.lang.ClassLoader[153] 0x910fc6b8 632 B
+		allParents of com.intellij.util.lang.MultiParentClassLoaderHelper 0x80f4cac8 680 B
+			multiParentClassLoaderHelper of com.intellij.ide.plugins.cl.PluginClassLoader 0x80f4c510 6,34 kB
+				_pluginClassLoader of com.intellij.ide.plugins.PluginMainDescriptor 0x829a17d8 4,35 kB
+					pluginDescriptor of com.intellij.openapi.extensions.impl.SimpleConstructorInjectionAdapter 0x83025538 48 B
+						java.lang.Object[5] 0x861a58c0 280 B
+							elements of java.util.ImmutableCollections$ListN 0x861a58a8 304 B
+								adapters of com.intellij.openapi.extensions.impl.InterfaceExtensionPoint 0x83025500 544 B
+									arg$1 of com.intellij.openapi.extensions.impl.ExtensionPointImpl$$Lambda+0x000000002e3f5bc8 0x86552ab0 24 B
+										handler of kotlinx.coroutines.InvokeOnCompletion 0x86552660 56 B
+											_next$volatile of kotlinx.coroutines.NodeList 0x86552648 24 B
+												_state$volatile of com.intellij.platform.util.coroutines.ChildScope 0x86552628 80 B
+													childJob of kotlinx.coroutines.ChildHandleNode 0x873924c0 48 B
+														_next$volatile of kotlinx.coroutines.ChildHandleNode 0x873924e0 48 B
+															_next$volatile of kotlinx.coroutines.ChildHandleNode 0x87392500 48 B
+																_next$volatile of kotlinx.coroutines.ChildHandleNode 0x87392520 48 B
+																	_next$volatile of kotlinx.coroutines.ChildHandleNode 0x87392540 48 B
+																		_parentHandle$volatile of com.intellij.platform.util.coroutines.ChildScope 0x8654e688 208 B
+																			job of kotlinx.coroutines.ChildHandleNode 0x8654e6e0 32 B
+																				_parentHandle$volatile of com.intellij.platform.util.coroutines.ChildScope 0x8654e700 104 B
+																					job of kotlinx.coroutines.ChildHandleNode 0x8654e720 32 B
+																						_parentHandle$volatile of kotlinx.coroutines.StandaloneCoroutine 0x8654e740 24 B
+																							job of kotlinx.coroutines.ChildHandleNode 0x91b22370 32 B
+																								_parentHandle$volatile of kotlinx.coroutines.SupervisorCoroutine, GC Root: Java Frame: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$1$history$1.invokeSuspend(UnindexedFilesScannerExecutorImpl.kt:159) 0x91b22350 32 B
+																							element of kotlin.coroutines.CombinedContext 0x8654e850 24 B
+																								left of kotlin.coroutines.CombinedContext, GC Root: Java Frame: kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:67) 0x8654e838 48 B
+																							delegate of kotlinx.coroutines.debug.internal.DebugProbesImpl$CoroutineOwner, GC Root: Java Frame: kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) 0x8654e7d0 136 B
+																			job of kotlinx.coroutines.ChildHandleNode 0x8654e6c0 32 B
+																				_parentHandle$volatile of com.intellij.platform.util.coroutines.ChildScope 0x86550c60 104 B
+																					mergeScanningParametersScope of com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl, GC Root: Java Frame: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl.runScanningTask(UnindexedFilesScannerExecutorImpl.kt:291) 0x8654f0e8 104 B

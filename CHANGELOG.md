@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [1.4.3]
+
+### Fixed
+
+- No changes present - additional version to try reproduce non-deterministic bug: updating requires restart
+    - Added properties to `AppData\Roaming\JetBrains\IntelliJIdea2026.1\idea64.exe.vmoptions` that should produce an
+      hprof snapshot on author's disk during unload failure:
+        - `-XX:+UnlockDiagnosticVMOptions`
+        - `-Dide.plugins.snapshot.on.unload.fail=true`
+
 ### Diagnostic notes (from log analysis — update logs 001 and 002, IU-261.22158.277, 2026-06-23)
 
 - **Two logs compared — same source version 1.4.1, same target version 1.4.2, same IDE build:**
@@ -128,8 +138,9 @@
 ### Added
 
 - Added a button to the Tool Window to reset the Title Numbering
-  - If several window instances have opened and closed, numbering can become haphazard; drifting from 1, 2, 3, ... to 3, 7, 9, 13, ...
-  - Click a button in the tool window to reset the numbering to start from 1, with the current window being number 1
+    - If several window instances have opened and closed, numbering can become haphazard; drifting from 1, 2, 3, ... to
+      3, 7, 9, 13, ...
+    - Click a button in the tool window to reset the numbering to start from 1, with the current window being number 1
 - Added a border pulse animation to the Tool Window buttons to show when they have been clicked
 
 ## [1.2.12]
@@ -152,7 +163,8 @@
 - Passes 014 of improving Plugin Unloading to avoid unnecessary project restarts
     - Introduced `ClassLoaderLeakDiagnostics` utility (internal/sandbox only) to assist with diagnosing
       future classloader leaks using thread-stack scanning and `LeakHunter` reflection.
-    - Confirmed clean unload via log `Successfully unloaded plugin WindowAccent (classloader unload checked=true)` in sandbox logs
+    - Confirmed clean unload via log `Successfully unloaded plugin WindowAccent (classloader unload checked=true)` in
+      sandbox logs
     - Fixed classloader leak caused by IntelliJ's global Caffeine icon cache retaining a
       `PluginClassLoader` reference via `ImageDataByPathLoader`. Added `IconLoader.clearCache()`
       to `WindowAccentApplicationService.performCleanup()` to evict all cached icon entries before
@@ -203,7 +215,7 @@
 ### Fixed
 
 - Pass 012 of improving Plugin Unloading to avoid unnecessary project restarts
-    - `WindowColorApplier` and `WindowTitleApplier` `Alarm` instances are now created with the Application Thread. 
+    - `WindowColorApplier` and `WindowTitleApplier` `Alarm` instances are now created with the Application Thread.
 
 ### Diagnostic notes (from log analysis)
 
@@ -486,7 +498,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...HEAD
+[1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.1...1.4.0
