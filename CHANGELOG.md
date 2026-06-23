@@ -2,6 +2,55 @@
 
 ## [Unreleased]
 
+## [1.4.4]
+
+### Fixed
+
+- Pass 019 of improving Plugin Unloading to avoid unnecessary project restarts
+    - **Root cause identified via hprof snapshot** (`unload-WindowAccent-23.06.2026_05.55.00.hprof`):
+      `WindowAccentSettings` (Count=1, retained=11.46 kB) was alive at GC check time with
+      `sideCombo` still populated with `Side[]` entries, forming the chain:
+      `WindowAccentSettings → sideCombo → DefaultComboBoxModel → Side[] → Side.class → PluginClassLoader`
+    - **Retention path in hprof** traced through
+      `rightPanelLayout of com.intellij.openapi.wm.impl.status.IdeStatusBarImpl` — IntelliJ's New UI
+      status bar machinery (tool window strip / settings-search widget) re-accesses registered
+      configurables during plugin unload, recreating the instance after our cleanup ran.
+    - **Why `0 live instances disposed` + Count=1 in heap:** IntelliJ released its strong reference to
+      the `WindowAccentSettings` instance just before `disposeAllTrackedInstances()` ran (clearing our
+      `WeakReference`), then re-instantiated the configurable shortly afterwards for platform
+      bookkeeping (settings-search indexing, `isModified()` polling). The new instance went into the
+      already-cleared `trackedInstances` and was never disposed.
+    - **Fix:** Added a post-cleanup self-disposal guard to `WindowAccentSettings.init {}`. After adding
+      itself to `trackedInstances`, the constructor now checks
+      `WindowAccentApplicationService.isCleanupCompleted()`. If cleanup has already run — meaning the
+      new instance was created inside the unload window — it immediately calls `disposeUIResources()`
+      on itself, clearing `sideCombo` and nulling all service references. This breaks the
+      `Side[] → PluginClassLoader` chain even when IntelliJ creates a fresh instance after our cleanup.
+    - Added `WindowAccentApplicationService.isCleanupCompleted()` companion function to expose the
+      existing `cleanupCompleted` flag for use by `WindowAccentSettings`.
+    - Added `WindowAccentApplicationService.resetCleanupState()` call to `WindowAccentSettingsTest`
+      `@BeforeEach` to prevent cross-test `cleanupCompleted` state pollution.
+
+### Diagnostic notes (from hprof analysis —
+`unload-WindowAccent-23.06.2026_05.55.00.hprof`, IU-261.22158.277, 2026-06-23)
+
+- **hprof Classes view (filtered to `com.window_accent`):**
+    - `WindowAccentSettings` — Count=1, Retained=11.46 kB → **primary retention root** (alive at GC
+      check with unpopulated `disposeUIResources()` — instance created after cleanup ran)
+    - `WindowPanelAppearanceStateService$Side` — Count=4 (all 4 enum values alive)
+    - `WindowPanelAppearanceStateService$Side[]` — Count=2 (enum `entries` array + combo model array)
+    - `WindowColorApplier` — Count=1, 16 B retained (object singleton, expected)
+    - `WindowTitleApplier` — Count=1, 48 B retained (instance, expected)
+    - `WindowAccentApplicationService` — Count=0 ✅ (correctly disposed)
+    - `PluginStartupActivity`, `PluginLifecycleListener` — Count=0 ✅
+- **Retention path:** `IdeStatusBarImpl.rightPanelLayout (BoxLayout)` → right panel container →
+  status bar widget (tool window strip / search widget in New UI) → configurable reference →
+  `WindowAccentSettings` instance → `WindowAccentSettings.class` → `PluginClassLoader`
+- **Non-determinism explained:** The race is between IntelliJ's configurable re-instantiation timing
+  and the GC check. When IntelliJ releases and re-creates the configurable between our cleanup and
+  the GC check, the failure occurs. When it doesn't, the GC check passes. The `init {}` guard makes
+  any re-created instance inert regardless of timing.
+
 ## [1.4.3]
 
 ### Fixed
@@ -498,7 +547,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.4...HEAD
+[1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.0...1.4.1

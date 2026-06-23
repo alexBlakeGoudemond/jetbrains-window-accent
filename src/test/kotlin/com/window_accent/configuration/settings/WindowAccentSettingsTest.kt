@@ -1,6 +1,7 @@
 package com.window_accent.configuration.settings
 
 import com.intellij.openapi.project.Project
+import com.window_accent.WindowAccentApplicationService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -29,6 +30,11 @@ class WindowAccentSettingsTest {
 
     @BeforeEach
     fun setup() {
+        // Reset cleanup state so that WindowAccentSettings.init {} does not self-dispose.
+        // PluginUnloadingVerificationTest.unloadingLifecycleSequenceListenerThenServiceDisposeIsSafe
+        // may set cleanupCompleted=true; resetting here prevents cross-test state pollution.
+        WindowAccentApplicationService.resetCleanupState()
+
         // Initialize UIManager to avoid "no ComponentUI class" errors in some test environments
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())

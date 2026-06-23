@@ -70,6 +70,19 @@ class WindowAccentApplicationService : Disposable {
             cleanupCompleted.set(false)
         }
 
+        /**
+         * Returns true if [performCleanup] has already run for this plugin load cycle.
+         *
+         * Used by [com.window_accent.configuration.settings.WindowAccentSettings] to detect
+         * the case where IntelliJ re-instantiates the configurable **after** our cleanup has
+         * already run (e.g., for settings-search indexing or `isModified()` polling during
+         * the plugin unload sequence). In that scenario the new instance must immediately
+         * call [com.window_accent.configuration.settings.WindowAccentSettings.disposeUIResources]
+         * on itself to clear the `sideCombo → DefaultComboBoxModel → Side[] → PluginClassLoader`
+         * retention chain before IntelliJ's GC collectibility check fires.
+         */
+        fun isCleanupCompleted(): Boolean = cleanupCompleted.get()
+
         fun performCleanup(reason: String) {
             if (cleanupCompleted.compareAndSet(false, true)) {
                 LOG.info("[Window Accent] Running final cleanup (reason=$reason)")
