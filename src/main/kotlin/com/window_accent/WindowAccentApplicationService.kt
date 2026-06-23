@@ -13,6 +13,7 @@ import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
+import java.awt.Window
 import java.beans.Introspector
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -117,11 +118,56 @@ class WindowAccentApplicationService : Disposable {
          * removes button ActionListeners, and nulls service references — breaking all
          * plugin-class reference chains from the configurable instance before the GC check.
          *
+         * Additionally, even after [disposeUIResources] clears the instance's internals,
+         * IntelliJ's configurable cache may still hold the **instance itself**. Since the
+         * instance is a plugin class, the JVM type pointer alone is sufficient to keep the
+         * classloader reachable:
+         *
+         *   IntelliJ cache → WindowAccentSettings instance
+         *     → WindowAccentSettings.class → PluginClassLoader
+         *
+         * To address this, [WindowAccentSettings.findContainingWindows] locates the Swing
+         * [Window] that contains our panel (while the component hierarchy is still intact —
+         * before [disposeUIResources] calls [JPanel.removeAll]). After [disposeAllTrackedInstances]
+         * clears the instance internals, [Window.dispose] is called on any found window.
+         * This posts a [java.awt.event.WindowEvent.WINDOW_CLOSED] to the EDT queue; the
+         * observed ~1–2 s gap between [beforePluginUnload] and the GC check is sufficient
+         * for the EDT to process that event, prompting IntelliJ to clear its configurable
+         * cache and release the [WindowAccentSettings] instance reference before GC runs.
+         *
          * The timing of IntelliJ's own configurable disposal (relative to the GC check)
-         * is not guaranteed; this call makes the disposal deterministic.
+         * is not guaranteed; these calls make the disposal deterministic.
          */
         private fun flushSettingsConfigurables() {
+            // Step 1: Snapshot window references BEFORE clearing internals.
+            // disposeUIResources() calls panel.removeAll(), which severs the component
+            // hierarchy and would cause SwingUtilities.getWindowAncestor(panel) to return null.
+            val settingsWindows: Set<Window> = WindowAccentSettings.findContainingWindows()
+            if (settingsWindows.isNotEmpty()) {
+                LOG.info("[Window Accent] Found ${settingsWindows.size} Settings dialog window(s) containing Window Accent panel — will dispose after clearing instances")
+            } else {
+                LOG.info("[Window Accent] No Settings dialog window found containing Window Accent panel (panel not yet shown, or Settings already closed)")
+            }
+
+            // Step 2: Proactively call disposeUIResources() on all tracked instances.
+            // Clears Side[] from combo model, removes ActionListeners, and nulls service refs.
             WindowAccentSettings.disposeAllTrackedInstances()
+
+            // Step 3: Dispose the Settings dialog window(s) found in step 1.
+            // window.dispose() posts WINDOW_CLOSED to the EDT queue. The ~1–2 s gap between
+            // beforePluginUnload and the classloader GC check (observed in log analysis) gives
+            // the EDT time to process that event: IntelliJ's DialogWrapper close handler fires,
+            // clears the configurable cache, and releases the WindowAccentSettings instance
+            // reference — so the type pointer (instance → class → classloader) is gone before
+            // IntelliJ runs its GC collectibility check.
+            settingsWindows.forEach { window ->
+                if (window.isVisible) {
+                    LOG.info("[Window Accent] Disposing Settings dialog (${window::class.simpleName}) to release configurable cache reference before GC check")
+                    window.dispose()
+                } else {
+                    LOG.info("[Window Accent] Settings dialog (${window::class.simpleName}) already hidden — skipping dispose")
+                }
+            }
         }
 
         /**

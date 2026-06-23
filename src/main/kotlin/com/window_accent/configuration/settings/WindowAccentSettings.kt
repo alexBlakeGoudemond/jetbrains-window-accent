@@ -67,6 +67,32 @@ open class WindowAccentSettings(
             }
             LOG.info("[Window Accent] disposeAllTrackedInstances completed ($disposed live instance(s) disposed, ${snapshot.size - disposed} already GC'd)")
         }
+
+        /**
+         * Returns the set of AWT [Window]s that currently contain any tracked
+         * [WindowAccentSettings] panel in their Swing component hierarchy.
+         *
+         * **Must be called before [disposeAllTrackedInstances]** so that the
+         * [panel.removeAll()][JPanel.removeAll] call inside [disposeUIResources] has not yet
+         * severed the containment chain — [SwingUtilities.getWindowAncestor] relies on the
+         * parent references being intact.
+         *
+         * Used by [com.window_accent.WindowAccentApplicationService.performCleanup] to find and
+         * dispose any open Settings dialog before IntelliJ's classloader GC check. Disposing
+         * the window posts a [java.awt.event.WindowEvent.WINDOW_CLOSED] event to the EDT queue;
+         * the ~1–2 s observed gap between [beforePluginUnload][com.window_accent.PluginLifecycleListener.beforePluginUnload]
+         * and the GC check gives the EDT time to process that event, allowing IntelliJ's
+         * `DialogWrapper` close handler to clear its configurable cache and release the
+         * [WindowAccentSettings] instance reference before reachability is checked.
+         */
+        internal fun findContainingWindows(): Set<Window> =
+            trackedInstances
+                .mapNotNull { ref ->
+                    ref.get()?.panel?.let { panel ->
+                        SwingUtilities.getWindowAncestor(panel)
+                    }
+                }
+                .toSet()
     }
 
     init {

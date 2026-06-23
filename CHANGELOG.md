@@ -2,6 +2,81 @@
 
 ## [Unreleased]
 
+### Diagnostic notes (from log analysis — update logs 001 and 002, IU-261.22158.277, 2026-06-23)
+
+- **Two logs compared — same source version 1.4.1, same target version 1.4.2, same IDE build:**
+    - **Log 001**: `1.4.1 → 1.4.2`, Settings NOT opened, custom title `customTitleNew` previously set →
+      `isUpdate=false`, `0 live instances disposed` →
+      classloader could **not** be unloaded
+      (`Plugin WindowAccent is not unload-safe because class loader cannot be unloaded`) ❌
+    - **Log 002**: `1.4.1 → 1.4.2`, Settings NOT opened, custom title `customTitleNew` previously set →
+      `isUpdate=false`, `0 live instances disposed` →
+      classloader **unloaded successfully**
+      (`Successfully unloaded plugin WindowAccent (classloader unload checked=true)`,
+      `Plugin WindowAccent loaded without restart in 252 ms`) ✅
+- **Identical surface conditions, different outcomes — the failure is non-deterministic.**
+  The settings-open retention chain (fixed in 1.4.1) was not involved in either log. A second,
+  intermittent retention root exists that does not require the Settings panel to have been opened.
+  Likely candidates: GC timing (a `WeakReference` that hasn't been cleared at the moment of IntelliJ's
+  GC check), a coroutine scope that hasn't fully cancelled, or an IntelliJ-internal cache that varies
+  per session.
+- **`isUpdate=false` is confirmed NOT a predictor of failure.** Both log 001 (❌) and log 002 (✅)
+  show `update=false`; the flag does not determine whether the classloader is successfully released.
+- **Settings-open case appears resolved.** Both logs had `0 live instances disposed`, confirming the
+  1.4.1 `disposeAllTrackedInstances()` / `sideCombo.removeAllItems()` fix correctly handles the
+  settings-open retention chain. No further regression observed on that path.
+- **No hprof generated for log 001's failure.** The `-Dide.plugins.snapshot.on.unload.fail=true` VM
+  option was added to `AppData\Roaming\JetBrains\IntelliJIdea2026.1\idea64.exe.vmoptions` after
+  log 001 was captured. Note: this file is **shared across all custom JetBrains configurations**
+  (custom configs only isolate plugins, settings dir, and system cache — not the JVM). The option
+  is now active for all environments; the next failure will write an `unload-WindowAccent-*.hprof`
+  to `C:\Users\<userDirectory>\` regardless of which custom config triggers the update.
+- **Next step:** Reproduce the intermittent failure (update away from 1.4.2 with settings not open)
+  and capture the hprof to identify the second retention root before adding further code fixes.
+
+## [1.4.2]
+
+### Fixed
+
+- Pass 018 of improving Plugin Unloading to avoid unnecessary project restarts
+    - Added `WindowAccentSettings.findContainingWindows()` — finds the Swing window that
+      contains the settings panel **before** `disposeAllTrackedInstances()` clears the component
+      hierarchy (which would sever the ancestor chain). Returns the set of windows to close.
+    - Updated `flushSettingsConfigurables()` to call `window.dispose()` on any Settings dialog
+      found to contain our panel. `window.dispose()` posts a `WINDOW_CLOSED` event to the EDT
+      queue. The observed ~1–2 s gap between `beforePluginUnload` and the classloader GC check
+      is sufficient for the EDT to process that event — prompting IntelliJ to clear its
+      configurable cache and release its reference to the (now-internals-cleared)
+      `WindowAccentSettings` instance before the GC check runs.
+
+### Diagnostic notes (from log analysis — update logs 001 and 002, IU-261.22158.277, 2026-06-18)
+
+- **Two logs compared — same IDE build, same day, same target version 1.4.1:**
+    - **Log 001** (13:57): `1.4.0 → 1.4.1`, Settings NOT opened → `isUpdate=true` →
+      hot-reload succeeded (`Plugin WindowAccent loaded without restart in 32 ms`) ✅
+    - **Log 002** (14:00): `1.3.1 → 1.4.1`, Settings WERE opened (user visited
+      `Settings > Appearance > Window Accent` and set a custom title) → `isUpdate=false` →
+      classloader could not be unloaded
+      (`Plugin WindowAccent is not unload-safe because class loader cannot be unloaded`) ❌
+- **Settings being open is confirmed as the direct cause — not a coincidence.** Version 1.3.1
+  lacked `sideCombo.removeAllItems()` and proactive `disposeAllTrackedInstances()`. The
+  `sideCombo`'s `DefaultComboBoxModel` still held `Side[]` enum values, forming the chain:
+  `IntelliJ configurable cache → WindowAccentSettings → sideCombo → DefaultComboBoxModel
+    → Side[] → Side.class → PluginClassLoader`
+- **`isUpdate=false` in log 002:** Indicates IntelliJ either pre-detected the classloader was
+  not GC-able (due to the cached `WindowAccentSettings` configurable in the open Settings
+  dialog) and switched to the "requires restart" path, or converted to it after the GC check
+  failed. Either way, cleanup still ran and the root cause is the residual configurable reference.
+- **Open question carried into 1.4.2:** The 1.4.1 fix clears the `WindowAccentSettings`
+  instance's internals via `disposeAllTrackedInstances()`, but IntelliJ's configurable cache
+  may still hold the **instance itself**. Since the instance is a plugin class, the JVM type
+  pointer alone keeps the classloader reachable:
+  `IntelliJ cache → WindowAccentSettings instance → WindowAccentSettings.class → PluginClassLoader`
+  The `window.dispose()` call added in 1.4.2 addresses this by prompting IntelliJ to clear its
+  configurable cache (via the `WINDOW_CLOSED` handler) before the GC check runs. The `LOG.info`
+  added to `disposeUIResources()` in 1.4.1 will confirm whether this resolves the issue in the
+  next update log.
+
 ## [1.4.1]
 
 ### Fixed
@@ -411,7 +486,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.1...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...HEAD
+[1.4.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.0...1.3.1
