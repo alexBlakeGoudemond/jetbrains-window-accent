@@ -10,6 +10,7 @@ import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.WindowAccentApplicationService
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.*
@@ -97,6 +98,32 @@ open class WindowAccentSettings(
 
     init {
         trackedInstances.add(WeakReference(this))
+
+        // Guard against the "created-after-cleanup" race:
+        //
+        // IntelliJ sometimes releases its strong reference to a WindowAccentSettings instance
+        // just before our beforePluginUnload cleanup fires (making the WeakReference return null
+        // and causing disposeAllTrackedInstances() to report "0 live instances"), then
+        // re-instantiates the configurable shortly afterwards — for search indexing, isModified()
+        // polling, or other platform bookkeeping that occurs during the plugin unload sequence.
+        //
+        // That new instance is not in our tracked list (trackedInstances was already cleared)
+        // and its sideCombo was populated with Side[] in the constructor above, forming the chain:
+        //   WindowAccentSettings → sideCombo → DefaultComboBoxModel → Side[] → Side.class
+        //     → PluginClassLoader
+        //
+        // Calling disposeUIResources() immediately clears sideCombo and nulls all service
+        // references, breaking that chain. The instance itself still exists (its class pointer
+        // keeps PluginClassLoader technically reachable), but IntelliJ's own extension-point
+        // unload machinery is responsible for releasing the instance reference; at that point
+        // the classloader becomes GC-eligible.
+        //
+        // This check is a no-op for the normal (non-unload) code path because
+        // cleanupCompleted is false until beforePluginUnload fires.
+        if (WindowAccentApplicationService.isCleanupCompleted()) {
+            LOG.warn("[Window Accent] WindowAccentSettings instantiated after cleanup completed (project=${project.name}) — immediately disposing to prevent post-cleanup PluginClassLoader retention")
+            disposeUIResources()
+        }
     }
 
     @VisibleForTesting
