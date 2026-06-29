@@ -4,6 +4,11 @@
 
 ## [1.5.0]
 
+### Added
+
+- Added option for Global Window Title
+  - Can now set a custom title that will show on all windows
+
 ## [1.4.4]
 
 ### Fixed
