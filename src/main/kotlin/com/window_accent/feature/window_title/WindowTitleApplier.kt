@@ -7,6 +7,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.Alarm
+import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
@@ -80,7 +81,9 @@ class WindowTitleApplier {
     fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) {
         val numberingEnabled = enabled ?: project.getService(WindowTitleNumberingStateService::class.java).isTitleNumberingEnabled()
         val customTitleEnabled = project.getService(WindowCustomTitleStateService::class.java).isCustomTitleEnabled()
-        val shouldApply = numberingEnabled || customTitleEnabled
+        val globalCustomTitleEnabled = ApplicationManager.getApplication()
+            ?.getService(GlobalCustomTitleStateService::class.java)?.isGlobalCustomTitleEnabled() ?: false
+        val shouldApply = numberingEnabled || customTitleEnabled || globalCustomTitleEnabled
         runOnEdt {
             if (shouldApply) {
                 applyTitleToWindow(project)
@@ -188,11 +191,16 @@ class WindowTitleApplier {
         if (frame != null) {
             val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
             val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
+            val globalCustomTitleService = ApplicationManager.getApplication()
+                ?.getService(GlobalCustomTitleStateService::class.java)
+                ?: GlobalCustomTitleStateService()
             updateWindowTitle(
                 frame, number,
                 customTitle = customTitleService.getCustomTitle(),
                 customTitleEnabled = customTitleService.isCustomTitleEnabled(),
-                numberingEnabled = numberingService.isTitleNumberingEnabled()
+                numberingEnabled = numberingService.isTitleNumberingEnabled(),
+                globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
+                globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
             )
             reapplyOnFocus(project, frame)
             reapplyOnTitleChange(project, frame)
@@ -245,11 +253,13 @@ class WindowTitleApplier {
         number: Int,
         customTitle: String = "",
         customTitleEnabled: Boolean = false,
-        numberingEnabled: Boolean = true
+        numberingEnabled: Boolean = true,
+        globalCustomTitle: String = "",
+        globalCustomTitleEnabled: Boolean = false
     ) {
         val currentTitle = frame.title ?: return
         val cleanedTitle = stripExistingPrefix(currentTitle)
-        val prefix = buildTitlePrefix(number, numberingEnabled, customTitle, customTitleEnabled)
+        val prefix = buildTitlePrefix(number, numberingEnabled, customTitle, customTitleEnabled, globalCustomTitle, globalCustomTitleEnabled)
         val updatedTitle = if (prefix.isNotEmpty()) "$prefix $cleanedTitle" else cleanedTitle
 
         if (frame.title != updatedTitle) {
@@ -258,26 +268,46 @@ class WindowTitleApplier {
     }
 
     /**
-     * Builds the window title prefix based on the current numbering and custom title state.
+     * Builds the window title prefix based on the current numbering, per-window custom title,
+     * and global custom title state.
      *
-     * | Numbering | Custom title | Result              |
-     * |-----------|--------------|---------------------|
-     * | enabled   | enabled      | `[n - customTitle]` |
-     * | enabled   | disabled     | `[n]`               |
-     * | disabled  | enabled      | `[customTitle]`     |
-     * | disabled  | disabled     | `""` (no prefix)    |
+     * The global part appears first, followed by the per-window part:
+     *
+     * | Numbering | Per-window | Global | Result                        |
+     * |-----------|------------|--------|-------------------------------|
+     * | enabled   | enabled    | enabled  | `[globalTitle][n - perTitle]` |
+     * | enabled   | enabled    | disabled | `[n - perTitle]`              |
+     * | enabled   | disabled   | enabled  | `[globalTitle][n]`            |
+     * | enabled   | disabled   | disabled | `[n]`                         |
+     * | disabled  | enabled    | enabled  | `[globalTitle][perTitle]`     |
+     * | disabled  | enabled    | disabled | `[perTitle]`                  |
+     * | disabled  | disabled   | enabled  | `[globalTitle]`               |
+     * | disabled  | disabled   | disabled | `""` (no prefix)              |
      */
     internal fun buildTitlePrefix(
         number: Int,
         numberingEnabled: Boolean,
         customTitle: String,
-        customTitleEnabled: Boolean
+        customTitleEnabled: Boolean,
+        globalCustomTitle: String = "",
+        globalCustomTitleEnabled: Boolean = false
     ): String {
         val hasCustomTitle = customTitleEnabled && customTitle.isNotBlank()
-        return when {
+        val hasGlobalTitle = globalCustomTitleEnabled && globalCustomTitle.isNotBlank()
+
+        val perWindowPart = when {
             numberingEnabled && hasCustomTitle -> "[$number - $customTitle]"
             numberingEnabled -> "[$number]"
             hasCustomTitle -> "[$customTitle]"
+            else -> ""
+        }
+
+        val globalPart = if (hasGlobalTitle) "[$globalCustomTitle]" else ""
+
+        return when {
+            globalPart.isNotEmpty() && perWindowPart.isNotEmpty() -> "$globalPart$perWindowPart"
+            globalPart.isNotEmpty() -> globalPart
+            perWindowPart.isNotEmpty() -> perWindowPart
             else -> ""
         }
     }
@@ -311,11 +341,16 @@ class WindowTitleApplier {
                 val number = projectNumbers[project] ?: return
                 val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
                 val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
+                val globalCustomTitleService = ApplicationManager.getApplication()
+                    ?.getService(GlobalCustomTitleStateService::class.java)
+                    ?: GlobalCustomTitleStateService()
                 updateWindowTitle(
                     frame, number,
                     customTitle = customTitleService.getCustomTitle(),
                     customTitleEnabled = customTitleService.isCustomTitleEnabled(),
-                    numberingEnabled = numberingService.isTitleNumberingEnabled()
+                    numberingEnabled = numberingService.isTitleNumberingEnabled(),
+                    globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
+                    globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
                 )
             }
         }
@@ -328,11 +363,16 @@ class WindowTitleApplier {
                 val number = projectNumbers[project] ?: return@PropertyChangeListener
                 val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
                 val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
+                val globalCustomTitleService = ApplicationManager.getApplication()
+                    ?.getService(GlobalCustomTitleStateService::class.java)
+                    ?: GlobalCustomTitleStateService()
                 val expectedPrefix = buildTitlePrefix(
                     number,
                     numberingService.isTitleNumberingEnabled(),
                     customTitleService.getCustomTitle(),
-                    customTitleService.isCustomTitleEnabled()
+                    customTitleService.isCustomTitleEnabled(),
+                    globalCustomTitleService.getGlobalCustomTitle(),
+                    globalCustomTitleService.isGlobalCustomTitleEnabled()
                 )
                 val expectedFullPrefix = if (expectedPrefix.isNotEmpty()) "$expectedPrefix " else ""
                 if (expectedFullPrefix.isEmpty() || !newTitle.startsWith(expectedFullPrefix)) {
@@ -340,7 +380,9 @@ class WindowTitleApplier {
                         frame, number,
                         customTitle = customTitleService.getCustomTitle(),
                         customTitleEnabled = customTitleService.isCustomTitleEnabled(),
-                        numberingEnabled = numberingService.isTitleNumberingEnabled()
+                        numberingEnabled = numberingService.isTitleNumberingEnabled(),
+                        globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
+                        globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
                     )
                 }
             }

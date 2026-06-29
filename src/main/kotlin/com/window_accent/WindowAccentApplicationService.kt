@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.util.IconLoader
+import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -211,11 +212,13 @@ class WindowAccentApplicationService : Disposable {
                 WindowCustomColorStateService::class.java,
                 WindowTitleNumberingStateService::class.java,
                 WindowCustomTitleStateService::class.java,
+                GlobalCustomTitleStateService::class.java,
                 // Nested State data classes — the types actually introspected by BeanBinding
                 WindowPanelAppearanceStateService.State::class.java,
                 WindowCustomColorStateService.State::class.java,
                 WindowTitleNumberingStateService.State::class.java,
                 WindowCustomTitleStateService.State::class.java,
+                GlobalCustomTitleStateService.State::class.java,
                 // Nested enum — may be introspected when serializing the Side property
                 WindowPanelAppearanceStateService.Side::class.java,
             )
