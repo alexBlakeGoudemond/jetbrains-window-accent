@@ -271,15 +271,15 @@ class WindowTitleApplier {
      * Builds the window title prefix based on the current numbering, per-window custom title,
      * and global custom title state.
      *
-     * The per-window part and the global part are each wrapped in their own brackets:
+     * The global part appears first, followed by the per-window part:
      *
      * | Numbering | Per-window | Global | Result                        |
      * |-----------|------------|--------|-------------------------------|
-     * | enabled   | enabled    | enabled  | `[n - perTitle][globalTitle]` |
+     * | enabled   | enabled    | enabled  | `[globalTitle][n - perTitle]` |
      * | enabled   | enabled    | disabled | `[n - perTitle]`              |
-     * | enabled   | disabled   | enabled  | `[n][globalTitle]`            |
+     * | enabled   | disabled   | enabled  | `[globalTitle][n]`            |
      * | enabled   | disabled   | disabled | `[n]`                         |
-     * | disabled  | enabled    | enabled  | `[perTitle][globalTitle]`     |
+     * | disabled  | enabled    | enabled  | `[globalTitle][perTitle]`     |
      * | disabled  | enabled    | disabled | `[perTitle]`                  |
      * | disabled  | disabled   | enabled  | `[globalTitle]`               |
      * | disabled  | disabled   | disabled | `""` (no prefix)              |
@@ -305,9 +305,9 @@ class WindowTitleApplier {
         val globalPart = if (hasGlobalTitle) "[$globalCustomTitle]" else ""
 
         return when {
-            perWindowPart.isNotEmpty() && globalPart.isNotEmpty() -> "$perWindowPart$globalPart"
-            perWindowPart.isNotEmpty() -> perWindowPart
+            globalPart.isNotEmpty() && perWindowPart.isNotEmpty() -> "$globalPart$perWindowPart"
             globalPart.isNotEmpty() -> globalPart
+            perWindowPart.isNotEmpty() -> perWindowPart
             else -> ""
         }
     }

@@ -192,19 +192,19 @@ class WindowTitleApplierTest {
     @Test
     @DisplayName("buildTitlePrefix - numbering and global title")
     fun testBuildTitlePrefixNumberAndGlobal() {
-        assertEquals("[2][prod]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
+        assertEquals("[prod][2]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - custom title and global title")
     fun testBuildTitlePrefixCustomAndGlobal() {
-        assertEquals("[dattebayo][prod]", applier.buildTitlePrefix(1, false, "dattebayo", true, "prod", true))
+        assertEquals("[prod][dattebayo]", applier.buildTitlePrefix(1, false, "dattebayo", true, "prod", true))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - numbering, custom title, and global title all enabled")
     fun testBuildTitlePrefixAllEnabled() {
-        assertEquals("[2 - dattebayo][prod]", applier.buildTitlePrefix(2, true, "dattebayo", true, "prod", true))
+        assertEquals("[prod][2 - dattebayo]", applier.buildTitlePrefix(2, true, "dattebayo", true, "prod", true))
     }
 
     @Test

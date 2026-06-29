@@ -302,7 +302,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleAllTitlesButton, toggleCurrentTitleButton, resetTitleNumberingButton))
         panel.add(Box.createVerticalStrut(8))
-        panel.add(buildButtonRow(toggleCurrentCustomTitleButton, toggleGlobalCustomTitleButton))
+        panel.add(buildButtonRow(toggleGlobalCustomTitleButton, toggleCurrentCustomTitleButton))
 
         val content = ContentFactory.getInstance().createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
