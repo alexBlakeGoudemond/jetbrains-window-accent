@@ -1,0 +1,19 @@
+src/main/kotlin/com/window_accent/feature/window_title/WindowTitleApplier.kt
+  s_56a48a921e0f9d::t_de41a84a343a24 205-217,225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "8b81891acc7994481877bd6769783b824c016202",
+  "prompts": {},
+  "sessions": {
+    "s_56a48a921e0f9d": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1782764893240",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
