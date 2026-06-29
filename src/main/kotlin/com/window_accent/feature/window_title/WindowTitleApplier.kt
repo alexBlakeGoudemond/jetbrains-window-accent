@@ -202,6 +202,19 @@ class WindowTitleApplier {
                 globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
                 globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
             )
+
+            // Dispose the previous Disposer holder BEFORE registering new listeners.
+            //
+            // cleanupListeners (triggered by the old holder's disposal) uses the maps to find
+            // which listeners to remove from the frame.  By invoking the old closure here —
+            // while the maps still contain the OLD listeners — we ensure the OLD listeners are
+            // removed, not the new ones we are about to register below.
+            //
+            // If this is invoked AFTER reapplyOnFocus/reapplyOnTitleChange (as it was before),
+            // the maps already hold the new listeners, so cleanupListeners would silently strip
+            // them from the frame, leaving the window unguarded against IDE title rewrites.
+            projectDisposeClosures.remove(project)?.invoke()
+
             reapplyOnFocus(project, frame)
             reapplyOnTitleChange(project, frame)
 
@@ -209,7 +222,7 @@ class WindowTitleApplier {
             // since reapplyOnFocus/reapplyOnTitleChange already added AWT listeners above.
             if (!isShuttingDown) {
                 val holder = Disposer.newDisposable("WindowAccent-title-cleanup")
-                projectDisposeClosures.put(project) { Disposer.dispose(holder) }?.invoke()
+                projectDisposeClosures[project] = { Disposer.dispose(holder) }
                 Disposer.register(holder) { cleanupListeners(project) }
                 Disposer.register(project, holder)
             }
