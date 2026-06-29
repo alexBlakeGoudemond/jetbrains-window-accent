@@ -1,11 +1,13 @@
 package com.window_accent.configuration.settings
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
 import org.jetbrains.annotations.VisibleForTesting
+import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -142,6 +144,8 @@ open class WindowAccentSettings(
         project.getService(WindowTitleNumberingStateService::class.java)
     private var customTitleSettings: WindowCustomTitleStateService? =
         project.getService(WindowCustomTitleStateService::class.java)
+    private var globalCustomTitleSettings: GlobalCustomTitleStateService? =
+        ApplicationManager.getApplication()?.getService(GlobalCustomTitleStateService::class.java)
 
     private val form = JPanel(GridBagLayout())
 
@@ -150,6 +154,7 @@ open class WindowAccentSettings(
     internal val customColorCheckBox = JCheckBox("Use custom color")
     private val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
     private val customTitleTextField = JTextField()
+    private val globalCustomTitleTextField = JTextField()
     private val colorPreview = JPanel()
     private val chooseColorButton = JButton("Choose color")
     private val dropperButton = JButton(AllIcons.Actions.Colors)
@@ -212,6 +217,7 @@ open class WindowAccentSettings(
         addCustomColorSettings(labelConstraints, fieldConstraints)
         addTitleNumberingSettings(labelConstraints, fieldConstraints)
         addCustomTitleSettings(labelConstraints, fieldConstraints)
+        addGlobalCustomTitleSettings(labelConstraints, fieldConstraints)
     }
 
     private fun configureColorPreview() {
@@ -292,10 +298,22 @@ open class WindowAccentSettings(
     ) {
         gridBagConstraintsLabel.gridy = 5
         gridBagConstraintsField.gridy = 5
-        form.add(JBLabel("Custom window title:"), gridBagConstraintsLabel)
+        form.add(JBLabel("Custom title (this window):"), gridBagConstraintsLabel)
         form.add(customTitleTextField, gridBagConstraintsField)
         customTitleTextField.toolTipText =
-            "Label shown in the window title alongside the number (e.g. \"dattebayo\"). Toggle on/off in the Tool Window."
+            "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off in the Tool Window."
+    }
+
+    private fun addGlobalCustomTitleSettings(
+        gridBagConstraintsLabel: GridBagConstraints,
+        gridBagConstraintsField: GridBagConstraints
+    ) {
+        gridBagConstraintsLabel.gridy = 6
+        gridBagConstraintsField.gridy = 6
+        form.add(JBLabel("Custom title (all windows):"), gridBagConstraintsLabel)
+        form.add(globalCustomTitleTextField, gridBagConstraintsField)
+        globalCustomTitleTextField.toolTipText =
+            "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off in the Tool Window."
     }
 
     override fun isModified(): Boolean {
@@ -304,11 +322,14 @@ open class WindowAccentSettings(
         val titleSvc = titleNumberingSettings ?: return false
         val customTitleSvc = customTitleSettings ?: return false
         val selectedSide = sideCombo.selectedItem as WindowPanelAppearanceStateService.Side
+        val globalTitleChanged = globalCustomTitleSettings != null &&
+                globalCustomTitleTextField.text.trim() != globalCustomTitleSettings!!.getGlobalCustomTitle()
         return selectedSide != panelSvc.getSide() ||
                 customColorCheckBox.isSelected != colorSvc.isUseCustomColor() ||
                 selectedColor?.rgb != colorSvc.getCustomColor()?.rgb ||
                 titleNumberingCheckBox.isSelected != titleSvc.isTitleNumberingEnabled() ||
-                customTitleTextField.text.trim() != customTitleSvc.getCustomTitle()
+                customTitleTextField.text.trim() != customTitleSvc.getCustomTitle() ||
+                globalTitleChanged
     }
 
     override fun apply() {
@@ -335,6 +356,7 @@ open class WindowAccentSettings(
         customColorSettings = null
         titleNumberingSettings = null
         customTitleSettings = null
+        globalCustomTitleSettings = null
 
         // Clear Side enum values from the sideCombo model.
         // form.removeAll() removes sideCombo from its container but does NOT clear the
@@ -364,11 +386,13 @@ open class WindowAccentSettings(
         val colorSvc = customColorSettings ?: return null
         val titleSvc = titleNumberingSettings ?: return null
         val customTitleSvc = customTitleSettings ?: return null
+        val globalCustomTitleSvc = globalCustomTitleSettings ?: return null
         panelSvc.setSide(sideCombo.selectedItem as WindowPanelAppearanceStateService.Side)
         colorSvc.setUseCustomColor(customColorCheckBox.isSelected)
         colorSvc.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
         titleSvc.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
         customTitleSvc.setCustomTitle(customTitleTextField.text.trim())
+        globalCustomTitleSvc.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
         return Unit
     }
 
@@ -388,6 +412,7 @@ open class WindowAccentSettings(
         selectedColor = customColorSettings?.getCustomColor()
         titleNumberingCheckBox.isSelected = titleNumberingSettings?.isTitleNumberingEnabled() ?: false
         customTitleTextField.text = customTitleSettings?.getCustomTitle() ?: ""
+        globalCustomTitleTextField.text = globalCustomTitleSettings?.getGlobalCustomTitle() ?: ""
     }
 
     override fun setSelectedColor(color: Color?) {

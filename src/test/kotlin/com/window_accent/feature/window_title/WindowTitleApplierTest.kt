@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
+import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import org.junit.jupiter.api.AfterEach
@@ -37,12 +38,15 @@ class WindowTitleApplierTest {
 
     private lateinit var applier: WindowTitleApplier
 
+    /** Real service instance shared across @BeforeEach and setupFullMocks. */
+    private lateinit var mockGlobalCustomTitleService: GlobalCustomTitleStateService
+
     @BeforeEach
     fun setup() {
         applier = WindowTitleApplier()
         mockProject1 = mock(Project::class.java)
         mockProject2 = mock(Project::class.java)
-        
+
         // Use real Frame/JFrame instead of mocks to avoid Mockito/Java 25 issues
         mockFrame1 = JFrame("Test Project 1")
         mockFrame2 = JFrame("Test Project 2")
@@ -57,6 +61,8 @@ class WindowTitleApplierTest {
         Mockito.`when`(mockProject2.getService(WindowCustomTitleStateService::class.java)).thenReturn(mockCustomTitleService2)
         mockTitleNumberingService1.setTitleNumberingEnabled(true)
         mockTitleNumberingService2.setTitleNumberingEnabled(true)
+
+        mockGlobalCustomTitleService = GlobalCustomTitleStateService()
     }
 
     private fun setupFullMocks() {
@@ -75,6 +81,9 @@ class WindowTitleApplierTest {
         windowManagerMock = Mockito.mockStatic(WindowManager::class.java)
         windowManagerMock.`when`<WindowManager> { WindowManager.getInstance() }.thenReturn(mockWindowManager)
         Mockito.`when`(mockApplication.isDispatchThread).thenReturn(true)
+
+        Mockito.`when`(mockApplication.getService(GlobalCustomTitleStateService::class.java))
+            .thenReturn(mockGlobalCustomTitleService)
 
         // Setup invokeLater to run immediately for testing
         Mockito.doAnswer { invocation ->
@@ -172,6 +181,48 @@ class WindowTitleApplierTest {
     @DisplayName("buildTitlePrefix - numbering on, custom title enabled but blank")
     fun testBuildTitlePrefixBlankCustomTitle() {
         assertEquals("[1]", applier.buildTitlePrefix(1, true, "", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - global title only")
+    fun testBuildTitlePrefixGlobalOnly() {
+        assertEquals("[prod]", applier.buildTitlePrefix(1, false, "", false, "prod", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering and global title")
+    fun testBuildTitlePrefixNumberAndGlobal() {
+        assertEquals("[2][prod]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - custom title and global title")
+    fun testBuildTitlePrefixCustomAndGlobal() {
+        assertEquals("[dattebayo][prod]", applier.buildTitlePrefix(1, false, "dattebayo", true, "prod", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - numbering, custom title, and global title all enabled")
+    fun testBuildTitlePrefixAllEnabled() {
+        assertEquals("[2 - dattebayo][prod]", applier.buildTitlePrefix(2, true, "dattebayo", true, "prod", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - global title disabled produces no global part")
+    fun testBuildTitlePrefixGlobalDisabled() {
+        assertEquals("[1]", applier.buildTitlePrefix(1, true, "", false, "prod", false))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - global title enabled but blank produces no global part")
+    fun testBuildTitlePrefixBlankGlobalTitle() {
+        assertEquals("[1]", applier.buildTitlePrefix(1, true, "", false, "", true))
+    }
+
+    @Test
+    @DisplayName("buildTitlePrefix - all disabled with global params")
+    fun testBuildTitlePrefixNoneWithGlobal() {
+        assertEquals("", applier.buildTitlePrefix(1, false, "", false, "", false))
     }
 
     @Test
