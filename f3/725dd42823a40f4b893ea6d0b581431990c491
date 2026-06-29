@@ -1,0 +1,42 @@
+src/main/kotlin/com/window_accent/feature/window_title/WindowTitleApplier.kt
+  s_fa458d08f5213c::t_cb11ab78639fc0 10
+  s_fa458d08f5213c::t_cb2f0e53b22505 84-86,194-196,201-203,256-258,262,271-272,274-285,291-293,296-298,304-312,344-346,351-353,366-368,373-375,383-385
+src/test/kotlin/com/window_accent/feature/window_title/WindowTitleApplierTest.kt
+  s_fa458d08f5213c::t_22df35ce98686b 64-65,85-87,186-227
+  s_fa458d08f5213c::t_e70c025adaea03 7
+  s_fa458d08f5213c::t_20422fb5989829 41-43,49
+src/main/kotlin/com/window_accent/configuration/tool_window/WindowAccentToolWindowFactory.kt
+  s_fa458d08f5213c::t_2a242e2ffdab00 165-167,182,190,223-227,282-288,297,305,318
+  s_fa458d08f5213c::t_db0d21e886f5ac 12
+  s_fa458d08f5213c::t_26bca67c5907ef 4
+src/main/kotlin/com/window_accent/configuration/settings/WindowAccentSettings.kt
+  s_fa458d08f5213c::t_009477ef60ea45 4
+  s_fa458d08f5213c::t_e3b5eca6bcf382 10
+src/main/kotlin/com/window_accent/configuration/persistence/GlobalCustomTitleStateService.kt
+  s_fa458d08f5213c::t_6e47e91105e1e8 1-50
+src/test/kotlin/com/window_accent/configuration/persistence/GlobalCustomTitleStateServiceTest.kt
+  s_fa458d08f5213c::t_730f1ef950f285 1-164
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  s_fa458d08f5213c::t_43cf19f497eac9 8,215,221
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f3725dd42823a40f4b893ea6d0b581431990c491",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_fa458d08f5213c": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "3224f5c2-d454-46c0-a6bc-66744a423a20",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
