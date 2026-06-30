@@ -161,13 +161,15 @@ class WindowTitleApplierTest {
     @Test
     @DisplayName("buildTitlePrefix - numbering on, custom title on")
     fun testBuildTitlePrefixBoth() {
-        assertEquals("[2 - ${TitleTextStyler.toItalic("dattebayo")}]", applier.buildTitlePrefix(2, true, "dattebayo", true))
+        // toItalic applied to the entire per-window content: digits pass through, letters become italic
+        assertEquals("[${TitleTextStyler.toItalic("2 - dattebayo")}]", applier.buildTitlePrefix(2, true, "dattebayo", true))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - numbering on, custom title off")
     fun testBuildTitlePrefixNumberOnly() {
-        assertEquals("[3]", applier.buildTitlePrefix(3, true, "dattebayo", false))
+        // toItalic applied to the number: digits have no italic Unicode equivalent so the number is unchanged
+        assertEquals("[${TitleTextStyler.toItalic("3")}]", applier.buildTitlePrefix(3, true, "dattebayo", false))
     }
 
     @Test
@@ -197,7 +199,7 @@ class WindowTitleApplierTest {
     @Test
     @DisplayName("buildTitlePrefix - numbering and global title")
     fun testBuildTitlePrefixNumberAndGlobal() {
-        assertEquals("[${TitleTextStyler.toBold("prod")}][2]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
+        assertEquals("[${TitleTextStyler.toBold("prod")}][${TitleTextStyler.toItalic("2")}]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
     }
 
     @Test
@@ -213,7 +215,7 @@ class WindowTitleApplierTest {
     @DisplayName("buildTitlePrefix - numbering, custom title, and global title all enabled")
     fun testBuildTitlePrefixAllEnabled() {
         assertEquals(
-            "[${TitleTextStyler.toBold("prod")}][2 - ${TitleTextStyler.toItalic("dattebayo")}]",
+            "[${TitleTextStyler.toBold("prod")}][${TitleTextStyler.toItalic("2 - dattebayo")}]",
             applier.buildTitlePrefix(2, true, "dattebayo", true, "prod", true)
         )
     }
