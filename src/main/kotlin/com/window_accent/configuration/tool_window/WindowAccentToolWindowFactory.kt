@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -257,7 +258,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val toggleAllTitlesListener = ActionListener {
             animateButtonClick(toggleAllTitlesButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = titleSettings.isTitleNumberingDisabled()
-            titleSettings.setTitleNumberingEnabled(enabled)
+            // Update the persisted state for EVERY open project, not just the current one.
+            // Without this, non-focused windows keep their own stale service value (enabled=true)
+            // and the focus listener / title listener re-apply the number prefix the next time
+            // those windows are visited or the IDE rewrites their title.
+            ProjectManager.getInstance().openProjects.forEach { openProject ->
+                openProject.getService(WindowTitleNumberingStateService::class.java)
+                    .setTitleNumberingEnabled(enabled)
+            }
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
