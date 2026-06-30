@@ -1,0 +1,28 @@
+CHANGELOG.md
+  s_e929b8e46bde9a::t_7268895407b4ea 9-11
+  s_e929b8e46bde9a::t_8fde70c74f5982 12-14
+  s_e929b8e46bde9a::t_be9fc977a76018 4-8
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  s_e929b8e46bde9a::t_ce499ef2e44e1e 99,250-290
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "4a428e5dafef4e41d36a79adf1e6fb7f5c146781",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_e929b8e46bde9a": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "23b2efd1-8c92-47fc-a093-30b1eeb7f79e",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
