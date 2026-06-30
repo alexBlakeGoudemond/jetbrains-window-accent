@@ -96,6 +96,7 @@ class WindowAccentApplicationService : Disposable {
                 flushSettingsConfigurables()
                 flushIntrospectorCaches()
                 flushIconLoaderCache()
+                flushStrokeIconCache()
 
                 LOG.info("[Window Accent] Final cleanup completed successfully")
             } else {
@@ -245,6 +246,47 @@ class WindowAccentApplicationService : Disposable {
         private fun flushIconLoaderCache() {
             IconLoader.clearCache()
             LOG.info("[Window Accent] Flushed IconLoader cache to release ImageDataByPathLoader → PluginClassLoader references")
+        }
+
+        /**
+         * Clears IntelliJ's stroke-icon Caffeine cache (`StrokeKt.strokeIconCache`).
+         *
+         * IntelliJ 2026.x introduced a separate Caffeine cache in [com.intellij.ui.icons.StrokeKt]
+         * for stroke/SVG icon variants. Cache values are [com.intellij.ui.icons.CachedImageIcon]
+         * objects whose `loader` field is an [com.intellij.ui.icons.ImageDataByPathLoader] that
+         * stores the plugin ClassLoader for resource resolution. This creates the chain:
+         *
+         *   GC Root (Global JNI) → PathClassLoader → StrokeKt.class
+         *     → strokeIconCache (Caffeine) → CachedImageIcon → ImageDataByPathLoader
+         *     → PluginClassLoader
+         *
+         * [IconLoader.clearCache] does NOT clear this cache. Calling `invalidateAll()` here
+         * evicts all entries, releasing the `PluginClassLoader` reference before IntelliJ's
+         * GC collectibility check.
+         *
+         * Root cause confirmed via hprof snapshot analysis during v1.5.1 plugin-update test
+         * (`unload-WindowAccent-30.06.2026_06.25.59.hprof`). Reflective access with graceful
+         * fallback handles older IntelliJ versions where this cache does not exist.
+         */
+        private fun flushStrokeIconCache() {
+            try {
+                val strokeKtClass = Class.forName("com.intellij.ui.icons.StrokeKt")
+                val cacheField = strokeKtClass.getDeclaredField("strokeIconCache")
+                cacheField.isAccessible = true
+                val cache = cacheField.get(null) ?: run {
+                    LOG.info("[Window Accent] StrokeKt.strokeIconCache is null — skipping flush")
+                    return
+                }
+                val invalidateAll = cache.javaClass.getMethod("invalidateAll")
+                invalidateAll.invoke(cache)
+                LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache to release ImageDataByPathLoader → PluginClassLoader references")
+            } catch (e: ClassNotFoundException) {
+                LOG.info("[Window Accent] StrokeKt not found — likely an older IntelliJ version, skipping strokeIconCache flush")
+            } catch (e: NoSuchFieldException) {
+                LOG.info("[Window Accent] StrokeKt.strokeIconCache field not found — cache may have been renamed, skipping flush")
+            } catch (e: Exception) {
+                LOG.warn("[Window Accent] Could not flush StrokeKt.strokeIconCache", e)
+            }
         }
     }
 

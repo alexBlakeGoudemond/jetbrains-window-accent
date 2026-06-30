@@ -1,6 +1,17 @@
 # Changelog
 
 ## [Unreleased]
+    - **Root cause identified via hprof snapshot** (`unload-WindowAccent-30.06.2026_06.25.59.hprof`):
+      same underlying mechanism as v1.2.10 (`ImageDataByPathLoader → PluginClassLoader`), but
+      through a **different Caffeine cache** — `com.intellij.ui.icons.StrokeKt.strokeIconCache` —
+      introduced in IntelliJ 2026.x for stroke/SVG icon variants.
+    - The existing `IconLoader.clearCache()` call (added in v1.2.10) does not clear this separate
+      cache. The retention chain was:
+      `GC Root (Global JNI) → PathClassLoader → StrokeKt.strokeIconCache (Caffeine)
+        → CachedImageIcon → ImageDataByPathLoader.classLoader → PluginClassLoader`
+    - **Fix:** added `flushStrokeIconCache()` which reflectively calls `invalidateAll()` on
+      `StrokeKt.strokeIconCache` during plugin unload. Gracefully skips on older IntelliJ
+      versions where the cache does not exist.
 
 ## [1.5.2]
 
