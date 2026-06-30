@@ -1,0 +1,25 @@
+src/main/kotlin/com/window_accent/configuration/tool_window/WindowAccentToolWindowFactory.kt
+  s_15002cec758fce::t_ef94f9dadc1477 261-268
+  s_15002cec758fce::t_8dbe780c29a546 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "79e3e77627b2a0819ab961fc840b29970a36c363",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_15002cec758fce": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1782800731284",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
