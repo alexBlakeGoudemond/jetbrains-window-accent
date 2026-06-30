@@ -1,0 +1,16 @@
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  h_1197a506f6c7d6 7,9
+.ai-resources/plugin-hprof/jetbrains-window-accent-profiler-shortest-path-example-002.txt
+  h_1197a506f6c7d6 1-1940
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "ef42635d3e632859af8c0e7fedb1058785236797",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
