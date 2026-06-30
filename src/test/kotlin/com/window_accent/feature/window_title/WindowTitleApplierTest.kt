@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.feature.window_title.TitleTextStyler
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -114,6 +115,10 @@ class WindowTitleApplierTest {
         assertEquals("Title", applier.stripExistingPrefix("[dattebayo] Title"))
         assertEquals("Title", applier.stripExistingPrefix("[1 - dattebayo] Title"))
         assertEquals("Title", applier.stripExistingPrefix("[1 - dattebayo] [2] Title"))
+        // Styled prefixes (Unicode math chars inside brackets) are also stripped
+        assertEquals("Title", applier.stripExistingPrefix("[${TitleTextStyler.toBold("prod")}] Title"))
+        assertEquals("Title", applier.stripExistingPrefix("[${TitleTextStyler.toItalic("dattebayo")}] Title"))
+        assertEquals("Title", applier.stripExistingPrefix("[${TitleTextStyler.toBold("prod")}][1 - ${TitleTextStyler.toItalic("dattebayo")}] Title"))
     }
 
     @Test
@@ -135,14 +140,14 @@ class WindowTitleApplierTest {
     @DisplayName("Should update window title with custom title prefix only")
     fun testUpdateWindowTitleCustomTitleOnly() {
         applier.updateWindowTitle(mockFrame1, 5, customTitle = "dattebayo", customTitleEnabled = true, numberingEnabled = false)
-        assertEquals("[dattebayo] Test Project 1", mockFrame1.title)
+        assertEquals("[${TitleTextStyler.toItalic("dattebayo")}] Test Project 1", mockFrame1.title)
     }
 
     @Test
     @DisplayName("Should update window title with both number and custom title")
     fun testUpdateWindowTitleNumberAndCustomTitle() {
         applier.updateWindowTitle(mockFrame1, 2, customTitle = "dattebayo", customTitleEnabled = true, numberingEnabled = true)
-        assertEquals("[2 - dattebayo] Test Project 1", mockFrame1.title)
+        assertEquals("[2 - ${TitleTextStyler.toItalic("dattebayo")}] Test Project 1", mockFrame1.title)
     }
 
     @Test
@@ -156,19 +161,21 @@ class WindowTitleApplierTest {
     @Test
     @DisplayName("buildTitlePrefix - numbering on, custom title on")
     fun testBuildTitlePrefixBoth() {
-        assertEquals("[2 - dattebayo]", applier.buildTitlePrefix(2, true, "dattebayo", true))
+        // toItalic applied to the entire per-window content: digits pass through, letters become italic
+        assertEquals("[${TitleTextStyler.toItalic("2 - dattebayo")}]", applier.buildTitlePrefix(2, true, "dattebayo", true))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - numbering on, custom title off")
     fun testBuildTitlePrefixNumberOnly() {
-        assertEquals("[3]", applier.buildTitlePrefix(3, true, "dattebayo", false))
+        // toItalic applied to the number: digits have no italic Unicode equivalent so the number is unchanged
+        assertEquals("[${TitleTextStyler.toItalic("3")}]", applier.buildTitlePrefix(3, true, "dattebayo", false))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - numbering off, custom title on")
     fun testBuildTitlePrefixCustomOnly() {
-        assertEquals("[dattebayo]", applier.buildTitlePrefix(1, false, "dattebayo", true))
+        assertEquals("[${TitleTextStyler.toItalic("dattebayo")}]", applier.buildTitlePrefix(1, false, "dattebayo", true))
     }
 
     @Test
@@ -186,25 +193,31 @@ class WindowTitleApplierTest {
     @Test
     @DisplayName("buildTitlePrefix - global title only")
     fun testBuildTitlePrefixGlobalOnly() {
-        assertEquals("[prod]", applier.buildTitlePrefix(1, false, "", false, "prod", true))
+        assertEquals("[${TitleTextStyler.toBold("prod")}]", applier.buildTitlePrefix(1, false, "", false, "prod", true))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - numbering and global title")
     fun testBuildTitlePrefixNumberAndGlobal() {
-        assertEquals("[prod][2]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
+        assertEquals("[${TitleTextStyler.toBold("prod")}][${TitleTextStyler.toItalic("2")}]", applier.buildTitlePrefix(2, true, "", false, "prod", true))
     }
 
     @Test
     @DisplayName("buildTitlePrefix - custom title and global title")
     fun testBuildTitlePrefixCustomAndGlobal() {
-        assertEquals("[prod][dattebayo]", applier.buildTitlePrefix(1, false, "dattebayo", true, "prod", true))
+        assertEquals(
+            "[${TitleTextStyler.toBold("prod")}][${TitleTextStyler.toItalic("dattebayo")}]",
+            applier.buildTitlePrefix(1, false, "dattebayo", true, "prod", true)
+        )
     }
 
     @Test
     @DisplayName("buildTitlePrefix - numbering, custom title, and global title all enabled")
     fun testBuildTitlePrefixAllEnabled() {
-        assertEquals("[prod][2 - dattebayo]", applier.buildTitlePrefix(2, true, "dattebayo", true, "prod", true))
+        assertEquals(
+            "[${TitleTextStyler.toBold("prod")}][${TitleTextStyler.toItalic("2 - dattebayo")}]",
+            applier.buildTitlePrefix(2, true, "dattebayo", true, "prod", true)
+        )
     }
 
     @Test
@@ -494,7 +507,7 @@ class WindowTitleApplierTest {
         val listener = createFocusListenerViaReflection(mockProject1, mockFrame1)
         listener.windowGainedFocus(null)
 
-        assertEquals("[2 - dattebayo] My Project", mockFrame1.title)
+        assertEquals("[2 - ${TitleTextStyler.toItalic("dattebayo")}] My Project", mockFrame1.title)
     }
 
     // -------------------------------------------------------------------------
