@@ -1,0 +1,21 @@
+CHANGELOG.md
+  s_e929b8e46bde9a::t_1cf887bde5e0ec 7-18
+  s_e929b8e46bde9a::t_ae2d1e58ad45ed 19-21
+  s_e929b8e46bde9a::t_b94d238df3cb5d 22-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "65b34e941ca5a63a51859efa1cff265531c65f35",
+  "prompts": {},
+  "sessions": {
+    "s_e929b8e46bde9a": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "23b2efd1-8c92-47fc-a093-30b1eeb7f79e",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
