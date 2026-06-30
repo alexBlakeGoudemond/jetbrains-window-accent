@@ -308,14 +308,19 @@ class WindowTitleApplier {
         val hasCustomTitle = customTitleEnabled && customTitle.isNotBlank()
         val hasGlobalTitle = globalCustomTitleEnabled && globalCustomTitle.isNotBlank()
 
+        // Apply Unicode mathematical styling to the label text inside the brackets only.
+        // Global title → bold; per-window custom title → italic.
+        val styledGlobalTitle = TitleTextStyler.toBold(globalCustomTitle)
+        val styledCustomTitle = TitleTextStyler.toItalic(customTitle)
+
         val perWindowPart = when {
-            numberingEnabled && hasCustomTitle -> "[$number - $customTitle]"
+            numberingEnabled && hasCustomTitle -> "[$number - $styledCustomTitle]"
             numberingEnabled -> "[$number]"
-            hasCustomTitle -> "[$customTitle]"
+            hasCustomTitle -> "[$styledCustomTitle]"
             else -> ""
         }
 
-        val globalPart = if (hasGlobalTitle) "[$globalCustomTitle]" else ""
+        val globalPart = if (hasGlobalTitle) "[$styledGlobalTitle]" else ""
 
         return when {
             globalPart.isNotEmpty() && perWindowPart.isNotEmpty() -> "$globalPart$perWindowPart"
