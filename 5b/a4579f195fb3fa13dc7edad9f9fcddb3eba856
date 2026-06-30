@@ -1,0 +1,14 @@
+.ai-resources/plugin-hprof/jetbrains-window-accent-profiler-20260630-issues-expanded-001.txt
+  h_1197a506f6c7d6 1-2362
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "5ba4579f195fb3fa13dc7edad9f9fcddb3eba856",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
