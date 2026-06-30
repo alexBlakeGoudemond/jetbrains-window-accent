@@ -4,7 +4,9 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.wm.ToolWindowManager
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
@@ -93,6 +95,7 @@ class WindowAccentApplicationService : Disposable {
                 WindowTitleApplier.removeFromAllOpenProjectsSync()
 
                 flushToolWindowListeners()
+                flushToolWindowRegistrations()
                 flushSettingsConfigurables()
                 flushIntrospectorCaches()
                 flushIconLoaderCache()
@@ -113,6 +116,49 @@ class WindowAccentApplicationService : Disposable {
         // during the GC check.
         private fun flushToolWindowListeners() {
             WindowAccentToolWindowFactory.removeAllButtonListeners()
+        }
+
+        /**
+         * Proactively unregisters the Window Accent tool window from IntelliJ's
+         * [ToolWindowManager] for each open project.
+         *
+         * When IntelliJ registers a plugin tool window, its `ToolwindowKt` infrastructure
+         * creates a `stripeTitleProvider` lambda that directly captures the plugin's
+         * [com.intellij.ide.plugins.cl.PluginClassLoader] as `arg$1`, for resolving the
+         * stripe button title from the plugin's resource bundle. This lambda is stored inside
+         * a `ToolWindowEntry` in the tool window manager's `idToEntry` map, creating the chain:
+         *
+         * ```
+         * ToolWindowManager.idToEntry → ToolWindowEntry → ToolWindowImpl.stripeTitleProvider
+         *   → ToolwindowKt$$Lambda { arg$1 = PluginClassLoader }
+         * ```
+         *
+         * IntelliJ's extension-point removal sequence also calls [ToolWindowManager.unregisterToolWindow]
+         * during plugin unload, but in some configurations (e.g. JetBrains Remote Development
+         * backend with [com.jetbrains.rdserver.toolWindow.BackendServerToolWindowManager]) this
+         * happens after IntelliJ's GC collectibility check, so the retention chain is still
+         * alive when the check runs.
+         *
+         * Calling [ToolWindowManager.unregisterToolWindow] here — before the GC check — removes
+         * the `ToolWindowEntry` from the map proactively. IntelliJ's subsequent EP-removal call
+         * is a no-op if the tool window is already gone.
+         *
+         * Root cause confirmed in `log-example-update-plugin-to-1.5.2.txt` via IntelliJ's own
+         * snapshot analysis output (lines 492–530).
+         */
+        private fun flushToolWindowRegistrations() {
+            val toolWindowId = "WindowAccent"
+            ProjectManager.getInstance().openProjects.forEach { project ->
+                try {
+                    val twm = ToolWindowManager.getInstance(project)
+                    if (twm.getToolWindow(toolWindowId) != null) {
+                        twm.unregisterToolWindow(toolWindowId)
+                        LOG.info("[Window Accent] Unregistered tool window '$toolWindowId' for project '${project.name}' to release stripeTitleProvider → PluginClassLoader reference")
+                    }
+                } catch (e: Exception) {
+                    LOG.warn("[Window Accent] Could not unregister tool window '$toolWindowId' for project '${project.name}'", e)
+                }
+            }
         }
 
         /**

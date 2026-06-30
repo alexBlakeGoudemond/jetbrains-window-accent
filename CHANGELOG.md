@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [1.5.3]
+
+### Fixed
+
+- Fix tool window stripe title provider retaining `PluginClassLoader` after plugin update
+    - **Root cause identified via hprof snapshot and IntelliJ built-in analysis**
+      (`unload-WindowAccent-30.06.2026_08.00.56.hprof`, log lines 492–530):
+      When IntelliJ registers a plugin tool window, its `ToolwindowKt` infrastructure creates a
+      `stripeTitleProvider` lambda that directly captures the plugin's `PluginClassLoader` as
+      `arg$1` (for resolving the stripe button title from the plugin resource bundle). In the
+      JetBrains Remote Development backend, this entry in `BackendServerToolWindowManager.idToEntry`
+      was not cleared before IntelliJ's GC collectibility check ran. The retention chain was:
+      `GC Root (Global JNI) → PathClassLoader → BackendServerToolWindowManager.idToEntry
+        → ToolWindowEntry → ToolWindowImpl.stripeTitleProvider
+        → ToolwindowKt$$Lambda { arg$1 = PluginClassLoader }`
+    - **Fix:** added `flushToolWindowRegistrations()` which proactively calls
+      `ToolWindowManager.unregisterToolWindow("WindowAccent")` for each open project during
+      `beforePluginUnload`. IntelliJ's own EP-removal call is a no-op if the tool window is
+      already unregistered.
+
 ## [1.5.2]
 
 ### Fixed
@@ -578,7 +598,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...HEAD
+[1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.4...1.5.0

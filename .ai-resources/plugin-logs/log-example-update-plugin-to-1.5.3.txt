@@ -1,0 +1,1000 @@
+2026-06-30 21:56:01,598 [49847309]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration url: https://resources.jetbrains.com/storage/fus/config/v4/MP/IU.json
+2026-06-30 21:56:01,598 [49847309]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration is reachable: true
+2026-06-30 21:56:01,598 [49847309]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Send is enabled: true
+2026-06-30 21:56:01,598 [49847309]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration service url: https://analytics.services.jetbrains.com/mp/v5/send/
+2026-06-30 21:56:01,598 [49847309]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration metadata product url: https://resources.jetbrains.com/storage/ap/fus/metadata/tiger/MP/groups/261/IU.json
+2026-06-30 21:56:01,848 [49847559]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration options: {groupDataThreshold=10000, dataThreshold=15000, groupAlertThreshold=6000}
+2026-06-30 21:56:01,850 [49847561]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Starting sending bc88-4f8a-9453-b6b21d47d7fe-261.22158.277-release.log to https://analytics.services.jetbrains.com/mp/v5/send/
+2026-06-30 21:56:01,989 [49847700]   INFO - #c.i.m.l.c.p.AIAPromoEventsConfigService - Loading config from https://frameworks.jetbrains.com/llm-chat-promo/v1/config.json
+2026-06-30 21:56:04,229 [49849940]   WARN - #c.i.o.o.e.ConfigurableCardPanel - auto-dispose 'Plugins' id=preferences.pluginManager
+2026-06-30 21:56:04,231 [49849942]   INFO - #com.window_accent.configuration.settings.WindowAccentSettings - [Window Accent] WindowAccentSettings#disposeUIResources() called (project=JetbrainsPluginDemo)
+2026-06-30 21:56:04,252 [49849963]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: false, hasNoneBehavior: true, hasOnlyHooksBehavior: false, cancelled: false
+2026-06-30 21:56:04,273 [49849984]   INFO - #c.i.o.u.i.PluginDownloader - downloading plugin Window Accent(WindowAccent) version 1.5.3 from https://plugins.jetbrains.com/pluginManager?os=Windows%2011.0&build=IU-261.22158.277&updatedFrom=1.5.2&id=WindowAccent&arch=X86_64&uuid=0405231df3a6476-3e66-47b4-863a-ff92ce48810f
+2026-06-30 21:56:05,445 [49851156]   INFO - #c.i.i.p.m.MarketplacePluginDownloadService - Plugin's blockmap file downloaded
+2026-06-30 21:56:05,750 [49851461]   INFO - #c.i.i.p.m.MarketplacePluginDownloadService - Plugin's hash file downloaded
+2026-06-30 21:56:05,773 [49851484]   INFO - #c.i.i.p.m.MarketplacePluginDownloadService - Plugin's download percent is = 99,40
+2026-06-30 21:56:05,773 [49851484]   INFO - #c.i.i.p.m.MarketplacePluginDownloadService - Downloading the archive via the blockmap requires too many chunks, therefore the entire archive will be downloaded
+2026-06-30 21:56:06,524 [49852235]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Lifecycle Listener registered
+2026-06-30 21:56:06,560 [49852271]   INFO - #c.i.w.i.i.j.s.JpsGlobalModelSynchronizerImpl - Saving global entities com.intellij.platform.workspace.jps.entities.SdkEntity to files
+2026-06-30 21:56:06,562 [49852273]   INFO - #c.i.w.i.i.j.s.JpsGlobalModelSynchronizerImpl - Saving global entities com.intellij.platform.workspace.jps.entities.LibraryEntity to files
+2026-06-30 21:56:06,568 [49852279]   INFO - #c.i.d.d.DataSourceStorageShared$Prj - Attempting to return empty stored state
+2026-06-30 21:56:06,570 [49852281]   INFO - #c.i.d.d.DataSourceStorageShared$Prj - Attempting to store empty state
+2026-06-30 21:56:06,570 [49852281]   INFO - #c.i.d.d.DataSourceStorageShared$Prj - Attempting to return empty stored state
+2026-06-30 21:56:06,599 [49852310]   INFO - #c.i.d.d.DataSourceStorageShared$Prj - Attempting to return empty stored state
+2026-06-30 21:56:06,612 [49852323]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to store empty state
+2026-06-30 21:56:06,612 [49852323]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to return empty stored state
+2026-06-30 21:56:06,613 [49852324]   INFO - #c.i.c.ComponentStoreImpl - Saving Project(name=JetbrainsPluginDemo, containerState=COMPONENT_CREATED, componentStore=C:\myworkbench\workspace_personal\demo\jetbrains-plugin-demo\JetbrainsPluginDemo)KotlinCompilerWorkspaceSettings took 13 ms
+2026-06-30 21:56:06,620 [49852331]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to return empty stored state
+2026-06-30 21:56:06,623 [49852334]   INFO - #c.i.c.ComponentStoreImpl - Saving Project(name=ai-playbook, containerState=COMPONENT_CREATED, componentStore=C:\myworkbench\workspace_personal\github\alexBlakeGoudemond\ai-playbook)JupyterServerConfigStorage took 12 ms
+2026-06-30 21:56:06,628 [49852339]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to return empty stored state
+2026-06-30 21:56:06,685 [49852396]   INFO - #c.i.m.l.c.a.CodexOAuthStateManager - getState() called, isAuthenticated=false
+2026-06-30 21:56:06,775 [49852486]   INFO - #c.i.a.o.PathMacrosImpl - Saved path macros: {MAVEN_REPOSITORY=C:\myworkbench\data\maven3_repo}
+2026-06-30 21:56:06,783 [49852494]   INFO - #c.i.d.d.DataSourceStorageShared$App - Attempting to return empty stored state
+2026-06-30 21:56:06,783 [49852494]   INFO - #c.i.d.d.DataSourceStorageLocal - Attempting to return empty stored state
+2026-06-30 21:56:06,783 [49852494]   INFO - #c.i.c.ComponentStoreImpl - Saving appCompletionMLRankingSettings took 23 ms, FileTypeManager took 35 ms
+2026-06-30 21:56:06,864 [49852575]   INFO - #c.i.u.i.FileBasedIndexTumbler - Turning off file-based index. Reason: `Plugin loaded/unloaded`. Nested level count: before=0, after=1
+2026-06-30 21:56:06,864 [49852575]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-30 21:56:06,867 [49852578]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-30 21:56:06,867 [49852578]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-30 21:56:06,868 [49852579]   INFO - #c.i.u.i.FileBasedIndexImpl - Index dispose started
+2026-06-30 21:56:06,897 [49852608]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids stored. Size: 114761. Index: 114761 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-ids
+2026-06-30 21:56:06,991 [49852702]   INFO - #c.i.p.s.StubIndexImpl - StubIndexExtension-s were unloaded
+2026-06-30 21:56:06,991 [49852702]   INFO - #c.i.p.s.SerializationManagerImpl - Start shutting down C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\rep.names
+2026-06-30 21:56:06,991 [49852702]   INFO - #c.i.p.s.SerializationManagerImpl - Finished shutting down C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\rep.names
+2026-06-30 21:56:06,992 [49852703]   INFO - #c.i.u.i.FileBasedIndexImpl - Index dispose completed in 124ms.
+2026-06-30 21:56:06,992 [49852703]   INFO - #c.i.u.i.FileBasedIndexImpl - Dropping registered indexes
+2026-06-30 21:56:07,010 [49852721]   INFO - #c.i.p.t.TemplateLanguageStubBaseVersion - Template stub version: 24859428
+  StubVersion(Language: Angular2Html, value: 1183689)
+  StubVersion(Language: Angular2Svg, value: 1183689)
+  StubVersion(Language: Angular2, value: 1183642)
+  StubVersion(Language: Angular17Html, value: 1183689)
+  StubVersion(Language: Angular17Svg, value: 1183689)
+  StubVersion(Language: Angular181Html, value: 1183689)
+  StubVersion(Language: Angular181Svg, value: 1183689)
+  StubVersion(Language: Angular20Html, value: 1183689)
+  StubVersion(Language: Angular20Svg, value: 1183689)
+  StubVersion(Language: Angular20, value: 1183642)
+  StubVersion(Language: Properties, value: 0)
+  StubVersion(Language: kotlin, value: 253)
+  StubVersion(Language: HTML, value: 1183684)
+  StubVersion(Language: JAVA, value: 67)
+  StubVersion(Language: SQL, value: 35)
+  StubVersion(Language: MongoDB, value: 35)
+  StubVersion(Language: Redis, value: 35)
+  StubVersion(Language: MySQL, value: 35)
+  StubVersion(Language: SQLite, value: 35)
+  StubVersion(Language: PostgreSQL, value: 35)
+  StubVersion(Language: SQL92, value: 35)
+  StubVersion(Language: GenericSQL, value: 35)
+  StubVersion(Language: Oracle, value: 35)
+  StubVersion(Language: NetSuite, value: 35)
+  StubVersion(Language: OracleSqlPlus, value: 35)
+  StubVersion(Language: TSQL, value: 35)
+  StubVersion(Language: Sybase, value: 35)
+  StubVersion(Language: MariaDB, value: 35)
+  StubVersion(Language: CassandraQL, value: 35)
+  StubVersion(Language: ClickHouse, value: 35)
+  StubVersion(Language: DB2_IS, value: 35)
+  StubVersion(Language: DB2, value: 35)
+  StubVersion(Language: DB2_ZOS, value: 35)
+  StubVersion(Language: Derby, value: 35)
+  StubVersion(Language: Exasol, value: 35)
+  StubVersion(Language: Greenplum, value: 35)
+  StubVersion(Language: H2, value: 35)
+  StubVersion(Language: HiveQL, value: 35)
+  StubVersion(Language: HSQLDB, value: 35)
+  StubVersion(Language: Redshift, value: 35)
+  StubVersion(Language: Snowflake, value: 35)
+  StubVersion(Language: SparkSQL, value: 35)
+  StubVersion(Language: Vertica, value: 35)
+  StubVersion(Language: BigQuery, value: 35)
+  StubVersion(Language: CouchbaseQuery, value: 35)
+  StubVersion(Language: Cockroach, value: 35)
+  StubVersion(Language: Dynamo, value: 35)
+  StubVersion(Language: CSS, value: 39)
+  StubVersion(Language: SCSS, value: 40)
+  StubVersion(Language: SASS, value: 40)
+  StubVersion(Language: JavaScript, value: 1183642)
+  StubVersion(Language: TypeScript, value: 1183642)
+  StubVersion(Language: ECMAScript 6, value: 1183642)
+  StubVersion(Language: TypeScript JSX, value: 1183642)
+  StubVersion(Language: Flow JS, value: 1183642)
+  StubVersion(Language: MongoJSExt, value: 1183642)
+  StubVersion(Language: Vue, value: 1183694)
+  StubVersion(Language: VueJS, value: 1183642)
+  StubVersion(Language: VueTS, value: 1183642)
+  StubVersion(Language: HttpClientHandlerJavaScriptDialect, value: 1183642)
+  StubVersion(Language: Markdown, value: 0)
+  StubVersion(Language: Jupyter, value: 0)
+  StubVersion(Language: protobuf, value: 0)
+  StubVersion(Language: Python, value: 107)
+  StubVersion(Language: PyFunctionTypeComment, value: 107)
+  StubVersion(Language: PyTypeRepresentation, value: 107)
+  StubVersion(Language: PyTypeHint, value: 107)
+  StubVersion(Language: Doctest, value: 107)
+  StubVersion(Language: PythonStub, value: 107)
+  StubVersion(Language: Groovy, value: 52)
+  StubVersion(Language: PostCSS, value: 42)
+  StubVersion(Language: LESS, value: 39)
+  StubVersion(Language: JupyterPython, value: 107)
+2026-06-30 21:56:07,018 [49852729]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Plugin unload triggered (update=true) — running cleanup
+2026-06-30 21:56:07,018 [49852729]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Running final cleanup (reason=before-plugin-unload)
+2026-06-30 21:56:07,018 [49852729]   INFO - #com.window_accent.feature.window_color.WindowColorApplier - [Window Accent] removeColorFromAllOpenProjects triggered
+2026-06-30 21:56:07,018 [49852729]   INFO - #com.window_accent.feature.window_title.WindowTitleApplier - [Window Accent] removeFromAllOpenProjectsSync triggered
+2026-06-30 21:56:07,021 [49852732]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] No Settings dialog window found containing Window Accent panel (panel not yet shown, or Settings already closed)
+2026-06-30 21:56:07,021 [49852732]   INFO - #com.window_accent.configuration.settings.WindowAccentSettings - [Window Accent] WindowAccentSettings#disposeUIResources() called (project=JetbrainsPluginDemo)
+2026-06-30 21:56:07,021 [49852732]   INFO - #com.window_accent.configuration.settings.WindowAccentSettings - [Window Accent] WindowAccentSettings#disposeUIResources() called (project=JetbrainsPluginDemo)
+2026-06-30 21:56:07,021 [49852732]   INFO - #com.window_accent.configuration.settings.WindowAccentSettings - [Window Accent] disposeAllTrackedInstances completed (2 live instance(s) disposed, 1 already GC'd)
+2026-06-30 21:56:07,021 [49852732]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Flushed Introspector BeanInfo caches for 11 classes (services + state types)
+2026-06-30 21:56:07,022 [49852733]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Flushed IconLoader cache to release ImageDataByPathLoader → PluginClassLoader references
+2026-06-30 21:56:07,022 [49852733]   WARN - #com.window_accent.WindowAccentApplicationService - [Window Accent] Could not flush StrokeKt.strokeIconCache
+java.lang.IllegalAccessException: class com.window_accent.WindowAccentApplicationService$Companion cannot access a member of interface com.github.benmanes.caffeine.cache.LocalManualCache with modifiers "public"
+	at java.base/jdk.internal.reflect.Reflection.newIllegalAccessException(Reflection.java:400)
+	at java.base/java.lang.reflect.AccessibleObject.checkAccess(AccessibleObject.java:670)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:556)
+	at com.window_accent.WindowAccentApplicationService$Companion.flushStrokeIconCache(WindowAccentApplicationService.kt:281)
+	at com.window_accent.WindowAccentApplicationService$Companion.performCleanup(WindowAccentApplicationService.kt:99)
+	at com.window_accent.PluginLifecycleListener.beforePluginUnload(PluginLifecycleListener.kt:59)
+	at com.intellij.util.messages.impl.MessageBusImplKt.invokeMethod(MessageBusImpl.kt:831)
+	at com.intellij.util.messages.impl.MessageBusImplKt.invokeListener(MessageBusImpl.kt:771)
+	at com.intellij.util.messages.impl.MessageBusImplKt.executeOrAddToQueue(MessageBusImpl.kt:596)
+	at com.intellij.util.messages.impl.ToDirectChildrenMessagePublisher.publish$intellij_platform_core(CompositeMessageBus.kt:156)
+	at com.intellij.util.messages.impl.MessagePublisher.invoke(MessageBusImpl.kt:544)
+	at jdk.proxy2/jdk.proxy2.$Proxy474.beforePluginUnload(Unknown Source)
+	at com.intellij.ide.plugins.DynamicPlugins.unloadPluginWithoutProgress(DynamicPlugins.kt:643)
+	at com.intellij.ide.plugins.DynamicPlugins.doUnloadPluginWithProgress$lambda$2$0(DynamicPlugins.kt:561)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.lambda$runProcess$1(CoreProgressManager.java:287)
+	at com.intellij.platform.diagnostic.telemetry.helpers.TraceKt.use(trace.kt:44)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.lambda$runProcess$2(CoreProgressManager.java:286)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.lambda$executeProcessUnderProgress$14(CoreProgressManager.java:744)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.registerIndicatorAndRun(CoreProgressManager.java:819)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computeUnderProgress(CoreProgressManager.java:775)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.executeProcessUnderProgress(CoreProgressManager.java:743)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.lambda$executeProcessUnderProgress$0(ProgressManagerImpl.java:90)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.runWithHook(ProgressManagerImpl.java:293)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.executeProcessUnderProgress(ProgressManagerImpl.java:90)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.runProcess(CoreProgressManager.java:267)
+	at com.intellij.openapi.progress.util.PotemkinProgress.runInSwingThread(PotemkinProgress.java:155)
+	at com.intellij.ide.plugins.DynamicPlugins.doUnloadPluginWithProgress$lambda$2(DynamicPlugins.kt:560)
+	at com.intellij.openapi.application.impl.ModalityKt.inModalContext(modality.kt:12)
+	at com.intellij.ide.plugins.DynamicPlugins.doUnloadPluginWithProgress(DynamicPlugins.kt:555)
+	at com.intellij.ide.plugins.DynamicPlugins.unloadPlugin$lambda$0(DynamicPlugins.kt:620)
+	at com.intellij.ide.plugins.DynamicPlugins.runProcess(DynamicPlugins.kt:224)
+	at com.intellij.ide.plugins.DynamicPlugins.unloadPlugin(DynamicPlugins.kt:619)
+	at com.intellij.openapi.updateSettings.impl.PluginDownloader.unloadDescriptorById(PluginDownloader.java:411)
+	at com.intellij.openapi.updateSettings.impl.PluginDownloader.installDynamically(PluginDownloader.java:308)
+	at com.intellij.openapi.updateSettings.impl.PluginUpdateDialog$4.installPluginUpdates(PluginUpdateDialog.java:337)
+	at com.intellij.openapi.updateSettings.impl.PluginUpdateDialog$4.lambda$run$0(PluginUpdateDialog.java:279)
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:236)
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22)
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:198)
+	at com.intellij.openapi.application.impl.AppImplKt$runnableUnitFunction$1.invoke(appImpl.kt:124)
+	at com.intellij.openapi.application.impl.AppImplKt$runnableUnitFunction$1.invoke(appImpl.kt:124)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runWriteIntentReadAction(NestedLocksThreadingSupport.kt:705)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:1094)
+	at com.intellij.openapi.application.impl.ApplicationImpl$7.lambda$run$0(ApplicationImpl.java:648)
+	at com.intellij.concurrency.ThreadContext.installThreadContext(threadContext.kt:305)
+	at com.intellij.openapi.application.impl.ApplicationImpl$7.run(ApplicationImpl.java:646)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:192)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:192)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:198)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:192)
+	at com.intellij.util.concurrency.ContextRunnable.lambda$run$0(ContextRunnable.java:26)
+	at com.intellij.concurrency.ThreadContext.resetThreadContext(threadContext.kt:294)
+	at com.intellij.util.concurrency.ContextRunnable.run(ContextRunnable.java:25)
+	at com.intellij.openapi.application.impl.NonBlockingFlushQueue.runNextEvent$lambda$1$1$0(NonBlockingFlushQueue.kt:334)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:928)
+	at com.intellij.openapi.application.impl.NonBlockingFlushQueue.runNextEvent$lambda$1$1(NonBlockingFlushQueue.kt:333)
+	at com.intellij.concurrency.ThreadContext.resetThreadContext(threadContext.kt:294)
+	at com.intellij.openapi.application.impl.NonBlockingFlushQueue.runNextEvent$lambda$1(NonBlockingFlushQueue.kt:330)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.tryRunWriteIntentReadAction(NestedLocksThreadingSupport.kt:747)
+	at com.intellij.openapi.application.impl.NonBlockingFlushQueue.runNextEvent(NonBlockingFlushQueue.kt:326)
+	at com.intellij.openapi.application.impl.NonBlockingFlushQueue.flushNow(NonBlockingFlushQueue.kt:305)
+	at com.intellij.openapi.application.impl.NonBlockingFlushQueue.FLUSH_NOW$lambda$0(NonBlockingFlushQueue.kt:167)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:323)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:732)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:711)
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:720)
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:573)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$0$0$0(IdeEventQueue.kt:377)
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$0(IdeEventQueue.kt:1110)
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:106)
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1110)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$0(IdeEventQueue.kt:375)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:415)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+2026-06-30 21:56:07,027 [49852738]   INFO - #com.window_accent.WindowAccentApplicationService - [Window Accent] Final cleanup completed successfully
+2026-06-30 21:56:07,069 [49852780]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:07,074 [49852785]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [WindowAccent]
+2026-06-30 21:56:07,076 [49852787]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [ai-playbook]
+2026-06-30 21:56:07,076 [49852787]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:07,076 [49852787]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [JetbrainsPluginDemo]
+2026-06-30 21:56:07,078 [49852789]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:07,080 [49852791]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:07,257 [49852968]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: false, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:07,341 [49853052]   INFO - #c.i.i.p.PluginManager - Plugin set resolution:
+Module intellij.json.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.sh.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.textmate.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.toml.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.yaml.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.markdown.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.terminal.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.fullLine.terraform is not enabled because dependency org.intellij.plugins.hcl is not available
+Module intellij.fullLine.rust is not enabled because dependency com.jetbrains.rust is not available
+Module intellij.fullLine.ruby is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.fullLine.rider is not enabled because dependency intellij.rd.client is not available
+Module intellij.fullLine.rider.unrealengine is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.shaderlab is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.fsharp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.csharp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.cpp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rbs is not enabled because dependency intellij.ruby.rbs.backend is not available
+Module intellij.fullLine.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.fullLine.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.fullLine.erb is not enabled because dependency org.jetbrains.plugins.ruby is not available
+Module intellij.fullLine.cpp is not enabled because dependency intellij.cidr.lang.base is not available
+Module intellij.fullLine.federatedCompute is not enabled because dependency com.intellij.federatedCompute is not available
+Module intellij.fullLine.terraform.local is not enabled because dependency intellij.fullLine.terraform is not available
+Module intellij.fullLine.rust.local is not enabled because dependency intellij.fullLine.rust is not available
+Module intellij.fullLine.ruby.local is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.fullLine.rider.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.csharp.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.cpp.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.php.local is not enabled because dependency intellij.fullLine.php is not available
+Module intellij.fullLine.go.local is not enabled because dependency intellij.fullLine.go is not available
+Module intellij.fullLine.cpp.local is not enabled because dependency intellij.fullLine.cpp is not available
+Module intellij.ml.llm.sql.datagrip is not enabled because dependency com.intellij.database.ide is not available
+Module intellij.protoeditor.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.packageChecker.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.packageChecker.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.yaml.helm is not enabled because dependency org.jetbrains.plugins.go-template is not available
+Module intellij.editorconfig.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.webDeployment/phpStorm is not enabled because dependency com.intellij.modules.phpstorm is not available
+Module intellij.sass.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.css.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.css.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.sass.frontend.split is not enabled because dependency intellij.css.frontend.split is not available
+Module intellij.less.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module matterhorn.ide-core.android-platform.main is not enabled because dependency org.jetbrains.android is not available
+Module matterhorn.ide-core.android-ij-platform.main is not enabled because dependency matterhorn.ide-core.android-platform.main is not available
+Module matterhorn.ide-server.android.main is not enabled because dependency matterhorn.ide-core.android-platform.main is not available
+Module matterhorn.ej-core-ide.kmp.compose-desktop.main is not enabled because dependency intellij.kmm.compose.desktop is not available
+Module matterhorn.ej-core-ide.rust.main is not enabled because dependency com.jetbrains.rust is not available
+Module matterhorn.ej-core-ide.ruby.main is not enabled because dependency intellij.ruby.common is not available
+Module matterhorn.ej-core-ide.clion.main is not enabled because dependency intellij.clion.radler.core is not available
+Module matterhorn.ej-core-ide.php.main is not enabled because dependency com.jetbrains.php is not available
+Module matterhorn.ej-ui.php.main is not enabled because dependency matterhorn.ej-core-ide.php.main is not available
+Module matterhorn.ej-core-ide.go.main is not enabled because dependency org.jetbrains.plugins.go is not available
+Module matterhorn.ej-core-ide.rider.main is not enabled because dependency com.intellij.modules.rider is not available
+Module intellij.httpClient.injection.graphql is not enabled because dependency com.intellij.lang.jsgraphql is not available
+Module intellij.station.frontend.split is not enabled because dependency com.intellij.jetbrains.client is not available
+Module intellij.llmInstaller.ds.ide is not enabled because dependency intellij.dataspell.ide.impl is not available
+Module intellij.llmInstaller.ds is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.llmInstaller.pycharm.community is not enabled because dependency intellij.pycharm.community.ide.impl.promotion is not available
+Module intellij.jupyter.split.frontend is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.database.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.clouds.docker.file.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.clouds.kubernetes.charts.gotpl is not enabled because dependency intellij.yaml.helm is not available
+Module intellij.python.pyramid is not enabled because dependency intellij.python.dap.plugin is not available
+Module intellij.python is not enabled because dependency intellij.python.pyramid is not available
+Module intellij.python.pro.localization is not enabled because dependency intellij.python is not available
+Module intellij.python.uml is not enabled because dependency intellij.python is not available
+Module intellij.python.profiler is not enabled because dependency intellij.python is not available
+Module intellij.python.gherkin is not enabled because dependency intellij.python is not available
+Module intellij.python.pytestBdd is not enabled because dependency intellij.python.gherkin is not available
+Module intellij.python.duplicatesDetection is not enabled because dependency intellij.python is not available
+Module intellij.python.huggingFace is not enabled because dependency intellij.python is not available
+Module intellij.python.djangoDbConfig is not enabled because dependency intellij.python is not available
+Module intellij.python.concurrencyVisualizer is not enabled because dependency intellij.python is not available
+Module intellij.python.plugin.java is not enabled because dependency intellij.python is not available
+Module intellij.python.community.plugin.minorRider is not enabled because dependency com.intellij.modules.python-in-mini-ide-capable is not available
+Module intellij.python.community.plugin.minor is not enabled because dependency com.intellij.modules.python-in-mini-ide-capable is not available
+Module matterhorn.ej-core-ide.rider.embark-rider.main is not enabled because dependency matterhorn.ej-core-ide.rider.main is not available
+Module intellij.jupyter.py.dap is not enabled because dependency intellij.python.dap.plugin is not available
+Module intellij.jupyter.split.frontend.py is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.compose.ide.plugin.k1 is not enabled because dependency com.intellij.modules.kotlin.k1 is not available
+Module intellij.kotlin.jupyter.k1 is not enabled because dependency kotlin.base.scripting.k1 is not available
+Module kotlin-ultimate.native-debugger is not enabled because dependency intellij.cidr.runner is not available
+Module kotlin-ultimate.ultimate-native is not enabled because dependency kotlin-ultimate.native-debugger is not available
+Module intellij.packageChecker.amper is not enabled because dependency org.jetbrains.amper is not available
+Module intellij.ml.llm.playground.latest is not enabled because dependency intellij.aiplayground.aiassistant is not available
+Module intellij.ml.llm.ruby.inlinePromptDetector is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.ml.llm.go.inlinePromptDetector is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.ml.llm.rider is not enabled because dependency intellij.rider.rdclient.dotnet is not available
+Module intellij.ml.llm.rider.dotTools is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.fsharp is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.cpp is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.cpp.nextEdits.backend is not enabled because dependency intellij.ml.llm.rider.cpp is not available
+Module intellij.ml.llm.ideolog is not enabled because dependency com.intellij.ideolog is not available
+Module intellij.ml.llm.ruby.mcp is not enabled because dependency intellij.ruby.mcp is not available
+Module intellij.ml.llm.mcp.perforce is not enabled because dependency PerforceDirectPlugin is not available
+Module intellij.ml.llm.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.ml.llm.php.mcp is not enabled because dependency intellij.ml.llm.php is not available
+Module intellij.ml.llm.php.inlinePromptDetector is not enabled because dependency intellij.ml.llm.php is not available
+Module intellij.ml.llm.php.nextEdits.backend is not enabled because dependency intellij.ml.llm.php is not available
+Module intellij.ml.llm.ruby is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.ml.llm.ruby.nextEdits.backend is not enabled because dependency intellij.ml.llm.ruby is not available
+Module intellij.ml.llm.rust is not enabled because dependency com.jetbrains.rust is not available
+Module intellij.ml.llm.rust.nextEdits.backend is not enabled because dependency intellij.ml.llm.rust is not available
+Module intellij.ml.llm.go.embeddings is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.ml.llm.ruby.embeddings is not enabled because dependency intellij.ruby.psi is not available
+Module intellij.ml.llm.php.embeddings is not enabled because dependency com.jetbrains.php is not available
+Module intellij.ml.llm.searchEverywhere.embeddings.datagrip is not enabled because dependency com.intellij.database.ide is not available
+Module intellij.ml.llm.searchEverywhere.embeddings.radler is not enabled because dependency intellij.clion.radler.core is not available
+Module intellij.ml.llm.searchEverywhere.embeddings.rider is not enabled because dependency intellij.rider is not available
+Module intellij.ml.llm.android is not enabled because dependency org.jetbrains.android is not available
+Module intellij.ml.llm.cpp.common is not enabled because dependency intellij.cidr.clangd.core is not available
+Module intellij.ml.llm.cpp.cmake is not enabled because dependency intellij.cidr.execution is not available
+Module intellij.ml.llm.cpp is not enabled because dependency intellij.cidr.lang.base is not available
+Module intellij.ml.llm.cpp.nextEdits.backend is not enabled because dependency intellij.ml.llm.cpp is not available
+Module intellij.ml.llm.ds is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.ml.llm.ds.latest is not enabled because dependency intellij.ml.llm.ds is not available
+Module intellij.ml.llm.python.ultimate is not enabled because dependency intellij.python is not available
+Module intellij.ml.llm.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.ml.llm.go.nextEdits.backend is not enabled because dependency intellij.go.impl is not available
+Module intellij.ml.llm.devkit is not enabled because dependency intellij.devkit.core is not available
+Module intellij.ml.llm.space is not enabled because dependency intellij.space.vcs is not available
+Module intellij.ml.llm.space.latest is not enabled because dependency intellij.ml.llm.space is not available
+Module intellij.ml.llm.ds.next is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.ml.llm.federatedCompute is not enabled because dependency intellij.fullLine.federatedCompute is not available
+Module intellij.ml.llm.rider.unrealengine.completion is not enabled because dependency intellij.fullLine.rider.unrealengine is not available
+Module intellij.ml.llm.rider.shaderlab.completion is not enabled because dependency intellij.fullLine.rider.shaderlab is not available
+Module intellij.ml.llm.rider.godot.completion is not enabled because dependency intellij.fullLine.rider.shaderlab is not available
+Module intellij.ml.llm.rider.fsharp.completion is not enabled because dependency intellij.fullLine.rider.fsharp is not available
+Module intellij.ml.llm.rider.csharp.completion is not enabled because dependency intellij.fullLine.rider.csharp is not available
+Module intellij.ml.llm.rider.cpp.completion is not enabled because dependency intellij.fullLine.rider.cpp is not available
+Module intellij.ml.llm.rust.completion is not enabled because dependency intellij.fullLine.rust is not available
+Module intellij.ml.llm.cpp.completion is not enabled because dependency intellij.fullLine.cpp is not available
+Module intellij.ml.llm.terraform.completion is not enabled because dependency intellij.fullLine.terraform is not available
+Module intellij.ml.llm.php.completion is not enabled because dependency intellij.fullLine.php is not available
+Module intellij.ml.llm.ruby.completion is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.ml.llm.rbs.completion is not enabled because dependency intellij.fullLine.rbs is not available
+Module intellij.ml.llm.go.completion is not enabled because dependency intellij.fullLine.go is not available
+Module intellij.ml.llm.erb.completion is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.java.promo is not enabled because dependency com.intellij.modules.idea.community is not available
+Module intellij.spring.boot.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.java.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.groovy.ant is not enabled because dependency AntSupport is not available
+Module matterhorn.ej-core-ide.scala.main is not enabled because dependency scalaCommunity.bsp is not available
+Module matterhorn.ej-core-ide.android-ij.main is not enabled because dependency org.jetbrains.android is not available
+Module matterhorn.ej-core-ide.android-as.main is not enabled because dependency com.intellij.modules.androidstudio is not available
+Module matterhorn.ej-core-ide.kmp.ios.main is not enabled because dependency com.intellij.modules.nativeDebug is not available
+Module matterhorn.ej-core-ide.kmp.android.main is not enabled because dependency matterhorn.ide-core.android-platform.main is not available
+Module matterhorn.ej-core-ide.kmp.android-ij.main is not enabled because dependency matterhorn.ej-core-ide.kmp.android.main is not available
+Module matterhorn.ej-core-ide.kmp.android-as.main is not enabled because dependency matterhorn.ej-core-ide.kmp.android.main is not available
+Module intellij.micronaut.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.quarkus.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.spring.jsf is not enabled because dependency com.intellij.jsf is not available
+Module intellij.qodana.rust is not enabled because dependency com.intellij.modules.rustrover is not available
+Module intellij.qodana.cpp is not enabled because dependency intellij.cidr.projectModel is not available
+Module intellij.qodana.python.coverage is not enabled because dependency intellij.python is not available
+Module intellij.qodana.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.qodana.go is not enabled because dependency intellij.go.coverage is not available
+Module intellij.python.javascript.debugger is not enabled because dependency intellij.python is not available
+Module intellij.javascript.debugger.webstorm.specific is not enabled because dependency com.intellij.modules.webstorm is not available
+Module intellij.ml.llm.rider.csharp is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.csharp.inlinePromptDetector is not enabled because dependency intellij.ml.llm.rider.csharp is not available
+Module intellij.ml.llm.rider.csharp.razor is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.csharp.nextEdits.backend is not enabled because dependency intellij.ml.llm.rider.csharp is not available
+Module intellij.ml.llm.javascript.svelte is not enabled because dependency dev.blachut.svelte.lang is not available
+Module intellij.ml.llm.javascript.svelte.nextEdits.backend is not enabled because dependency intellij.ml.llm.javascript.svelte is not available
+Module intellij.ml.llm.javascript.astro is not enabled because dependency org.jetbrains.plugins.astro is not available
+Module intellij.ml.llm.javascript.astro.nextEdits.backend is not enabled because dependency intellij.ml.llm.javascript.astro is not available
+Module intellij.fullLine.js.svelte is not enabled because dependency dev.blachut.svelte.lang is not available
+Module intellij.ml.llm.javascript.svelte.completion is not enabled because dependency intellij.fullLine.js.svelte is not available
+Module intellij.fullLine.js.svelte.local is not enabled because dependency intellij.fullLine.js.svelte is not available
+Module intellij.fullLine.js.astro is not enabled because dependency org.jetbrains.plugins.astro is not available
+Module intellij.ml.llm.javascript.astro.completion is not enabled because dependency intellij.fullLine.js.astro is not available
+Module intellij.fullLine.js.astro.local is not enabled because dependency intellij.fullLine.js.astro is not available
+Module intellij.ml.llm.uiTestGeneration is not enabled because dependency intellij.aqua.wi is not available
+Module intellij.javascript.fileWatcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.javascript.newProject is not enabled because dependency com.intellij.modules.webstorm is not available
+Module intellij.javascript.sharedIndexes is not enabled because dependency intellij.indexing.shared.core is not available
+Module intellij.javascript.sharedIndexes.generator is not enabled because dependency intellij.javascript.sharedIndexes is not available
+Module intellij.javascript.devkit is not enabled because dependency intellij.devkit.core is not available
+2026-06-30 21:56:07,695 [49853406]   WARN - #c.i.i.f.i.FTManager - Duplicate bundled template HTML File.html [HTML File: html (fileTemplates\internal\HTML File.html.ft), HTML File: html (fileTemplates\internal\HTML File.html.ft)]
+2026-06-30 21:56:07,707 [49853418]   INFO - #c.i.u.i.FileBasedIndexTumbler - Turning on file-based index. Reason: `Plugin loaded/unloaded`. Nested level count: before=1, after=0
+2026-06-30 21:56:07,707 [49853418]   INFO - #c.i.u.i.FileBasedIndexImpl - Loading indexes
+2026-06-30 21:56:07,708 [49853419]   INFO - #c.i.u.i.d.AppIndexingDependenciesService - Invalidating all indexing flags. Reason: Plugin loaded/unloaded
+2026-06-30 21:56:07,708 [49853419]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:07,708 [49853419]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:07,708 [49853419]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:07,711 [49853422]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 2. Index: 114713 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-queues\5ff93e6f.
+2026-06-30 21:56:07,888 [49853599]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 114761. Index: 114761 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-ids.
+2026-06-30 21:56:08,111 [49853822]   INFO - #c.i.u.i.FileBasedIndexImpl - Indices to be built:FilenameIndex(v = 258)
+2026-06-30 21:56:08,111 [49853822]   INFO - #c.i.u.i.FileBasedIndexImpl - Using simple flusher for indexes
+2026-06-30 21:56:08,113 [49853824]   INFO - #c.i.u.i.IndexDataInitializer - Index data initialization done: 405 ms. Initialized indexes: [Trigram.Index, FilenameIndex, XsltSymbolIndex, sql.types.count.index, sql.routine.index, XmlTagNames, html5.custom.attributes.index, XmlNamespaces, IdIndex, SchemaTypeInheritance, RelaxSymbolIndex, DomFileIndex, xmlProperties, VtlFileIndex, TodoIndex, FrameworkDetectionIndex, fileIncludes, HashFragmentIndex, json.file.root.values, editorconfig.index.name, http.request.execution.environment, filetypes, http.request.completion.host, http.request.headers.values.index, http.request.name.index, OpenapiSpecificationContentIndexer, SwReferencesIndex, java.auto.module.name, java.source.module.name, java.null.method.argument, org.jetbrains.kotlin.idea.vfilefinder.KotlinMetadataFileIndex, java.fun.expression, org.jetbrains.kotlin.idea.versions.KotlinJvmMetadataVersionIndex, java.binary.plus.expression, bytecodeAnalysis, org.jetbrains.kotlin.idea.versions.KotlinJsMetadataVersionIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinPartialPackageNamesIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinJavaScriptMetaFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinClassFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinMetadataFilePackageIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinModuleMappingIndex, KotlinPackageSourcesMemberNamesIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinJvmModuleAnnotationsIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinBuiltInsMetadataIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinStdlibIndex, org.jetbrains.kotlin.idea.vfilefinder.KlibMetaFileIndex, KotlinTopLevelCallableByPackageShortNameIndex, javafx.custom.component, Stubs, KotlinTopLevelClassLikeDeclarationByPackageShortNameIndex, protoeditor.java.outer.class.index, KotlinBinaryRootToPackageIndex, com.intellij.jpa.jpb.model.EntityRegisterFileIndex, JavaFxControllerClassIndex, javafx.id.name, PropertyCodeReferenceIndex, FtlFileIndex, SpringBootYamlImports, SpringXmlBeansIndex, SpringBootPropertiesImports, spring.spiFileIndex, spring.boot.importsFileIndex, spring.autoConfigureMetadataIndex, Py.module.name, Py.setuptools.namespace, HtmlTagIdIndex, LombokConfigIndex, taglibUris, CssIndex, css.template.selectors, CompassFunctionsIndex, js.test.names, TypeScriptExternalPathCandidates, js.package.index, js.custom.single.entry.index, js.implicit.elements.index, js.string.literal.words.index, HtmlScriptSrcIndex, js.test.names.extensible, javafx.stylesheets.name, VueNoScriptFilesIndex, VueComponentStylesIndex, WebComponentsIndex, DjangoBlockInheritanceIndex, Python.Django.AdminRegister, FileNameEmbeddingIndex, SymbolNameEmbeddingIndex, ClassBodyEmbeddingIndex, TextChunksEmbeddingIndex, SymbolBodyEmbeddingIndex, ClassNameEmbeddingIndex].
+2026-06-30 21:56:08,113 [49853824]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:08,113 [49853824]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [WindowAccent] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-30 21:56:08,114 [49853825]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [5ff93e6f] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@1c87b734
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] scanning stage (scanning id=31): DelayedPushProperties
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 1. Index: 114637 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-queues\42358541.
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [ai-playbook] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 0. Index: 114713 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-queues\ede7c168.
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:08,115 [49853826]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [JetbrainsPluginDemo] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-30 21:56:08,116 [49853827]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [42358541] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fa7c802
+2026-06-30 21:56:08,116 [49853827]   INFO - #c.i.u.i.FileBasedIndexTumbler - Index rescanning has been started. Reason: `Plugin loaded/unloaded`
+2026-06-30 21:56:08,116 [49853827]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] scanning stage (scanning id=32): DelayedPushProperties
+2026-06-30 21:56:08,116 [49853827]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fc7672
+2026-06-30 21:56:08,118 [49853829]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=33): DelayedPushProperties
+2026-06-30 21:56:08,150 [49853861]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:08,150 [49853861]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:08,150 [49853861]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:08,159 [49853870]   INFO - #c.i.p.u.i.s.e.DurableEnumeratorFactory - [enumerator.mmapped]: .valueHashToId (in memory) was filled (287 records)
+2026-06-30 21:56:08,491 [49854202]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration url: https://resources.jetbrains.com/storage/fus/config/v4/TRACE/IU.json
+2026-06-30 21:56:08,491 [49854202]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Configuration is reachable: true
+2026-06-30 21:56:08,491 [49854202]   INFO - #c.i.i.s.e.c.EventLogStatisticsService - Statistics. Send is enabled: false
+2026-06-30 21:56:08,635 [49854346]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:08,800 [49854511]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: false, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:08,829 [49854540]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,829 [49854540]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,829 [49854540]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,830 [49854541]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,830 [49854541]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,830 [49854541]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,830 [49854541]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,830 [49854541]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,830 [49854541]   WARN - #c.i.o.v.e.LineStatusMarkerRenderer - Line marker highlighter was recovered. This incident will be reported.
+2026-06-30 21:56:08,847 [49854558]   INFO - #o.j.j.b.BridgePainterHintsProvider$Companion - Parsing theme info from theme Islands Dark (id: Islands Dark, isDark: true)
+2026-06-30 21:56:08,892 [49854603]   INFO - #c.i.o.a.i.ActionUpdater - 604 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:08,897 [49854608]   INFO - #c.i.o.a.i.ActionUpdater - 608 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:08,897 [49854608]   INFO - #c.i.o.a.i.ActionUpdater - 595 ms to grab EDT for InspectionWidgetContentExclusionAction#presentation@EditorInspectionsToolbar (com.github.copilot.status.InspectionWidgetContentExclusionAction)
+2026-06-30 21:56:08,897 [49854608]   INFO - #c.i.o.a.i.ActionUpdater - 595 ms to grab EDT for ToggleAmendCommitModeAction#presentation@ChangesView.CommitToolbar (com.intellij.vcs.commit.ToggleAmendCommitModeAction) "Vcs.ToggleAmendCommitMode"
+2026-06-30 21:56:08,897 [49854608]   INFO - #c.i.o.a.i.ActionUpdater - 592 ms to grab EDT for SelectInChangesViewAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.actions.SelectInChangesViewAction) "ChangesView.SelectFile"
+2026-06-30 21:56:08,897 [49854608]   INFO - #c.i.o.a.i.ActionUpdater - 588 ms to grab EDT for CollapseAllAction#presentation@ChangesViewToolbar (CollapseAllAction) "CollapseAll"
+2026-06-30 21:56:08,897 [49854608]   INFO - #c.i.o.a.i.ActionUpdater - 588 ms to grab EDT for ExpandAllAction#presentation@ChangesViewToolbar (ExpandAllAction) "ExpandAll"
+2026-06-30 21:56:08,898 [49854609]   INFO - #c.i.o.a.i.ActionUpdater - 571 ms to grab EDT for GitCommitGenerateAction#presentation@ChangesView.CommitToolbar (com.github.copilot.git.GitCommitGenerateAction) "copilot.git.commit.button"
+2026-06-30 21:56:08,898 [49854609]   INFO - #c.i.o.a.i.ActionUpdater - 545 ms to grab EDT for ToggleDetailsAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.ToggleDetailsAction) "ChangesView.SingleClickPreview"
+2026-06-30 21:56:08,898 [49854609]   INFO - #c.i.o.a.i.ActionUpdater - 544 ms to grab EDT for GitCommitAndPushExecutorAction#presentation@ChangesView.CommitButtonsToolbar (git4idea.actions.GitCommitAndPushExecutorAction) "Git.Commit.And.Push.Executor"
+2026-06-30 21:56:08,898 [49854609]   INFO - #c.i.o.a.i.ActionUpdater - 544 ms to grab EDT for ShowCommitOptionsAction#presentation@ChangesView.ShowCommitOptions (com.intellij.openapi.vcs.actions.ShowCommitOptionsAction) "ChangesView.ShowCommitOptions"
+2026-06-30 21:56:08,932 [49854643]   INFO - #c.i.o.a.i.ActionUpdater - 377 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:08,932 [49854643]   INFO - #c.i.o.a.i.ActionUpdater - 377 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:08,932 [49854643]   INFO - #c.i.o.a.i.ActionUpdater - 365 ms to grab EDT for InspectionWidgetContentExclusionAction#presentation@EditorInspectionsToolbar (com.github.copilot.status.InspectionWidgetContentExclusionAction)
+2026-06-30 21:56:08,933 [49854644]   INFO - #c.i.o.a.i.ActionUpdater - 358 ms to grab EDT for ToggleAmendCommitModeAction#presentation@ChangesView.CommitToolbar (com.intellij.vcs.commit.ToggleAmendCommitModeAction) "Vcs.ToggleAmendCommitMode"
+2026-06-30 21:56:08,933 [49854644]   INFO - #c.i.o.a.i.ActionUpdater - 358 ms to grab EDT for SelectInChangesViewAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.actions.SelectInChangesViewAction) "ChangesView.SelectFile"
+2026-06-30 21:56:08,933 [49854644]   INFO - #c.i.o.a.i.ActionUpdater - 358 ms to grab EDT for ExpandAllAction#presentation@ChangesViewToolbar (ExpandAllAction) "ExpandAll"
+2026-06-30 21:56:08,933 [49854644]   INFO - #c.i.o.a.i.ActionUpdater - 358 ms to grab EDT for CollapseAllAction#presentation@ChangesViewToolbar (CollapseAllAction) "CollapseAll"
+2026-06-30 21:56:08,933 [49854644]   INFO - #c.i.o.a.i.ActionUpdater - 358 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:08,933 [49854644]   INFO - #c.i.o.a.i.ActionUpdater - 358 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:08,935 [49854646]   INFO - #c.i.o.a.i.ActionUpdater - 317 ms to grab EDT for GitCommitGenerateAction#presentation@ChangesView.CommitToolbar (com.github.copilot.git.GitCommitGenerateAction) "copilot.git.commit.button"
+2026-06-30 21:56:08,935 [49854646]   INFO - #c.i.o.a.i.ActionUpdater - 317 ms to grab EDT for ToggleDetailsAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.ToggleDetailsAction) "ChangesView.SingleClickPreview"
+2026-06-30 21:56:08,977 [49854688]   INFO - #c.i.o.a.i.ActionUpdater - 356 ms to grab EDT for ToolWindowHeader$2#children@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2)
+2026-06-30 21:56:08,989 [49854700]   INFO - #c.i.u.i.IndexDataInitializer - Index data initialization done: 875 ms. Initialized stub indexes: {Css.custom.variable, org.jetbrains.kotlin.idea.stubindex.KotlinFunctionShortNameIndex, Css.ampersand.selector, Scss.mixin, angular2.symbol.index, angular2.ivy.pipe.index, js.typedef.index2, org.jetbrains.kotlin.idea.stubindex.KotlinFileFacadeFqNameIndex, org.jetbrains.kotlin.idea.stubindex.KotlinPropertyShortNameIndex, KotlinTopLevelExpectFunctionFqNameIndex, gr.script.fqn.s, Less.mixins, JS.global.qualified.elements, js.doc.modules, KotlinTopLevelFunctionByPackageIndex, Py.class.shortNameInsensitive, angular2.metadata.function.index, Py.class.attributes, Css.custom.property, js.used.remote.modules, vue.composition.app.index, postcss.custom.media, Python.Decorator, Py.variable.shortName, angular2.source.directive.index, org.jetbrains.kotlin.idea.stubindex.KotlinFullClassNameIndex, js.generics.index, org.jetbrains.kotlin.idea.stubindex.KotlinMultifileClassPartIndex, JS.subclass.stub.index, amd.requirePaths.index, amd.baseUrl.index, redis.dml.shortName, postcss.custom.selector, js.local.namespace.members.index, java.anonymous.baseref, KotlinTopLevelExtensionsByReceiverTypeIndex, vuex.store.index, ts.embedded.content.index, angular2.metadata.pipe.index, org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex, vue.options.index, JS.framework.markers.index, vue.global.directives.index, KotlinProbablyInjectedFunctionShortNameIndex, org.jetbrains.kotlin.idea.stubindex.KotlinJvmNameAnnotationIndex, java.field.name, Py.class.super, gr.annot.members, Django.foreignKey, angular2.source.pipe.index, org.jetbrains.kotlin.idea.stubindex.KotlinSuperClassIndex, org.jetbrains.kotlin.idea.stubindex.KotlinScriptFqnIndex, org.jetbrains.kotlin.idea.stubindex.KotlinTypeAliasShortNameIndex, angular2.metadata.module.index, Py.TypeAliasName, angular2.templateUrl.index, Css.class, Less.variables, org.jetbrains.kotlin.idea.stubindex.KotlinFilePartClassIndex, vue.global.filters.index, java.annotations, java.class.extlist, js.gcl.modules, java.unnamed.class, JS.class.implements, kotlin.primeIndexKey, gr.class.fqn.s, Py.function.shortName, gr.annot.method.name, js.qualified.shortName, angular2.metadata.node.index, angular2.metadata.className.index, angular2.js.html.custom-property.index, Py.module.attribute, properties.index, org.jetbrains.kotlin.idea.stubindex.KotlinClassShortNameIndex, KotlinTypeAliasByExpansionShortNameIndex, angular2.ivy.directive.index, js.symbol.index2, KotlinFileFacadeClassByPackageIndex, ts.global.exported.index, KotlinTopLevelPropertyByPackageIndex, KotlinProbablyNothingFunctionShortNameIndex, KotlinOverridableInternalMembersShortNameIndex, protobuf.byQualifiedName, vue.url.index, KotlinProbablyNothingPropertyShortNameIndex, Css.custom.mixin, sql.column.name, js.element.qualifiedName, gr.script.class, vue.components.index, java.method.name, Css.id, vue.extends.binding.index, es6.side.effect.import.index, es6.assignment.index, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelPropertyFqnNameIndex, markdown.header.anchor, KotlinExtensionsInObjectsByReceiverTypeIndex, Scss.placeholder.selector, java.module.name, js.lazy.packages, org.jetbrains.kotlin.idea.stubindex.KotlinSubclassObjectNameIndex, gr.anonymous.class, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelTypeAliasFqNameIndex, angular2.ivy.module.index, angular2.metadata.directive.index, js.class.index2, sql.table.shortName, java.record.component.name, js.nonglobal.symbol.index, Django.manager, gr.class.super, java.class.shortname, ts.local.classes, js.exported.index, gr.field.name, js.symbol.qualified.names.index, JS.base.types.index, vue.id.index, js.global.symbol.index, Scss.variable, org.jetbrains.kotlin.idea.stubindex.KotlinFileFacadeShortNameIndex, JS.class.super, sql.names, angular2.js.css.custom-property.index, KotlinTopLevelTypeAliasByPackageIndex, java.method.parameter.types, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelClassByPackageIndex, ts.external.module.name.index, dom.elementClass, ts.external.module.index, protobuf.byShortName, KotlinProbablyContractedFunctionShortNameIndex, markdown.header, es6.exported.index, KotlinTopLevelExpectPropertyFqNameIndex, jvm.static.member.name, js.amd.modules, org.jetbrains.kotlin.idea.stubindex.KotlinInnerTypeAliasClassIdIndex, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelFunctionFqnNameIndex, dom.namespaceKey, Css.attr, js.export.default.react.component.index, Scss.function, gr.method.name, org.jetbrains.kotlin.idea.stubindex.KotlinExactPackagesIndex, js.imported.bindings.index, js.namespace.index, angular2.source.module.index, vue.mixin.binding.index, java.class.fqn, jvm.static.member.type, Py.class.shortName}.
+2026-06-30 21:56:08,991 [49854702]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] Started scanning for indexing of [WindowAccent]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-30 21:56:08,991 [49854702]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] Started scanning for indexing of [JetbrainsPluginDemo]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] scanning stage (scanning id=31): CreatingIterators
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=33): CreatingIterators
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.o.a.i.ActionUpdater - 357 ms to grab EDT for ToolWindowHeader$2#children@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2)
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.o.a.i.ActionUpdater - 357 ms to grab EDT for GitCommitAndPushExecutorAction#presentation@ChangesView.CommitButtonsToolbar (git4idea.actions.GitCommitAndPushExecutorAction) "Git.Commit.And.Push.Executor"
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.o.a.i.ActionUpdater - 357 ms to grab EDT for ShowCommitOptionsAction#presentation@ChangesView.ShowCommitOptions (com.intellij.openapi.vcs.actions.ShowCommitOptionsAction) "ChangesView.ShowCommitOptions"
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.o.a.i.ActionUpdater - 342 ms to grab EDT for ExpandAllAction#presentation@ServicesToolbar (ExpandAllAction)
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.o.a.i.ActionUpdater - 342 ms to grab EDT for CollapseAllAction#presentation@ServicesToolbar (CollapseAllAction)
+2026-06-30 21:56:08,995 [49854706]   INFO - #c.i.o.a.i.ActionUpdater - 340 ms to grab EDT for OpenInNewTabActionGroup#presentation@ServicesToolbar (com.intellij.platform.execution.serviceView.OpenInNewTabActionGroup) "ServiceView.OpenInNewTabGroup"
+2026-06-30 21:56:08,999 [49854710]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=33): CollectingIndexableFiles
+2026-06-30 21:56:08,999 [49854710]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] scanning stage (scanning id=31): CollectingIndexableFiles
+2026-06-30 21:56:08,999 [49854710]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [JetbrainsPluginDemo] uses 15 scanning threads
+2026-06-30 21:56:08,999 [49854710]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [WindowAccent] uses 15 scanning threads
+2026-06-30 21:56:09,045 [49854756]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:09,048 [49854759]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] Started scanning for indexing of [ai-playbook]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-30 21:56:09,048 [49854759]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] scanning stage (scanning id=32): CreatingIterators
+2026-06-30 21:56:09,050 [49854761]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] scanning stage (scanning id=32): CollectingIndexableFiles
+2026-06-30 21:56:09,051 [49854762]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [ai-playbook] uses 15 scanning threads
+2026-06-30 21:56:09,065 [49854776]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [WindowAccent]
+2026-06-30 21:56:09,067 [49854778]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [JetbrainsPluginDemo]
+2026-06-30 21:56:09,071 [49854782]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [ai-playbook]
+2026-06-30 21:56:09,078 [49854789]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scanner has updated file commit-msg.ps1 (id=1568291) with appliers: [] and removers: [SingleIndexValueRemover{indexId=ClassNameEmbeddingIndex, inputId=1568291, fileInfo='commit-msg.ps1(id=1568291)', applicationMode =SameThreadOutsideReadLock}, SingleIndexValueRemover{indexId=SymbolNameEmbeddingIndex, inputId=1568291, fileInfo='commit-msg.ps1(id=1568291)', applicationMode =SameThreadOutsideReadLock}];
+2026-06-30 21:56:09,148 [49854859]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scheduling indexing of CONVENTIONS.md (id=1456138) by request of indexes: [Trigram.Index->NOT_INDEXED(not indexed),IdIndex->NOT_INDEXED(not indexed),Stubs->NOT_INDEXED(not indexed),].
+2026-06-30 21:56:10,364 [49856075]   INFO - #c.i.i.p.DynamicPlugins - Successfully unloaded plugin WindowAccent (classloader unload checked=true)
+2026-06-30 21:56:10,504 [49856215]   INFO - #c.i.u.i.FileBasedIndexTumbler - Turning off file-based index. Reason: `Plugin loaded/unloaded`. Nested level count: before=0, after=1
+2026-06-30 21:56:10,504 [49856215]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-30 21:56:10,505 [49856216]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:10,510 [49856221]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-30 21:56:10,511 [49856222]   INFO - #c.i.o.p.DumbServiceImpl - Purge dumb task queue
+2026-06-30 21:56:10,512 [49856223]   INFO - #c.i.u.i.FileBasedIndexImpl - Index dispose started
+2026-06-30 21:56:10,515 [49856226]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] Scanning is interrupted (scanning id=31). java.util.concurrent.CancellationException: cancelAllTasksAndWait
+2026-06-30 21:56:10,515 [49856226]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] Scanning is interrupted (scanning id=33). java.util.concurrent.CancellationException: cancelAllTasksAndWait
+2026-06-30 21:56:10,515 [49856226]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] Scanning is interrupted (scanning id=32). java.util.concurrent.CancellationException: cancelAllTasksAndWait
+2026-06-30 21:56:10,515 [49856226]   INFO - #c.i.u.i.PerProjectIndexingQueue - Finished for [ai-playbook]. No files to index with loading content.
+2026-06-30 21:56:10,515 [49856226]   INFO - #c.i.u.i.PerProjectIndexingQueue - Finished for [WindowAccent]. No files to index with loading content.
+2026-06-30 21:56:10,515 [49856226]   INFO - #c.i.u.i.PerProjectIndexingQueue - Finished for [JetbrainsPluginDemo]. No files to index with loading content.
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Task interrupted: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fc7672. cancelAllTasksAndWait
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [42358541] Task interrupted: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fa7c802. cancelAllTasksAndWait
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [5ff93e6f] Task interrupted: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@1c87b734. cancelAllTasksAndWait
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.u.i.d.ProjectIndexingDependenciesService - Requesting heavy scanning on project open. Reason: Task interrupted: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fc7672
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.u.i.d.ProjectIndexingDependenciesService - Requesting heavy scanning on project open. Reason: Task interrupted: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fa7c802
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.u.i.d.ProjectIndexingDependenciesService - Requesting heavy scanning on project open. Reason: Task interrupted: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@1c87b734
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Task was cancelled: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fc7672. (enable debug log to see cancellation trace)
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [5ff93e6f] Task was cancelled: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@1c87b734. (enable debug log to see cancellation trace)
+2026-06-30 21:56:10,516 [49856227]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [42358541] Task was cancelled: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@6fa7c802. (enable debug log to see cancellation trace)
+2026-06-30 21:56:10,531 [49856242]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids stored. Size: 114761. Index: 114761 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-ids
+2026-06-30 21:56:10,667 [49856378]   INFO - #c.i.p.s.StubIndexImpl - StubIndexExtension-s were unloaded
+2026-06-30 21:56:10,667 [49856378]   INFO - #c.i.p.s.SerializationManagerImpl - Start shutting down C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\rep.names
+2026-06-30 21:56:10,667 [49856378]   INFO - #c.i.p.s.SerializationManagerImpl - Finished shutting down C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\rep.names
+2026-06-30 21:56:10,667 [49856378]   INFO - #c.i.u.i.FileBasedIndexImpl - Index dispose completed in 155ms.
+2026-06-30 21:56:10,668 [49856379]   INFO - #c.i.u.i.FileBasedIndexImpl - Dropping registered indexes
+2026-06-30 21:56:10,671 [49856382]   INFO - #c.i.p.t.TemplateLanguageStubBaseVersion - Template stub version: 24859428
+  StubVersion(Language: Angular2Html, value: 1183689)
+  StubVersion(Language: Angular2Svg, value: 1183689)
+  StubVersion(Language: Angular2, value: 1183642)
+  StubVersion(Language: Angular17Html, value: 1183689)
+  StubVersion(Language: Angular17Svg, value: 1183689)
+  StubVersion(Language: Angular181Html, value: 1183689)
+  StubVersion(Language: Angular181Svg, value: 1183689)
+  StubVersion(Language: Angular20Html, value: 1183689)
+  StubVersion(Language: Angular20Svg, value: 1183689)
+  StubVersion(Language: Angular20, value: 1183642)
+  StubVersion(Language: Properties, value: 0)
+  StubVersion(Language: kotlin, value: 253)
+  StubVersion(Language: HTML, value: 1183684)
+  StubVersion(Language: JAVA, value: 67)
+  StubVersion(Language: SQL, value: 35)
+  StubVersion(Language: MongoDB, value: 35)
+  StubVersion(Language: Redis, value: 35)
+  StubVersion(Language: MySQL, value: 35)
+  StubVersion(Language: SQLite, value: 35)
+  StubVersion(Language: PostgreSQL, value: 35)
+  StubVersion(Language: SQL92, value: 35)
+  StubVersion(Language: GenericSQL, value: 35)
+  StubVersion(Language: Oracle, value: 35)
+  StubVersion(Language: NetSuite, value: 35)
+  StubVersion(Language: OracleSqlPlus, value: 35)
+  StubVersion(Language: TSQL, value: 35)
+  StubVersion(Language: Sybase, value: 35)
+  StubVersion(Language: MariaDB, value: 35)
+  StubVersion(Language: CassandraQL, value: 35)
+  StubVersion(Language: ClickHouse, value: 35)
+  StubVersion(Language: DB2_IS, value: 35)
+  StubVersion(Language: DB2, value: 35)
+  StubVersion(Language: DB2_ZOS, value: 35)
+  StubVersion(Language: Derby, value: 35)
+  StubVersion(Language: Exasol, value: 35)
+  StubVersion(Language: Greenplum, value: 35)
+  StubVersion(Language: H2, value: 35)
+  StubVersion(Language: HiveQL, value: 35)
+  StubVersion(Language: HSQLDB, value: 35)
+  StubVersion(Language: Redshift, value: 35)
+  StubVersion(Language: Snowflake, value: 35)
+  StubVersion(Language: SparkSQL, value: 35)
+  StubVersion(Language: Vertica, value: 35)
+  StubVersion(Language: BigQuery, value: 35)
+  StubVersion(Language: CouchbaseQuery, value: 35)
+  StubVersion(Language: Cockroach, value: 35)
+  StubVersion(Language: Dynamo, value: 35)
+  StubVersion(Language: CSS, value: 39)
+  StubVersion(Language: SCSS, value: 40)
+  StubVersion(Language: SASS, value: 40)
+  StubVersion(Language: JavaScript, value: 1183642)
+  StubVersion(Language: TypeScript, value: 1183642)
+  StubVersion(Language: ECMAScript 6, value: 1183642)
+  StubVersion(Language: TypeScript JSX, value: 1183642)
+  StubVersion(Language: Flow JS, value: 1183642)
+  StubVersion(Language: MongoJSExt, value: 1183642)
+  StubVersion(Language: Vue, value: 1183694)
+  StubVersion(Language: VueJS, value: 1183642)
+  StubVersion(Language: VueTS, value: 1183642)
+  StubVersion(Language: HttpClientHandlerJavaScriptDialect, value: 1183642)
+  StubVersion(Language: Markdown, value: 0)
+  StubVersion(Language: Jupyter, value: 0)
+  StubVersion(Language: protobuf, value: 0)
+  StubVersion(Language: Python, value: 107)
+  StubVersion(Language: PyFunctionTypeComment, value: 107)
+  StubVersion(Language: PyTypeRepresentation, value: 107)
+  StubVersion(Language: PyTypeHint, value: 107)
+  StubVersion(Language: Doctest, value: 107)
+  StubVersion(Language: PythonStub, value: 107)
+  StubVersion(Language: Groovy, value: 52)
+  StubVersion(Language: PostCSS, value: 42)
+  StubVersion(Language: LESS, value: 39)
+  StubVersion(Language: JupyterPython, value: 107)
+2026-06-30 21:56:10,695 [49856406]   INFO - #c.i.i.p.PluginManager - Plugin set resolution:
+Module intellij.toml.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.textmate.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.sh.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.yaml.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.json.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.markdown.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.terminal.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.fullLine.terraform is not enabled because dependency org.intellij.plugins.hcl is not available
+Module intellij.fullLine.rust is not enabled because dependency com.jetbrains.rust is not available
+Module intellij.fullLine.ruby is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.fullLine.rider is not enabled because dependency intellij.rd.client is not available
+Module intellij.fullLine.rider.unrealengine is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.shaderlab is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.fsharp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.csharp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.cpp is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rbs is not enabled because dependency intellij.ruby.rbs.backend is not available
+Module intellij.fullLine.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.fullLine.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.fullLine.erb is not enabled because dependency org.jetbrains.plugins.ruby is not available
+Module intellij.fullLine.cpp is not enabled because dependency intellij.cidr.lang.base is not available
+Module intellij.fullLine.federatedCompute is not enabled because dependency com.intellij.federatedCompute is not available
+Module intellij.fullLine.terraform.local is not enabled because dependency intellij.fullLine.terraform is not available
+Module intellij.fullLine.rust.local is not enabled because dependency intellij.fullLine.rust is not available
+Module intellij.fullLine.ruby.local is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.fullLine.rider.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.csharp.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.rider.cpp.local is not enabled because dependency intellij.fullLine.rider is not available
+Module intellij.fullLine.php.local is not enabled because dependency intellij.fullLine.php is not available
+Module intellij.fullLine.go.local is not enabled because dependency intellij.fullLine.go is not available
+Module intellij.fullLine.cpp.local is not enabled because dependency intellij.fullLine.cpp is not available
+Module intellij.ml.llm.sql.datagrip is not enabled because dependency com.intellij.database.ide is not available
+Module intellij.protoeditor.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.packageChecker.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.packageChecker.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.yaml.helm is not enabled because dependency org.jetbrains.plugins.go-template is not available
+Module intellij.editorconfig.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.station.frontend.split is not enabled because dependency com.intellij.jetbrains.client is not available
+Module intellij.httpClient.injection.graphql is not enabled because dependency com.intellij.lang.jsgraphql is not available
+Module matterhorn.ide-core.android-platform.main is not enabled because dependency org.jetbrains.android is not available
+Module matterhorn.ide-core.android-ij-platform.main is not enabled because dependency matterhorn.ide-core.android-platform.main is not available
+Module matterhorn.ide-server.android.main is not enabled because dependency matterhorn.ide-core.android-platform.main is not available
+Module matterhorn.ej-core-ide.kmp.compose-desktop.main is not enabled because dependency intellij.kmm.compose.desktop is not available
+Module matterhorn.ej-core-ide.rust.main is not enabled because dependency com.jetbrains.rust is not available
+Module matterhorn.ej-core-ide.ruby.main is not enabled because dependency intellij.ruby.common is not available
+Module matterhorn.ej-core-ide.clion.main is not enabled because dependency intellij.clion.radler.core is not available
+Module matterhorn.ej-core-ide.php.main is not enabled because dependency com.jetbrains.php is not available
+Module matterhorn.ej-ui.php.main is not enabled because dependency matterhorn.ej-core-ide.php.main is not available
+Module matterhorn.ej-core-ide.go.main is not enabled because dependency org.jetbrains.plugins.go is not available
+Module matterhorn.ej-core-ide.rider.main is not enabled because dependency com.intellij.modules.rider is not available
+Module intellij.sass.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.css.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.css.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.sass.frontend.split is not enabled because dependency intellij.css.frontend.split is not available
+Module intellij.less.watcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.webDeployment/phpStorm is not enabled because dependency com.intellij.modules.phpstorm is not available
+Module intellij.llmInstaller.ds.ide is not enabled because dependency intellij.dataspell.ide.impl is not available
+Module intellij.llmInstaller.ds is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.llmInstaller.pycharm.community is not enabled because dependency intellij.pycharm.community.ide.impl.promotion is not available
+Module intellij.jupyter.split.frontend is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.javascript.debugger.webstorm.specific is not enabled because dependency com.intellij.modules.webstorm is not available
+Module intellij.fullLine.js.svelte is not enabled because dependency dev.blachut.svelte.lang is not available
+Module intellij.fullLine.js.svelte.local is not enabled because dependency intellij.fullLine.js.svelte is not available
+Module intellij.fullLine.js.astro is not enabled because dependency org.jetbrains.plugins.astro is not available
+Module intellij.fullLine.js.astro.local is not enabled because dependency intellij.fullLine.js.astro is not available
+Module intellij.javascript.fileWatcher is not enabled because dependency com.intellij.plugins.watcher is not available
+Module intellij.javascript.newProject is not enabled because dependency com.intellij.modules.webstorm is not available
+Module intellij.javascript.sharedIndexes is not enabled because dependency intellij.indexing.shared.core is not available
+Module intellij.javascript.sharedIndexes.generator is not enabled because dependency intellij.javascript.sharedIndexes is not available
+Module intellij.javascript.devkit is not enabled because dependency intellij.devkit.core is not available
+Module intellij.compose.ide.plugin.k1 is not enabled because dependency com.intellij.modules.kotlin.k1 is not available
+Module intellij.kotlin.jupyter.k1 is not enabled because dependency kotlin.base.scripting.k1 is not available
+Module intellij.python.pyramid is not enabled because dependency intellij.python.dap.plugin is not available
+Module intellij.python is not enabled because dependency intellij.python.pyramid is not available
+Module intellij.python.pro.localization is not enabled because dependency intellij.python is not available
+Module intellij.python.uml is not enabled because dependency intellij.python is not available
+Module intellij.python.profiler is not enabled because dependency intellij.python is not available
+Module intellij.python.javascript.debugger is not enabled because dependency intellij.python is not available
+Module intellij.python.gherkin is not enabled because dependency intellij.python is not available
+Module intellij.python.pytestBdd is not enabled because dependency intellij.python.gherkin is not available
+Module intellij.python.duplicatesDetection is not enabled because dependency intellij.python is not available
+Module intellij.python.huggingFace is not enabled because dependency intellij.python is not available
+Module intellij.python.concurrencyVisualizer is not enabled because dependency intellij.python is not available
+Module intellij.python.plugin.java is not enabled because dependency intellij.python is not available
+Module intellij.python.community.plugin.minorRider is not enabled because dependency com.intellij.modules.python-in-mini-ide-capable is not available
+Module intellij.python.community.plugin.minor is not enabled because dependency com.intellij.modules.python-in-mini-ide-capable is not available
+Module matterhorn.ej-core-ide.rider.embark-rider.main is not enabled because dependency matterhorn.ej-core-ide.rider.main is not available
+Module intellij.jupyter.py.dap is not enabled because dependency intellij.python.dap.plugin is not available
+Module intellij.jupyter.split.frontend.py is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.clouds.docker.file.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.packageChecker.amper is not enabled because dependency org.jetbrains.amper is not available
+Module intellij.ml.llm.playground.latest is not enabled because dependency intellij.aiplayground.aiassistant is not available
+Module intellij.ml.llm.ruby.inlinePromptDetector is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.ml.llm.go.inlinePromptDetector is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.ml.llm.rider is not enabled because dependency intellij.rider.rdclient.dotnet is not available
+Module intellij.ml.llm.rider.dotTools is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.fsharp is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.cpp is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.cpp.nextEdits.backend is not enabled because dependency intellij.ml.llm.rider.cpp is not available
+Module intellij.ml.llm.ideolog is not enabled because dependency com.intellij.ideolog is not available
+Module intellij.ml.llm.ruby.mcp is not enabled because dependency intellij.ruby.mcp is not available
+Module intellij.ml.llm.mcp.perforce is not enabled because dependency PerforceDirectPlugin is not available
+Module intellij.ml.llm.uiTestGeneration is not enabled because dependency intellij.aqua.wi is not available
+Module intellij.ml.llm.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.ml.llm.php.mcp is not enabled because dependency intellij.ml.llm.php is not available
+Module intellij.ml.llm.php.inlinePromptDetector is not enabled because dependency intellij.ml.llm.php is not available
+Module intellij.ml.llm.php.nextEdits.backend is not enabled because dependency intellij.ml.llm.php is not available
+Module intellij.ml.llm.ruby is not enabled because dependency intellij.ruby.backend is not available
+Module intellij.ml.llm.ruby.nextEdits.backend is not enabled because dependency intellij.ml.llm.ruby is not available
+Module intellij.ml.llm.rust is not enabled because dependency com.jetbrains.rust is not available
+Module intellij.ml.llm.rust.nextEdits.backend is not enabled because dependency intellij.ml.llm.rust is not available
+Module intellij.ml.llm.go.embeddings is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.ml.llm.ruby.embeddings is not enabled because dependency intellij.ruby.psi is not available
+Module intellij.ml.llm.php.embeddings is not enabled because dependency com.jetbrains.php is not available
+Module intellij.ml.llm.searchEverywhere.embeddings.datagrip is not enabled because dependency com.intellij.database.ide is not available
+Module intellij.ml.llm.searchEverywhere.embeddings.radler is not enabled because dependency intellij.clion.radler.core is not available
+Module intellij.ml.llm.searchEverywhere.embeddings.rider is not enabled because dependency intellij.rider is not available
+Module intellij.ml.llm.android is not enabled because dependency org.jetbrains.android is not available
+Module intellij.ml.llm.rider.csharp is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.csharp.inlinePromptDetector is not enabled because dependency intellij.ml.llm.rider.csharp is not available
+Module intellij.ml.llm.rider.csharp.razor is not enabled because dependency intellij.ml.llm.rider is not available
+Module intellij.ml.llm.rider.csharp.nextEdits.backend is not enabled because dependency intellij.ml.llm.rider.csharp is not available
+Module intellij.ml.llm.javascript.svelte is not enabled because dependency dev.blachut.svelte.lang is not available
+Module intellij.ml.llm.javascript.svelte.nextEdits.backend is not enabled because dependency intellij.ml.llm.javascript.svelte is not available
+Module intellij.ml.llm.javascript.astro is not enabled because dependency org.jetbrains.plugins.astro is not available
+Module intellij.ml.llm.javascript.astro.nextEdits.backend is not enabled because dependency intellij.ml.llm.javascript.astro is not available
+Module intellij.ml.llm.cpp.common is not enabled because dependency intellij.cidr.clangd.core is not available
+Module intellij.ml.llm.cpp.cmake is not enabled because dependency intellij.cidr.execution is not available
+Module intellij.ml.llm.cpp is not enabled because dependency intellij.cidr.lang.base is not available
+Module intellij.ml.llm.cpp.nextEdits.backend is not enabled because dependency intellij.ml.llm.cpp is not available
+Module intellij.ml.llm.python.ultimate is not enabled because dependency intellij.python is not available
+Module intellij.ml.llm.go is not enabled because dependency org.jetbrains.plugins.go is not available
+Module intellij.ml.llm.go.nextEdits.backend is not enabled because dependency intellij.go.impl is not available
+Module intellij.ml.llm.devkit is not enabled because dependency intellij.devkit.core is not available
+Module intellij.ml.llm.space is not enabled because dependency intellij.space.vcs is not available
+Module intellij.ml.llm.space.latest is not enabled because dependency intellij.ml.llm.space is not available
+Module intellij.ml.llm.federatedCompute is not enabled because dependency intellij.fullLine.federatedCompute is not available
+Module intellij.ml.llm.rider.unrealengine.completion is not enabled because dependency intellij.fullLine.rider.unrealengine is not available
+Module intellij.ml.llm.rider.shaderlab.completion is not enabled because dependency intellij.fullLine.rider.shaderlab is not available
+Module intellij.ml.llm.rider.godot.completion is not enabled because dependency intellij.fullLine.rider.shaderlab is not available
+Module intellij.ml.llm.rider.fsharp.completion is not enabled because dependency intellij.fullLine.rider.fsharp is not available
+Module intellij.ml.llm.rider.csharp.completion is not enabled because dependency intellij.fullLine.rider.csharp is not available
+Module intellij.ml.llm.rider.cpp.completion is not enabled because dependency intellij.fullLine.rider.cpp is not available
+Module intellij.ml.llm.rust.completion is not enabled because dependency intellij.fullLine.rust is not available
+Module intellij.ml.llm.cpp.completion is not enabled because dependency intellij.fullLine.cpp is not available
+Module intellij.ml.llm.terraform.completion is not enabled because dependency intellij.fullLine.terraform is not available
+Module intellij.ml.llm.javascript.svelte.completion is not enabled because dependency intellij.fullLine.js.svelte is not available
+Module intellij.ml.llm.javascript.astro.completion is not enabled because dependency intellij.fullLine.js.astro is not available
+Module intellij.ml.llm.php.completion is not enabled because dependency intellij.fullLine.php is not available
+Module intellij.ml.llm.ruby.completion is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.ml.llm.rbs.completion is not enabled because dependency intellij.fullLine.rbs is not available
+Module intellij.ml.llm.go.completion is not enabled because dependency intellij.fullLine.go is not available
+Module intellij.ml.llm.erb.completion is not enabled because dependency intellij.fullLine.ruby is not available
+Module intellij.java.promo is not enabled because dependency com.intellij.modules.idea.community is not available
+Module intellij.spring.boot.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.java.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.spring.jsf is not enabled because dependency com.intellij.jsf is not available
+Module kotlin-ultimate.native-debugger is not enabled because dependency intellij.cidr.runner is not available
+Module kotlin-ultimate.ultimate-native is not enabled because dependency kotlin-ultimate.native-debugger is not available
+Module intellij.quarkus.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.micronaut.rewrite is not enabled because dependency com.intellij.openRewrite is not available
+Module intellij.python.djangoDbConfig is not enabled because dependency intellij.python is not available
+Module intellij.ml.llm.ds is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.ml.llm.ds.latest is not enabled because dependency intellij.ml.llm.ds is not available
+Module intellij.database.frontend.split is not enabled because dependency intellij.platform.frontend.split is not available
+Module intellij.ml.llm.ds.next is not enabled because dependency intellij.dataWrangler.llm is not available
+Module intellij.groovy.ant is not enabled because dependency AntSupport is not available
+Module matterhorn.ej-core-ide.scala.main is not enabled because dependency scalaCommunity.bsp is not available
+Module matterhorn.ej-core-ide.android-ij.main is not enabled because dependency org.jetbrains.android is not available
+Module matterhorn.ej-core-ide.android-as.main is not enabled because dependency com.intellij.modules.androidstudio is not available
+Module matterhorn.ej-core-ide.kmp.ios.main is not enabled because dependency com.intellij.modules.nativeDebug is not available
+Module matterhorn.ej-core-ide.kmp.android.main is not enabled because dependency matterhorn.ide-core.android-platform.main is not available
+Module matterhorn.ej-core-ide.kmp.android-ij.main is not enabled because dependency matterhorn.ej-core-ide.kmp.android.main is not available
+Module matterhorn.ej-core-ide.kmp.android-as.main is not enabled because dependency matterhorn.ej-core-ide.kmp.android.main is not available
+Module intellij.qodana.rust is not enabled because dependency com.intellij.modules.rustrover is not available
+Module intellij.qodana.cpp is not enabled because dependency intellij.cidr.projectModel is not available
+Module intellij.qodana.python.coverage is not enabled because dependency intellij.python is not available
+Module intellij.qodana.php is not enabled because dependency com.jetbrains.php is not available
+Module intellij.qodana.go is not enabled because dependency intellij.go.coverage is not available
+Module intellij.clouds.kubernetes.charts.gotpl is not enabled because dependency intellij.yaml.helm is not available
+2026-06-30 21:56:10,715 [49856426]   INFO - #c.i.i.p.DynamicPlugins - Plugin WindowAccent loaded without restart in 42 ms
+2026-06-30 21:56:10,716 [49856427]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Lifecycle Listener registered
+2026-06-30 21:56:10,755 [49856466]   WARN - #c.i.i.f.i.FTManager - Duplicate bundled template HTML File.html [HTML File: html (fileTemplates\internal\HTML File.html.ft), HTML File: html (fileTemplates\internal\HTML File.html.ft)]
+2026-06-30 21:56:10,819 [49856530]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Window Accent Application Service created: com.window_accent.WindowAccentApplicationService
+2026-06-30 21:56:10,819 [49856530]   INFO - #com.window_accent.PluginLifecycleListener - [Window Accent] Window Accent enabled/loaded: Restoring decorations
+2026-06-30 21:56:10,847 [49856558]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:10,852 [49856563]   INFO - #c.i.u.i.FileBasedIndexTumbler - Turning on file-based index. Reason: `Plugin loaded/unloaded`. Nested level count: before=1, after=0
+2026-06-30 21:56:10,852 [49856563]   INFO - #c.i.u.i.FileBasedIndexImpl - Loading indexes
+2026-06-30 21:56:10,852 [49856563]   INFO - #c.i.u.i.d.AppIndexingDependenciesService - Invalidating all indexing flags. Reason: Plugin loaded/unloaded
+2026-06-30 21:56:10,855 [49856566]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 2. Index: 114713 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-queues\5ff93e6f.
+2026-06-30 21:56:11,138 [49856849]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 114761. Index: 114761 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-ids.
+2026-06-30 21:56:11,272 [49856983]   INFO - #c.i.u.i.FileBasedIndexImpl - Indices to be built:FilenameIndex(v = 258)
+2026-06-30 21:56:11,272 [49856983]   INFO - #c.i.u.i.FileBasedIndexImpl - Using simple flusher for indexes
+2026-06-30 21:56:11,274 [49856985]   INFO - #c.i.u.i.IndexDataInitializer - Index data initialization done: 422 ms. Initialized indexes: [FilenameIndex, Trigram.Index, sql.types.count.index, XsltSymbolIndex, sql.routine.index, XmlTagNames, SchemaTypeInheritance, XmlNamespaces, filetypes, html5.custom.attributes.index, RelaxSymbolIndex, IdIndex, DomFileIndex, VtlFileIndex, xmlProperties, fileIncludes, json.file.root.values, editorconfig.index.name, http.request.execution.environment, http.request.completion.host, TodoIndex, FrameworkDetectionIndex, http.request.headers.values.index, HashFragmentIndex, http.request.name.index, OpenapiSpecificationContentIndexer, SwReferencesIndex, java.auto.module.name, java.source.module.name, java.null.method.argument, java.fun.expression, java.binary.plus.expression, bytecodeAnalysis, org.jetbrains.kotlin.idea.versions.KotlinJvmMetadataVersionIndex, org.jetbrains.kotlin.idea.versions.KotlinJsMetadataVersionIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinClassFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinPartialPackageNamesIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinJavaScriptMetaFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinMetadataFileIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinMetadataFilePackageIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinModuleMappingIndex, KotlinPackageSourcesMemberNamesIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinJvmModuleAnnotationsIndex, org.jetbrains.kotlin.idea.vfilefinder.KotlinBuiltInsMetadataIndex, Stubs, org.jetbrains.kotlin.idea.vfilefinder.KotlinStdlibIndex, org.jetbrains.kotlin.idea.vfilefinder.KlibMetaFileIndex, KotlinTopLevelCallableByPackageShortNameIndex, KotlinTopLevelClassLikeDeclarationByPackageShortNameIndex, KotlinBinaryRootToPackageIndex, protoeditor.java.outer.class.index, com.intellij.jpa.jpb.model.EntityRegisterFileIndex, JavaFxControllerClassIndex, javafx.id.name, javafx.custom.component, PropertyCodeReferenceIndex, FtlFileIndex, SpringBootYamlImports, spring.autoConfigureMetadataIndex, SpringXmlBeansIndex, spring.spiFileIndex, SpringBootPropertiesImports, spring.boot.importsFileIndex, Py.module.name, Py.setuptools.namespace, HtmlTagIdIndex, LombokConfigIndex, taglibUris, CssIndex, css.template.selectors, js.test.names, CompassFunctionsIndex, js.package.index, js.custom.single.entry.index, js.test.names.extensible, js.implicit.elements.index, js.string.literal.words.index, HtmlScriptSrcIndex, DjangoBlockInheritanceIndex, TypeScriptExternalPathCandidates, FileNameEmbeddingIndex, VueNoScriptFilesIndex, javafx.stylesheets.name, VueComponentStylesIndex, WebComponentsIndex, Python.Django.AdminRegister, ClassNameEmbeddingIndex, SymbolNameEmbeddingIndex, ClassBodyEmbeddingIndex, SymbolBodyEmbeddingIndex, TextChunksEmbeddingIndex].
+2026-06-30 21:56:11,274 [49856985]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:11,274 [49856985]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [WindowAccent] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [IS_SCANNING_AND_INDEXING_COMPLETED, INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-30 21:56:11,276 [49856987]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 1. Index: 114637 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-queues\42358541.
+2026-06-30 21:56:11,276 [49856987]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:11,276 [49856987]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [ai-playbook] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [IS_SCANNING_AND_INDEXING_COMPLETED, INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-30 21:56:11,277 [49856988]   INFO - #c.i.u.i.PersistentDirtyFilesQueue - Dirty file ids read. Size: 0. Index: 114713 Path: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\index\dirty-file-queues\ede7c168.
+2026-06-30 21:56:11,277 [49856988]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:11,277 [49856988]   INFO - #c.i.u.i.UnindexedFilesScanner - Full scanning on startup will NOT be skipped for project [JetbrainsPluginDemo] because of following unsatisfied conditions:
+ALLOWED: Full scanning was requested
+FILTER_IS_NOT_UP_TO_DATE: Persistent indexable files filter is NOT up-to-date because of following unsatisfied conditions: [IS_SCANNING_AND_INDEXING_COMPLETED, INDEXING_REQUEST_ID_DID_NOT_CHANGE_AFTER_LAST_SCANNING]
+2026-06-30 21:56:11,277 [49856988]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [42358541] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@280e4f2b
+2026-06-30 21:56:11,277 [49856988]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [5ff93e6f] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@f5dd1e1
+2026-06-30 21:56:11,277 [49856988]   INFO - #c.i.u.i.FileBasedIndexTumbler - Index rescanning has been started. Reason: `Plugin loaded/unloaded`
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] scanning stage (scanning id=34): DelayedPushProperties
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Running task: com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@728c393b
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] scanning stage (scanning id=35): DelayedPushProperties
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=36): DelayedPushProperties
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:11,279 [49856990]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:11,296 [49857007]   INFO - #c.i.p.u.i.s.e.DurableEnumeratorFactory - [enumerator.mmapped]: .valueHashToId (in memory) was filled (287 records)
+2026-06-30 21:56:11,433 [49857144]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,468 [49857179]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,497 [49857208]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,513 [49857224]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,518 [49857229]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,535 [49857246]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,535 [49857246]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,547 [49857258]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,548 [49857259]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,559 [49857270]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,562 [49857273]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:11,563 [49857274]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:11,564 [49857275]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,577 [49857288]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,578 [49857289]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:11,580 [49857291]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:11,588 [49857299]   INFO - #c.i.u.i.IndexDataInitializer - Index data initialization done: 313 ms. Initialized stub indexes: {Css.custom.variable, org.jetbrains.kotlin.idea.stubindex.KotlinFunctionShortNameIndex, Css.ampersand.selector, Scss.mixin, angular2.symbol.index, angular2.ivy.pipe.index, js.typedef.index2, org.jetbrains.kotlin.idea.stubindex.KotlinFileFacadeFqNameIndex, org.jetbrains.kotlin.idea.stubindex.KotlinPropertyShortNameIndex, KotlinTopLevelExpectFunctionFqNameIndex, gr.script.fqn.s, Less.mixins, JS.global.qualified.elements, js.doc.modules, KotlinTopLevelFunctionByPackageIndex, Py.class.shortNameInsensitive, angular2.metadata.function.index, Py.class.attributes, Css.custom.property, js.used.remote.modules, vue.composition.app.index, postcss.custom.media, Python.Decorator, Py.variable.shortName, angular2.source.directive.index, org.jetbrains.kotlin.idea.stubindex.KotlinFullClassNameIndex, js.generics.index, org.jetbrains.kotlin.idea.stubindex.KotlinMultifileClassPartIndex, JS.subclass.stub.index, amd.requirePaths.index, amd.baseUrl.index, redis.dml.shortName, postcss.custom.selector, js.local.namespace.members.index, java.anonymous.baseref, KotlinTopLevelExtensionsByReceiverTypeIndex, vuex.store.index, ts.embedded.content.index, angular2.metadata.pipe.index, org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex, vue.options.index, JS.framework.markers.index, vue.global.directives.index, KotlinProbablyInjectedFunctionShortNameIndex, org.jetbrains.kotlin.idea.stubindex.KotlinJvmNameAnnotationIndex, java.field.name, Py.class.super, gr.annot.members, Django.foreignKey, angular2.source.pipe.index, org.jetbrains.kotlin.idea.stubindex.KotlinSuperClassIndex, org.jetbrains.kotlin.idea.stubindex.KotlinScriptFqnIndex, org.jetbrains.kotlin.idea.stubindex.KotlinTypeAliasShortNameIndex, angular2.metadata.module.index, Py.TypeAliasName, angular2.templateUrl.index, Css.class, Less.variables, org.jetbrains.kotlin.idea.stubindex.KotlinFilePartClassIndex, vue.global.filters.index, java.annotations, java.class.extlist, js.gcl.modules, java.unnamed.class, JS.class.implements, kotlin.primeIndexKey, gr.class.fqn.s, Py.function.shortName, gr.annot.method.name, js.qualified.shortName, angular2.metadata.node.index, angular2.metadata.className.index, angular2.js.html.custom-property.index, Py.module.attribute, properties.index, org.jetbrains.kotlin.idea.stubindex.KotlinClassShortNameIndex, KotlinTypeAliasByExpansionShortNameIndex, angular2.ivy.directive.index, js.symbol.index2, KotlinFileFacadeClassByPackageIndex, ts.global.exported.index, KotlinTopLevelPropertyByPackageIndex, KotlinProbablyNothingFunctionShortNameIndex, KotlinOverridableInternalMembersShortNameIndex, protobuf.byQualifiedName, vue.url.index, KotlinProbablyNothingPropertyShortNameIndex, Css.custom.mixin, sql.column.name, js.element.qualifiedName, gr.script.class, vue.components.index, java.method.name, Css.id, vue.extends.binding.index, es6.side.effect.import.index, es6.assignment.index, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelPropertyFqnNameIndex, markdown.header.anchor, KotlinExtensionsInObjectsByReceiverTypeIndex, Scss.placeholder.selector, java.module.name, js.lazy.packages, org.jetbrains.kotlin.idea.stubindex.KotlinSubclassObjectNameIndex, gr.anonymous.class, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelTypeAliasFqNameIndex, angular2.ivy.module.index, angular2.metadata.directive.index, js.class.index2, sql.table.shortName, java.record.component.name, js.nonglobal.symbol.index, Django.manager, gr.class.super, java.class.shortname, ts.local.classes, js.exported.index, gr.field.name, js.symbol.qualified.names.index, JS.base.types.index, vue.id.index, js.global.symbol.index, Scss.variable, JS.class.super, org.jetbrains.kotlin.idea.stubindex.KotlinFileFacadeShortNameIndex, sql.names, angular2.js.css.custom-property.index, KotlinTopLevelTypeAliasByPackageIndex, java.method.parameter.types, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelClassByPackageIndex, ts.external.module.name.index, dom.elementClass, ts.external.module.index, protobuf.byShortName, KotlinProbablyContractedFunctionShortNameIndex, markdown.header, es6.exported.index, KotlinTopLevelExpectPropertyFqNameIndex, jvm.static.member.name, js.amd.modules, org.jetbrains.kotlin.idea.stubindex.KotlinInnerTypeAliasClassIdIndex, org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelFunctionFqnNameIndex, dom.namespaceKey, Css.attr, js.export.default.react.component.index, Scss.function, gr.method.name, org.jetbrains.kotlin.idea.stubindex.KotlinExactPackagesIndex, js.imported.bindings.index, js.namespace.index, angular2.source.module.index, vue.mixin.binding.index, java.class.fqn, jvm.static.member.type, Py.class.shortName}.
+2026-06-30 21:56:11,589 [49857300]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:11,590 [49857301]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] Started scanning for indexing of [JetbrainsPluginDemo]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-30 21:56:11,590 [49857301]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] Started scanning for indexing of [WindowAccent]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-30 21:56:11,590 [49857301]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] scanning stage (scanning id=34): CreatingIterators
+2026-06-30 21:56:11,590 [49857301]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=36): CreatingIterators
+2026-06-30 21:56:11,593 [49857304]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] scanning stage (scanning id=36): CollectingIndexableFiles
+2026-06-30 21:56:11,593 [49857304]   INFO - #c.i.u.i.d.ProjectIndexingDependenciesService - Heavy scanning on startup because of incomplete scanning from previous IDE session
+2026-06-30 21:56:11,593 [49857304]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [JetbrainsPluginDemo] uses 15 scanning threads
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] scanning stage (scanning id=34): CollectingIndexableFiles
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.u.i.d.ProjectIndexingDependenciesService - Heavy scanning on startup because of incomplete scanning from previous IDE session
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [WindowAccent] uses 15 scanning threads
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.o.a.i.ActionUpdater - 1205 ms to grab EDT for FontEditorPreview$RestorePreviewTextAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$RestorePreviewTextAction) "RestoreFontPreviewTextAction"
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.o.a.i.ActionUpdater - 1205 ms to grab EDT for FontEditorPreview$ToggleBoldFontAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$ToggleBoldFontAction) "fontEditorPreview.ToggleBoldFont"
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.o.a.i.ActionUpdater - 1204 ms to grab EDT for HideAction#presentation@ContextToolbar (com.intellij.java.execution.impl.frontend.HideAction)
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.o.a.i.ActionUpdater - 1204 ms to grab EDT for HotSwapWithRebuildAction#presentation@ContextToolbar (com.intellij.platform.debugger.impl.frontend.hotswap.HotSwapWithRebuildAction)
+2026-06-30 21:56:11,595 [49857306]   INFO - #c.i.o.a.i.ActionUpdater - 1205 ms to grab EDT for HideAction#presentation@ContextToolbar (com.intellij.platform.debugger.impl.frontend.hotswap.HideAction)
+2026-06-30 21:56:11,596 [49857307]   INFO - #c.i.o.a.i.ActionUpdater - 1202 ms to grab EDT for FontEditorPreview$RestorePreviewTextAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$RestorePreviewTextAction) "RestoreFontPreviewTextAction"
+2026-06-30 21:56:11,596 [49857307]   INFO - #c.i.o.a.i.ActionUpdater - 1202 ms to grab EDT for FontEditorPreview$ToggleBoldFontAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$ToggleBoldFontAction) "fontEditorPreview.ToggleBoldFont"
+2026-06-30 21:56:11,596 [49857307]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:11,596 [49857307]   INFO - #c.i.o.a.i.ActionUpdater - 1198 ms to grab EDT for ToolWindowHeader$2#children@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2)
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1195 ms to grab EDT for FontEditorPreview$ToggleBoldFontAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$ToggleBoldFontAction) "fontEditorPreview.ToggleBoldFont"
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1195 ms to grab EDT for HideAction#presentation@ContextToolbar (com.intellij.java.execution.impl.frontend.HideAction)
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1195 ms to grab EDT for HotSwapWithRebuildAction#presentation@ContextToolbar (com.intellij.platform.debugger.impl.frontend.hotswap.HotSwapWithRebuildAction)
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1195 ms to grab EDT for HideAction#presentation@ContextToolbar (com.intellij.platform.debugger.impl.frontend.hotswap.HideAction)
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1194 ms to grab EDT for FontEditorPreview$RestorePreviewTextAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$RestorePreviewTextAction) "RestoreFontPreviewTextAction"
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1194 ms to grab EDT for FontEditorPreview$ToggleBoldFontAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$ToggleBoldFontAction) "fontEditorPreview.ToggleBoldFont"
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1193 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1193 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:11,597 [49857308]   INFO - #c.i.o.a.i.ActionUpdater - 1195 ms to grab EDT for FontEditorPreview$RestorePreviewTextAction#presentation@ContextToolbar (com.intellij.application.options.colors.FontEditorPreview$RestorePreviewTextAction) "RestoreFontPreviewTextAction"
+2026-06-30 21:56:11,598 [49857309]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] Started scanning for indexing of [ai-playbook]. Reason: On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)
+2026-06-30 21:56:11,598 [49857309]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] scanning stage (scanning id=35): CreatingIterators
+2026-06-30 21:56:11,601 [49857312]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] scanning stage (scanning id=35): CollectingIndexableFiles
+2026-06-30 21:56:11,601 [49857312]   INFO - #c.i.u.i.d.ProjectIndexingDependenciesService - Heavy scanning on startup because of incomplete scanning from previous IDE session
+2026-06-30 21:56:11,601 [49857312]   INFO - #c.i.u.i.UnindexedFilesScanner - Scanning of [ai-playbook] uses 15 scanning threads
+2026-06-30 21:56:11,605 [49857316]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:11,614 [49857325]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [WindowAccent]
+2026-06-30 21:56:11,615 [49857326]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [ai-playbook]
+2026-06-30 21:56:11,616 [49857327]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [JetbrainsPluginDemo]
+2026-06-30 21:56:11,617 [49857328]   INFO - #c.i.o.a.i.ActionUpdater - 1082 ms to grab EDT for QuotaPieChartAction#presentation@ToolwindowTitle (com.github.copilot.actions.QuotaPieChartAction)
+2026-06-30 21:56:11,617 [49857328]   INFO - #c.i.o.a.i.ActionUpdater - 1082 ms to grab EDT for NewChatSessionAction#presentation@ToolwindowTitle (com.github.copilot.chat.window.actions.NewChatSessionAction)
+2026-06-30 21:56:11,617 [49857328]   INFO - #c.i.o.a.i.ActionUpdater - 1082 ms to grab EDT for ChatToolWindowSettingsAction#presentation@ToolwindowTitle (com.github.copilot.chat.window.actions.ChatToolWindowSettingsAction)
+2026-06-30 21:56:11,617 [49857328]   INFO - #c.i.o.a.i.ActionUpdater - 1082 ms to grab EDT for DockToolWindowAction#presentation@ToolwindowTitle (com.intellij.openapi.wm.impl.DockToolWindowAction)
+2026-06-30 21:56:11,623 [49857334]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:11,623 [49857334]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:11,623 [49857334]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:11,627 [49857338]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:11,628 [49857339]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:11,628 [49857339]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) Plugin loaded/unloaded (re-load indexes)
+2026-06-30 21:56:11,656 [49857367]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scheduling indexing of CONVENTIONS.md (id=1456138) by request of indexes: [Trigram.Index->NOT_INDEXED(not indexed),IdIndex->NOT_INDEXED(not indexed),Stubs->NOT_INDEXED(not indexed),].
+2026-06-30 21:56:11,666 [49857377]   INFO - #c.i.o.a.i.ActionUpdater - 1131 ms to grab EDT for DockToolWindowAction#presentation@ToolwindowTitle (com.intellij.openapi.wm.impl.DockToolWindowAction)
+2026-06-30 21:56:12,004 [49857715]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:12,189 [49857900]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 14359, offset: 0, line: 0
+2026-06-30 21:56:12,189 [49857900]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,189 [49857900]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 11081, offset: 2937, line: 55
+2026-06-30 21:56:12,189 [49857900]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,189 [49857900]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 5211, offset: 1331, line: 40
+2026-06-30 21:56:12,189 [49857900]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,223 [49857934]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 12539, offset: 0, line: 0
+2026-06-30 21:56:12,223 [49857934]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,244 [49857955]   INFO - #o.j.j.b.BridgePainterHintsProvider$Companion - Parsing theme info from theme Islands Dark (id: Islands Dark, isDark: true)
+2026-06-30 21:56:12,270 [49857981]   INFO - #c.i.o.a.i.ActionUpdater - 673 ms to grab EDT for DockToolWindowAction#presentation@ToolwindowTitle (com.intellij.openapi.wm.impl.DockToolWindowAction)
+2026-06-30 21:56:12,271 [49857982]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 10646, offset: 3281, line: 63
+2026-06-30 21:56:12,271 [49857982]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,274 [49857985]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:12,278 [49857989]   WARN - #c.i.o.a.i.ActionUpdater - 4375 ms total to grab EDT 5 times to expand ToolWindowHeader$2#expandGroup@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2). Use `ActionUpdateThread.BGT`.
+2026-06-30 21:56:12,338 [49858049]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,395 [49858106]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,408 [49858119]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,459 [49858170]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,470 [49858181]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,476 [49858187]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,488 [49858199]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,494 [49858205]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,508 [49858219]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,510 [49858221]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,513 [49858224]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,527 [49858238]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,529 [49858240]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,529 [49858240]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,533 [49858244]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,533 [49858244]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,543 [49858254]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,544 [49858255]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: attachHtmlPanel
+2026-06-30 21:56:12,558 [49858269]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: updateHtml
+2026-06-30 21:56:12,562 [49858273]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,563 [49858274]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,566 [49858277]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:12,581 [49858292]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:12,670 [49858381]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:12,670 [49858381]   INFO - #c.i.o.a.i.ActionUpdater - 518 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:12,670 [49858381]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for SelectInChangesViewAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.actions.SelectInChangesViewAction) "ChangesView.SelectFile"
+2026-06-30 21:56:12,670 [49858381]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ExpandAllAction#presentation@ChangesViewToolbar (ExpandAllAction) "ExpandAll"
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for CollapseAllAction#presentation@ChangesViewToolbar (CollapseAllAction) "CollapseAll"
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ToolWindowHeader$2#children@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ToggleAmendCommitModeAction#presentation@ChangesView.CommitToolbar (com.intellij.vcs.commit.ToggleAmendCommitModeAction) "Vcs.ToggleAmendCommitMode"
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ToolWindowHeader$2#children@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for GitCommitAndPushExecutorAction#presentation@ChangesView.CommitButtonsToolbar (git4idea.actions.GitCommitAndPushExecutorAction) "Git.Commit.And.Push.Executor"
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for InspectionWidgetContentExclusionAction#presentation@EditorInspectionsToolbar (com.github.copilot.status.InspectionWidgetContentExclusionAction)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ShowCommitOptionsAction#presentation@ChangesView.ShowCommitOptions (com.intellij.openapi.vcs.actions.ShowCommitOptionsAction) "ChangesView.ShowCommitOptions"
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for EditorMarkupModelImpl$TrafficLightAction#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$TrafficLightAction)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for EditorMarkupModelImpl$NavigationGroup#presentation@EditorInspectionsToolbar (com.intellij.openapi.editor.impl.EditorMarkupModelImpl$NavigationGroup)
+2026-06-30 21:56:12,671 [49858382]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for SelectInChangesViewAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.actions.SelectInChangesViewAction) "ChangesView.SelectFile"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ExpandAllAction#presentation@ChangesViewToolbar (ExpandAllAction) "ExpandAll"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for CollapseAllAction#presentation@ChangesViewToolbar (CollapseAllAction) "CollapseAll"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ToggleAmendCommitModeAction#presentation@ChangesView.CommitToolbar (com.intellij.vcs.commit.ToggleAmendCommitModeAction) "Vcs.ToggleAmendCommitMode"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for GitCommitAndPushExecutorAction#presentation@ChangesView.CommitButtonsToolbar (git4idea.actions.GitCommitAndPushExecutorAction) "Git.Commit.And.Push.Executor"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 517 ms to grab EDT for ShowCommitOptionsAction#presentation@ChangesView.ShowCommitOptions (com.intellij.openapi.vcs.actions.ShowCommitOptionsAction) "ChangesView.ShowCommitOptions"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 516 ms to grab EDT for CollapseAllAction#presentation@ServicesToolbar (CollapseAllAction)
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 516 ms to grab EDT for ExpandAllAction#presentation@ServicesToolbar (ExpandAllAction)
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 516 ms to grab EDT for ToggleDetailsAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.ToggleDetailsAction) "ChangesView.SingleClickPreview"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 516 ms to grab EDT for GitCommitGenerateAction#presentation@ChangesView.CommitToolbar (com.github.copilot.git.GitCommitGenerateAction) "copilot.git.commit.button"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 515 ms to grab EDT for InspectionWidgetContentExclusionAction#presentation@EditorInspectionsToolbar (com.github.copilot.status.InspectionWidgetContentExclusionAction)
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 515 ms to grab EDT for ToggleDetailsAction#presentation@ChangesViewToolbar (com.intellij.openapi.vcs.changes.ToggleDetailsAction) "ChangesView.SingleClickPreview"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 515 ms to grab EDT for GitCommitGenerateAction#presentation@ChangesView.CommitToolbar (com.github.copilot.git.GitCommitGenerateAction) "copilot.git.commit.button"
+2026-06-30 21:56:12,672 [49858383]   INFO - #c.i.o.a.i.ActionUpdater - 515 ms to grab EDT for OpenInNewTabActionGroup#presentation@ServicesToolbar (com.intellij.platform.execution.serviceView.OpenInNewTabActionGroup) "ServiceView.OpenInNewTabGroup"
+2026-06-30 21:56:12,710 [49858421]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [WindowAccent]
+2026-06-30 21:56:12,711 [49858422]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 49619, offset: 34460, line: 251
+2026-06-30 21:56:12,711 [49858422]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,711 [49858422]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [JetbrainsPluginDemo]
+2026-06-30 21:56:12,712 [49858423]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [ai-playbook]
+2026-06-30 21:56:12,714 [49858425]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 14359, offset: 0, line: 0
+2026-06-30 21:56:12,714 [49858425]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,715 [49858426]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 11081, offset: 2937, line: 55
+2026-06-30 21:56:12,715 [49858426]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,715 [49858426]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 5211, offset: 1331, line: 40
+2026-06-30 21:56:12,715 [49858426]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,715 [49858426]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 60515, offset: 505, line: 13
+2026-06-30 21:56:12,715 [49858426]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,716 [49858427]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 10646, offset: 3281, line: 63
+2026-06-30 21:56:12,716 [49858427]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,716 [49858427]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 12539, offset: 0, line: 0
+2026-06-30 21:56:12,716 [49858427]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,716 [49858427]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 49619, offset: 34460, line: 251
+2026-06-30 21:56:12,716 [49858427]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:12,854 [49858565]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: readAction finished
+2026-06-30 21:56:13,038 [49858749]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml length: 60515, offset: 505, line: 13
+2026-06-30 21:56:13,038 [49858749]   INFO - #org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditor$Companion - MarkdownPreviewFileEditor: setHtml finished
+2026-06-30 21:56:13,332 [49859043]   INFO - #c.i.u.i.UnindexedFilesScanner - [42358541] Scanning completed for [ai-playbook]. Number of scanned files: 44488; number of files for indexing: 1
+2026-06-30 21:56:13,333 [49859044]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [42358541] Task finished (scanning id=35): com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@280e4f2b
+2026-06-30 21:56:13,333 [49859044]   INFO - #c.i.o.p.i.ProgressManagerImpl - checkCancelled is invoked while write-action is pending. nonCancellable: false, hasProgressIndicator: false, hasContextJob: true, hasNoneBehavior: false, hasOnlyHooksBehavior: true, cancelled: false
+2026-06-30 21:56:13,339 [49859050]   INFO - #c.i.o.p.DumbServiceImpl - enter dumb mode [ai-playbook]
+2026-06-30 21:56:13,346 [49859057]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Running task: (dumb mode task) UnindexedFilesIndexer[ai-playbook, reasons: [On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)]]
+2026-06-30 21:56:13,353 [49859064]   INFO - #c.i.u.i.FileBasedIndexImpl - Indexes are already loaded
+2026-06-30 21:56:13,353 [49859064]   INFO - #c.i.u.i.c.IndexUpdateRunner - Using 15 workers for indexing and 4 for writing indexes
+2026-06-30 21:56:13,406 [49859117]   INFO - #c.i.u.i.ProjectChangedFilesScanner - Retrieving changed during indexing files of ai-playbook : 0 to update, calculated in 0ms
+2026-06-30 21:56:13,406 [49859117]   INFO - #c.i.u.i.UnindexedFilesIndexer - Finished for ai-playbook. Unindexed files update took 53ms; general responsiveness: ok; EDT responsiveness: ok
+2026-06-30 21:56:13,407 [49859118]   INFO - #c.i.o.p.MergingQueueGuiExecutor - Task finished: (dumb mode task) UnindexedFilesIndexer[ai-playbook, reasons: [On FileBasedIndexTumbler.turnOn (reason=Plugin loaded/unloaded)]]
+2026-06-30 21:56:13,413 [49859124]   INFO - #c.i.o.p.DumbServiceImpl - exit dumb mode [ai-playbook]
+2026-06-30 21:56:13,586 [49859297]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scanner has updated file workspace.xml (id=1457107) with appliers: [] and removers: [SingleIndexValueRemover{indexId=ClassNameEmbeddingIndex, inputId=1457107, fileInfo='workspace.xml(id=1457107)', applicationMode =SameThreadOutsideReadLock}, SingleIndexValueRemover{indexId=SymbolNameEmbeddingIndex, inputId=1457107, fileInfo='workspace.xml(id=1457107)', applicationMode =SameThreadOutsideReadLock}, SingleIndexValueRemover{indexId=FileNameEmbeddingIndex, inputId=1457107, fileInfo='workspace.xml(id=1457107)', applicationMode =SameThreadOutsideReadLock}];
+2026-06-30 21:56:13,592 [49859303]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scanner has updated file CHANGELOG.md (id=1454553) with appliers: [] and removers: [SingleIndexValueRemover{indexId=ClassNameEmbeddingIndex, inputId=1454553, fileInfo='CHANGELOG.md(id=1454553)', applicationMode =SameThreadOutsideReadLock}, SingleIndexValueRemover{indexId=SymbolNameEmbeddingIndex, inputId=1454553, fileInfo='CHANGELOG.md(id=1454553)', applicationMode =SameThreadOutsideReadLock}];
+2026-06-30 21:56:13,592 [49859303]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scanner has updated file jetbrains-window-accent-profiler-shortest-path-example-002.txt (id=1568452) with appliers: [] and removers: [SingleIndexValueRemover{indexId=ClassNameEmbeddingIndex, inputId=1568452, fileInfo='jetbrains-window-accent-profiler-shortest-path-example-002.txt(id=1568452)', applicationMode =SameThreadOutsideReadLock}, SingleIndexValueRemover{indexId=SymbolNameEmbeddingIndex, inputId=1568452, fileInfo='jetbrains-window-accent-profiler-shortest-path-example-002.txt(id=1568452)', applicationMode =SameThreadOutsideReadLock}];
+2026-06-30 21:56:13,592 [49859303]   INFO - #c.i.u.i.IndexingReasonExplanationLogger - Scanner has updated file gradle.properties (id=1454540) with appliers: [] and removers: [SingleIndexValueRemover{indexId=ClassNameEmbeddingIndex, inputId=1454540, fileInfo='gradle.properties(id=1454540)', applicationMode =SameThreadOutsideReadLock}, SingleIndexValueRemover{indexId=SymbolNameEmbeddingIndex, inputId=1454540, fileInfo='gradle.properties(id=1454540)', applicationMode =SameThreadOutsideReadLock}];
+2026-06-30 21:56:13,637 [49859348]   INFO - #c.i.u.i.UnindexedFilesScanner - [ede7c168] Scanning completed for [JetbrainsPluginDemo]. Number of scanned files: 68220; number of files for indexing: 0
+2026-06-30 21:56:13,638 [49859349]   INFO - #c.i.u.i.PerProjectIndexingQueue - Finished for [JetbrainsPluginDemo]. No files to index with loading content.
+2026-06-30 21:56:13,638 [49859349]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [ede7c168] Task finished (scanning id=36): com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@728c393b
+2026-06-30 21:56:14,462 [49860173]   INFO - #c.i.u.i.UnindexedFilesScanner - [5ff93e6f] Scanning completed for [WindowAccent]. Number of scanned files: 289067; number of files for indexing: 0
+2026-06-30 21:56:14,463 [49860174]   INFO - #c.i.u.i.PerProjectIndexingQueue - Finished for [WindowAccent]. No files to index with loading content.
+2026-06-30 21:56:14,463 [49860174]   INFO - #c.i.o.p.UnindexedFilesScannerExecutor - [5ff93e6f] Task finished (scanning id=34): com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl$ScheduledScanningTask@f5dd1e1
+2026-06-30 21:56:16,305 [49862016]   INFO - #c.i.c.p.c.e.s.ProvenanceDatabaseService - Creating ProvenanceDatabase at: C:\Users\alexander.goudemond\.jetbrains\personal\alexBlakeGoudemond\system\projects\jetbrainsplugindemo.ede7c168\provenance
