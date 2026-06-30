@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.0]
+
 - Window title labels are now styled using Unicode Mathematical Alphanumeric Symbols
     - The **global title** (all windows) is rendered in **bold**: e.g. `[𝗽𝗿𝗼𝗱]`
     - The **per-window custom title** (and number) are rendered in *italic*: e.g. `[𝟏 - 𝑑𝑎𝑡𝑡𝑒𝑏𝑎𝑦𝑜]`
@@ -12,7 +14,7 @@
       pass through unchanged. This is a Unicode limitation and not a bug.
     - **No restart risk**: `TitleTextStyler` is a pure stateless utility; it introduces no new platform
       registrations, listeners, or Disposer entries and does not affect the existing unload cleanup path
-      
+
 ## [1.5.3]
 
 ### Fixed
@@ -609,7 +611,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0
 [1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.0...1.5.1
