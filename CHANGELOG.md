@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.5.2]
+
+### Fixed
+
+- Fix icon stroke icon (002) likely causing update on restart bug
     - **Root cause identified via hprof snapshot** (`unload-WindowAccent-30.06.2026_06.25.59.hprof`):
       same underlying mechanism as v1.2.10 (`ImageDataByPathLoader → PluginClassLoader`), but
       through a **different Caffeine cache** — `com.intellij.ui.icons.StrokeKt.strokeIconCache` —
@@ -12,8 +18,6 @@
     - **Fix:** added `flushStrokeIconCache()` which reflectively calls `invalidateAll()` on
       `StrokeKt.strokeIconCache` during plugin unload. Gracefully skips on older IntelliJ
       versions where the cache does not exist.
-
-## [1.5.2]
 
 ## [1.5.1]
 
