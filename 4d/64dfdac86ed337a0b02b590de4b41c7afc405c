@@ -1,0 +1,14 @@
+CHANGELOG.md
+  h_1197a506f6c7d6 5-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "4d64dfdac86ed337a0b02b590de4b41c7afc405c",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
