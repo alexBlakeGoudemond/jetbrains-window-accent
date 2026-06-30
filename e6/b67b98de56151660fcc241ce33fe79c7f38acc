@@ -1,0 +1,40 @@
+CHANGELOG.md
+  h_1197a506f6c7d6 5-6,25
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  h_1197a506f6c7d6 7,9
+.ai-resources/plugin-hprof/jetbrains-window-accent-profiler-shortest-path-example-002.txt
+  h_1197a506f6c7d6 1-1940
+src/main/kotlin/com/window_accent/feature/window_title/TitleTextStyler.kt
+  s_15002cec758fce::t_dfa681daa848af 1-89
+src/test/kotlin/com/window_accent/feature/window_title/TitleTextStylerTest.kt
+  s_15002cec758fce::t_a917233917ad47 1-152
+src/test/kotlin/com/window_accent/feature/window_title/WindowTitleApplierTest.kt
+  s_15002cec758fce::t_0ecd1fbbf19842 164,176
+  s_15002cec758fce::t_8a5b83da247f6d 150
+  s_15002cec758fce::t_8c00df7966b348 118-121
+  s_15002cec758fce::t_fa0a4399694c06 508
+  s_15002cec758fce::t_f1680d076a1bb0 10
+  s_15002cec758fce::t_fe9643b9bef984 143
+  s_15002cec758fce::t_86972e68c6a3e8 194,200,206-209,215-218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "e6b67b98de56151660fcc241ce33fe79c7f38acc",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_15002cec758fce": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1782800731284",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
