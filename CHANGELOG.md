@@ -2,12 +2,20 @@
 
 ## [Unreleased]
 
+## [1.5.1]
+
+### Fixed
+
+- Window Titles should no longer 'forget' custom titles
+    - Occasionally, when multiple IDE windows are open, the custom titles would be
+      absent from most of the window instances
+
 ## [1.5.0]
 
 ### Added
 
 - Added option for Global Window Title
-  - Can now set a custom title that will show on all windows
+    - Can now set a custom title that will show on all windows
 
 ## [1.4.4]
 
@@ -553,7 +561,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...HEAD
+[1.5.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.4...1.5.0
 [1.4.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...1.4.3
