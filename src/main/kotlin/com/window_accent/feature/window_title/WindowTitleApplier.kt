@@ -284,18 +284,21 @@ class WindowTitleApplier {
      * Builds the window title prefix based on the current numbering, per-window custom title,
      * and global custom title state.
      *
-     * The global part appears first, followed by the per-window part:
+     * The global part appears first, followed by the per-window part. The global title text is
+     * styled **bold** and the entire per-window bracket content (number, separator, and custom
+     * title) is styled *italic* using Unicode Mathematical Alphanumeric Symbols.
+     * Digits have no italic Unicode counterpart so they pass through unchanged.
      *
-     * | Numbering | Per-window | Global | Result                        |
-     * |-----------|------------|--------|-------------------------------|
-     * | enabled   | enabled    | enabled  | `[globalTitle][n - perTitle]` |
-     * | enabled   | enabled    | disabled | `[n - perTitle]`              |
-     * | enabled   | disabled   | enabled  | `[globalTitle][n]`            |
-     * | enabled   | disabled   | disabled | `[n]`                         |
-     * | disabled  | enabled    | enabled  | `[globalTitle][perTitle]`     |
-     * | disabled  | enabled    | disabled | `[perTitle]`                  |
-     * | disabled  | disabled   | enabled  | `[globalTitle]`               |
-     * | disabled  | disabled   | disabled | `""` (no prefix)              |
+     * | Numbering | Per-window | Global | Result                                |
+     * |-----------|------------|--------|---------------------------------------|
+     * | enabled   | enabled    | enabled  | `[boldGlobal][italic(n - perTitle)]`  |
+     * | enabled   | enabled    | disabled | `[italic(n - perTitle)]`              |
+     * | enabled   | disabled   | enabled  | `[boldGlobal][italic(n)]`             |
+     * | enabled   | disabled   | disabled | `[italic(n)]`                         |
+     * | disabled  | enabled    | enabled  | `[boldGlobal][italic(perTitle)]`      |
+     * | disabled  | enabled    | disabled | `[italic(perTitle)]`                  |
+     * | disabled  | disabled   | enabled  | `[boldGlobal]`                        |
+     * | disabled  | disabled   | disabled | `""` (no prefix)                      |
      */
     internal fun buildTitlePrefix(
         number: Int,
@@ -308,14 +311,24 @@ class WindowTitleApplier {
         val hasCustomTitle = customTitleEnabled && customTitle.isNotBlank()
         val hasGlobalTitle = globalCustomTitleEnabled && globalCustomTitle.isNotBlank()
 
+        // Apply Unicode mathematical styling to the label text inside the brackets only.
+        // Global title → bold; per-window content (number + separator + custom title) → italic.
+        //
+        // The entire per-window bracket content is passed through toItalic as a single string so
+        // that numbering and custom title are styled uniformly. Digits have no italic Unicode
+        // counterpart (U+1D455 is absent and the italic digit block does not exist), so digits
+        // pass through unchanged — the number's visual appearance is unaffected, but the intent
+        // is clear and the approach is future-proof should Unicode add italic digits.
+        val styledGlobalTitle = TitleTextStyler.toBold(globalCustomTitle)
+
         val perWindowPart = when {
-            numberingEnabled && hasCustomTitle -> "[$number - $customTitle]"
-            numberingEnabled -> "[$number]"
-            hasCustomTitle -> "[$customTitle]"
-            else -> ""
+            numberingEnabled && hasCustomTitle -> "[${TitleTextStyler.toItalic("$number - $customTitle")}]"
+            numberingEnabled                   -> "[${TitleTextStyler.toItalic("$number")}]"
+            hasCustomTitle                     -> "[${TitleTextStyler.toItalic(customTitle)}]"
+            else                               -> ""
         }
 
-        val globalPart = if (hasGlobalTitle) "[$globalCustomTitle]" else ""
+        val globalPart = if (hasGlobalTitle) "[$styledGlobalTitle]" else ""
 
         return when {
             globalPart.isNotEmpty() && perWindowPart.isNotEmpty() -> "$globalPart$perWindowPart"
