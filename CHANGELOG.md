@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [1.6.0]
+
+### Added
+
+- Window title labels are now styled using Unicode Mathematical Alphanumeric Symbols
+    - The **global title** (all windows) is rendered in **bold**: e.g. `[𝗽𝗿𝗼𝗱]`
+    - The **per-window custom title** (and number) are rendered in *italic*: e.g. `[𝟏 - 𝑑𝑎𝑡𝑡𝑒𝑏𝑎𝑦𝑜]`
+    - Styling is applied to the text inside the brackets only — the brackets themselves are unchanged
+    - No new settings or toggles are required; styling is automatic
+    - Introduced `TitleTextStyler` utility (`feature/window_title`) with `toBold()` and `toItalic()` functions
+    - **Unicode constraint**: italic digits do not exist in Unicode — digit characters in the number prefix
+      pass through unchanged. This is a Unicode limitation and not a bug.
+    - **No restart risk**: `TitleTextStyler` is a pure stateless utility; it introduces no new platform
+      registrations, listeners, or Disposer entries and does not affect the existing unload cleanup path
+
+### Fixed
+
+- Add @Deprecated to method for ToolWindowManager.unregisterToolWindow to try to remove Plugin Verification warning
+- Update title numbering state across all open projects in the toggle listener
+    - Should address bug where toggling title numbering does not update all open window instances - just the focussed 
+      one
+
 ## [1.5.3]
 
 ### Fixed
@@ -598,7 +620,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0
 [1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.0...1.5.1

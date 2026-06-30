@@ -146,6 +146,15 @@ class WindowAccentApplicationService : Disposable {
          * Root cause confirmed in `log-example-update-plugin-to-1.5.2.txt` via IntelliJ's own
          * snapshot analysis output (lines 492–530).
          */
+        // ToolWindowManager.unregisterToolWindow(String) is @Deprecated with the message
+        // "Use ToolWindowFactory and com.intellij.toolWindow extension point". Window Accent
+        // already declares its tool window declaratively in plugin.xml (satisfying that intent).
+        // This call is proactive unload-cleanup only: it runs during beforePluginUnload to break
+        // the stripeTitleProvider → PluginClassLoader retention chain before IntelliJ's GC check.
+        // No non-deprecated alternative exists for this specific use case, and the method does
+        // not carry @ApiStatus.ScheduledForRemoval, so suppression is safe here.
+        // TODO BlakeGoudemond 2026/06/30 | find replacement to ToolWindowManager.unregisterToolWindow
+        @Suppress("DEPRECATION")
         private fun flushToolWindowRegistrations() {
             val toolWindowId = "WindowAccent"
             ProjectManager.getInstance().openProjects.forEach { project ->
