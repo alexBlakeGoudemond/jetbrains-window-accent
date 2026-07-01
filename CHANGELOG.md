@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.6.3]
+
+### Fixed
+
+- Emojis now work in Custom Title on Restart of IDE windows
+  - Bring in UnicodeXmlSanitizer to safely encode and decode Emojis
+
 ## [1.6.2]
 
 ### Fixed
@@ -698,7 +705,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.2...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.3...HEAD
+[1.6.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0

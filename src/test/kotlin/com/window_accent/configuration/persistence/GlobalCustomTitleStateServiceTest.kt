@@ -161,4 +161,70 @@ class GlobalCustomTitleStateServiceTest {
         assertEquals(stateToLoad.globalCustomTitle, retrievedState.globalCustomTitle)
         assertEquals(stateToLoad.globalCustomTitleEnabled, retrievedState.globalCustomTitleEnabled)
     }
+
+    // -------------------------------------------------------------------------
+    // Emoji persistence — supplementary characters survive the XML round-trip
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `emoji is accessible in memory after being set`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+        service.setGlobalCustomTitle(rocket)
+        assertEquals(rocket, service.getGlobalCustomTitle())
+    }
+
+    @Test
+    fun `getState encodes emoji as ASCII-safe escape for XML serialisation`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+        service.setGlobalCustomTitle(rocket)
+        assertEquals("\\u{1F680}", service.getState().globalCustomTitle)
+    }
+
+    @Test
+    fun `loadState decodes emoji escape back to the original character`() {
+        service.loadState(GlobalCustomTitleStateService.State(globalCustomTitle = "\\u{1F680}", globalCustomTitleEnabled = true))
+        assertEquals(String(Character.toChars(0x1F680)), service.getGlobalCustomTitle())
+    }
+
+    @Test
+    fun `emoji persists correctly across xml round-trip`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+
+        // Session 1: user sets the emoji title
+        service.setGlobalCustomTitle(rocket)
+
+        // Simulate: IntelliJ writes state to XML (encoded form)
+        val stateForXml = service.getState()
+
+        // Session 2: IntelliJ reads the state back from XML (encoded form passed to loadState)
+        val freshService = GlobalCustomTitleStateService()
+        freshService.loadState(stateForXml)
+
+        assertEquals(rocket, freshService.getGlobalCustomTitle())
+    }
+
+    @Test
+    fun `mixed text and emoji persists correctly across xml round-trip`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+        val original = "prod $rocket"
+
+        service.setGlobalCustomTitle(original)
+        val stateForXml = service.getState()
+
+        val freshService = GlobalCustomTitleStateService()
+        freshService.loadState(stateForXml)
+
+        assertEquals(original, freshService.getGlobalCustomTitle())
+    }
+
+    @Test
+    fun `plain ASCII title is unaffected by encode and decode`() {
+        service.setGlobalCustomTitle("prod")
+        val stateForXml = service.getState()
+        assertEquals("prod", stateForXml.globalCustomTitle)
+
+        val freshService = GlobalCustomTitleStateService()
+        freshService.loadState(stateForXml)
+        assertEquals("prod", freshService.getGlobalCustomTitle())
+    }
 }

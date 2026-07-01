@@ -28,10 +28,26 @@ class GlobalCustomTitleStateService : PersistentStateComponent<GlobalCustomTitle
 
     private var state = State()
 
-    override fun getState(): State = state
+    /**
+     * Returns a copy of the current state with the global custom title encoded for safe
+     * XML attribute serialisation.
+     *
+     * Supplementary Unicode characters (emoji) are converted to ASCII-safe escape
+     * sequences by [UnicodeXmlSanitizer.encode] before reaching JDOM, preventing
+     * surrogate-pair corruption in the persisted XML file.
+     */
+    override fun getState(): State = state.copy(
+        globalCustomTitle = UnicodeXmlSanitizer.encode(state.globalCustomTitle)
+    )
 
+    /**
+     * Restores state from the persisted XML, decoding any emoji escape sequences
+     * written by [getState] back into their original Unicode characters.
+     */
     override fun loadState(state: State) {
-        this.state = state
+        this.state = state.copy(
+            globalCustomTitle = UnicodeXmlSanitizer.decode(state.globalCustomTitle)
+        )
     }
 
     fun getGlobalCustomTitle(): String = state.globalCustomTitle
