@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.2]
+
 ### Fixed
 
 - Fix `StrokeKt.strokeIconCache` flush still failing on JDK 25 despite `setAccessible(true)`
@@ -46,34 +48,6 @@
     - **Action:** File a JetBrains issue requesting that `FeatureUsageSettingsEvents` be flushed
       or its `Class<?>` references replaced during plugin unload, or that the channel is drained
       synchronously before the GC collectibility check.
-
-## [1.6.2]
-
-- Accept the warning for WindowAccentApplicationService.flushToolWindowRegistrations()
-    - Confirm that @Suppress("DEPRECATION") on flushToolWindowRegistrations is the only publishable approach after
-      exhaustive investigation of all ExtensionPoint alternatives:
-
-    1. unregisterExtension(T) — also @Deprecated ("Deprecated in Java"), confirmed via decompiled ExtensionPoint.class (
-       idea-2026.1-win/lib/util.jar).
-    2. unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean) — not deprecated, but
-       ExtensionComponentAdapter is @Internal; Kotlin emits it in the generic signature bytecode attribute even when
-       referenced only as _, causing a plugin-verifier failure ("usage of Internal API").
-    3. unregisterExtension(Class<out T>) — not deprecated, but removes ALL extensions of that class type (unregisters
-       every plugin's tool windows). Categorically wrong.
-
-    - @Deprecated does not fail the plugin verifier; @Internal does. @Suppress with full documentation is the correct
-      and only viable path for a publishable plugin.
-
-- Attempt to address update causing restart due to StrokeKt.strokeIconCache
-    - The flush failed with IllegalAccessException during the plugin update
-    - Root cause (log-example-update-plugin-to-1.6.0.txt, lines 116–196): getMethod("invalidateAll") resolves
-      invalidateAll() as declared on the Caffeine LocalManualCache interface rather than a concrete override. Invoking
-      an interface-declared method reflectively without setAccessible(true) causes IllegalAccessException at invocation
-      time (JVM access check on the interface's package/module), leaving strokeIconCache un-flushed and retaining
-      PluginClassLoader references through the StrokeKt → strokeIconCache → CachedImageIcon → ImageDataByPathLoader
-      chain. This regressed on IntelliJ 2026.1 build 261.22158.277.
-    - Fix: added invalidateAll.isAccessible = true before invalidateAll.invoke(cache). A module-level
-      InaccessibleObjectException is still caught by the existing Exception handler with a graceful warning.
 
 ## [1.6.1]
 
@@ -725,87 +699,45 @@
 - Title numbering options
 
 [Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.2...HEAD
-
 [1.6.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...1.6.2
-
 [1.6.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...1.6.1
-
 [1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0
-
 [1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
-
 [1.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...1.5.2
-
 [1.5.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.0...1.5.1
-
 [1.5.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.4...1.5.0
-
 [1.4.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.3...1.4.4
-
 [1.4.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.2...1.4.3
-
 [1.4.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.1...1.4.2
-
 [1.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.4.0...1.4.1
-
 [1.4.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.1...1.4.0
-
 [1.3.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.3.0...1.3.1
-
 [1.3.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.12...1.3.0
-
 [1.2.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.11...1.2.12
-
 [1.2.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.10...1.2.11
-
 [1.2.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.9...1.2.10
-
 [1.2.9]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.8...1.2.9
-
 [1.2.8]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.7...1.2.8
-
 [1.2.7]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.6...1.2.7
-
 [1.2.6]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.5...1.2.6
-
 [1.2.5]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.4...1.2.5
-
 [1.2.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.3...1.2.4
-
 [1.2.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.2...1.2.3
-
 [1.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.1...1.2.2
-
 [1.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.2.0...1.2.1
-
 [1.2.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.1.0...1.2.0
-
 [1.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.13...1.1.0
-
 [1.0.13]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.12...1.0.13
-
 [1.0.12]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.11...1.0.12
-
 [1.0.11]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.10...1.0.11
-
 [1.0.10]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.9...1.0.10
-
 [1.0.9]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.8...1.0.9
-
 [1.0.8]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.7...1.0.8
-
 [1.0.7]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.6...1.0.7
-
 [1.0.6]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.5...1.0.6
-
 [1.0.5]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.4...1.0.5
-
 [1.0.4]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.3...1.0.4
-
 [1.0.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.2...1.0.3
-
 [1.0.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.1...1.0.2
-
 [1.0.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.0.0...1.0.1
-
 [1.0.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/commits/1.0.0
