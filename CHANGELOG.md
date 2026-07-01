@@ -4,6 +4,11 @@
 
 ## [1.6.3]
 
+### Fixed
+
+- Emojis now work in Custom Title on Restart of IDE windows
+  - Bring in UnicodeXmlSanitizer to safely encode and decode Emojis
+
 ## [1.6.2]
 
 ### Fixed
