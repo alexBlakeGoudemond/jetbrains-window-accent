@@ -72,7 +72,7 @@
 
 - Add @Deprecated to method for ToolWindowManager.unregisterToolWindow to try to remove Plugin Verification warning
 - Update title numbering state across all open projects in the toggle listener
-    - Should address bug where toggling title numbering does not update all open window instances - just the focussed
+    - Should address bug where toggling title numbering does not update all open window instances - just the focussed 
       one
 
 ## [1.5.3]
