@@ -4,15 +4,12 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.wm.ToolWindowEP
-import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
-import com.window_accent.configuration.persistence.WindowCustomColorStateService
-import com.window_accent.configuration.persistence.WindowCustomTitleStateService
-import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
-import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.intellij.openapi.wm.ToolWindowManager
+import com.window_accent.WindowAccentApplicationService.Companion.cleanupCompleted
+import com.window_accent.WindowAccentApplicationService.Companion.performCleanup
+import com.window_accent.configuration.persistence.*
 import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
 import com.window_accent.feature.window_color.WindowColorApplier
@@ -120,8 +117,8 @@ class WindowAccentApplicationService : Disposable {
         }
 
         /**
-         * Proactively removes the Window Accent tool window registration before IntelliJ's
-         * classloader GC collectibility check runs.
+         * Proactively unregisters the Window Accent tool window from IntelliJ's
+         * [ToolWindowManager] for each open project.
          *
          * When IntelliJ registers a plugin tool window via the `com.intellij.toolWindow` EP,
          * its `ToolwindowKt` infrastructure creates a `stripeTitleProvider` lambda that directly
@@ -139,41 +136,46 @@ class WindowAccentApplicationService : Disposable {
          * `BackendServerToolWindowManager`) it happens **after** IntelliJ's GC collectibility
          * check, so the retention chain is still alive when the check runs.
          *
-         * **Approach — [ExtensionPoint.unregisterExtensions] (non-deprecated):**
-         * [ExtensionPoint.unregisterExtension] taking an instance `T` is `@Deprecated`.
-         * The non-deprecated alternative from the decompiled [com.intellij.openapi.extensions.ExtensionPoint]
-         * interface is:
-         * ```
-         * boolean unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, boolean)
-         * ```
-         * where the `String` parameter is the **owning plugin ID** and the `boolean` is
-         * `stopAfterFirstMatch`. Calling this fires `ToolWindowManagerImpl`'s
-         * `ExtensionPointListener.extensionRemoved` synchronously, which internally calls
-         * `ToolWindowManager.unregisterToolWindow` for every open project — the same cleanup
-         * IntelliJ performs during plugin unload, but triggered here, before the GC check.
-         * IntelliJ's subsequent own EP-removal during unload finds the extension already gone
-         * and is a no-op.
+         * **Why `@Suppress("DEPRECATION")` is the only viable approach:**
+         * `ToolWindowManager.unregisterToolWindow(String)` is `@Deprecated` ("Use ToolWindowFactory
+         * and com.intellij.toolWindow extension point"). Window Accent already uses both for
+         * registration, satisfying that intent. Three alternative paths were investigated:
          *
-         * `ExtensionComponentAdapter` is `@Internal` but appears only as an inferred lambda
-         * parameter type; it is referenced via `_` (unused) so it is never imported explicitly,
-         * avoiding a direct dependency on an internal API surface.
+         * 1. `ExtensionPoint.unregisterExtension(T)` — also `@Deprecated` ("Deprecated in Java"),
+         *    confirmed via decompiled `ExtensionPoint.class` (`idea-2026.1-win/lib/util.jar`).
+         *
+         * 2. `ExtensionPoint.unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean)`
+         *    — not deprecated, but `ExtensionComponentAdapter` is `@Internal`. Kotlin emits the
+         *    type in the generic signature bytecode attribute even when referenced only as `_`,
+         *    causing a plugin-verifier failure ("usage of Internal API"). Not publishable.
+         *
+         * 3. `ExtensionPoint.unregisterExtension(Class<out T>)` — not deprecated, but removes
+         *    ALL extensions of that class type, which would unregister every plugin's tool
+         *    windows. Categorically wrong.
+         *
+         * `@Deprecated` does **not** fail the plugin verifier; `@Internal` does. The suppression
+         * is therefore the correct choice for a publishable plugin. The method does not carry
+         * `@ApiStatus.ScheduledForRemoval`, so suppression is safe for the foreseeable future.
          *
          * Root cause confirmed in `log-example-update-plugin-to-1.5.2.txt` via IntelliJ's own
          * snapshot analysis output (lines 492–530).
          */
         private fun flushToolWindowRegistrations() {
             val toolWindowId = "WindowAccent"
-            val pluginId = "WindowAccent"
-
-            // BiPredicate<String, ExtensionComponentAdapter>: String = owning plugin ID.
-            // Return true to unregister that extension; false to keep it.
-            // stopAfterFirstMatch = true: we have exactly one tool window — stop after removing it.
-            val ep = ExtensionPointName.create<ToolWindowEP>("com.intellij.toolWindow")
-            val removed = ep.point.unregisterExtensions({ id, _ -> id == pluginId }, true)
-            if (removed) {
-                LOG.info("[Window Accent] Unregistered tool window '$toolWindowId' via EP removal to release stripeTitleProvider → PluginClassLoader reference")
-            } else {
-                LOG.info("[Window Accent] Tool window '$toolWindowId' not found in toolWindow EP — already removed or EP not active")
+            ProjectManager.getInstance().openProjects.forEach { project ->
+                try {
+                    val twm = ToolWindowManager.getInstance(project)
+                    if (twm.getToolWindow(toolWindowId) != null) {
+                        @Suppress("DEPRECATION")
+                        twm.unregisterToolWindow(toolWindowId)
+                        LOG.info("[Window Accent] Unregistered tool window '$toolWindowId' for project '${project.name}' to release stripeTitleProvider → PluginClassLoader reference")
+                    }
+                } catch (e: Exception) {
+                    LOG.warn(
+                        "[Window Accent] Could not unregister tool window '$toolWindowId' for project '${project.name}'",
+                        e
+                    )
+                }
             }
         }
 

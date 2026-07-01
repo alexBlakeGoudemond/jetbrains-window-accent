@@ -26,22 +26,21 @@
 
 ### Fixed
 
-- Replace deprecated `ToolWindowManager.unregisterToolWindow` with the non-deprecated
-  `ExtensionPoint.unregisterExtensions` API in `flushToolWindowRegistrations`
-    - **Investigation**: `ToolWindowManager.unregisterToolWindow(String)` is `@Deprecated`
-      ("Use ToolWindowFactory and `com.intellij.toolWindow` extension point").
-      `ExtensionPoint.unregisterExtension(T)` (the obvious EP alternative) is **also**
-      `@Deprecated` ("Deprecated in Java"), confirmed via decompiled `ExtensionPoint.class`
-      (`idea-2026.1-win/lib/util.jar`).
-    - **Fix**: use `ExtensionPoint.unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean)`
-      — not deprecated. The `String` parameter is the owning plugin ID; filtering on
-      `pluginId == "WindowAccent"` with `stopAfterFirstMatch = true` fires
-      `ToolWindowManagerImpl`'s `ExtensionPointListener.extensionRemoved` synchronously,
-      which internally calls `ToolWindowManager.unregisterToolWindow` for every open
-      project. 
-    - `ExtensionComponentAdapter` is `@Internal` but appears only as an inferred
-      lambda type (referenced via `_`, never imported explicitly). No `@Suppress` needed.
-- Fix `StrokeKt.strokeIconCache` flush failing with `IllegalAccessException` during plugin update
+- Accept the warning for `WindowAccentApplicationService.flushToolWindowRegistrations()`
+    - Confirm that `@Suppress("DEPRECATION")` on `flushToolWindowRegistrations` is the only
+      publishable approach after exhaustive investigation of all `ExtensionPoint` alternatives:
+        1. `unregisterExtension(T)` — also `@Deprecated` ("Deprecated in Java"), confirmed via
+           decompiled `ExtensionPoint.class` (`idea-2026.1-win/lib/util.jar`).
+        2. `unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean)` — not
+           deprecated, but `ExtensionComponentAdapter` is `@Internal`; Kotlin emits it in the
+           generic signature bytecode attribute even when referenced only as `_`, causing a
+           plugin-verifier failure ("usage of Internal API").
+        3. `unregisterExtension(Class<out T>)` — not deprecated, but removes ALL extensions of
+           that class type (unregisters every plugin's tool windows). Categorically wrong.
+    - `@Deprecated` does **not** fail the plugin verifier; `@Internal` does. `@Suppress` with
+      full documentation is the correct and only viable path for a publishable plugin.
+- Attempt to address update causing restart due to `StrokeKt.strokeIconCache`
+    - The flush failing with `IllegalAccessException` during plugin update
     - **Root cause** (`log-example-update-plugin-to-1.6.0.txt`, lines 116–196):
       `getMethod("invalidateAll")` resolves `invalidateAll()` as declared on the Caffeine
       `LocalManualCache` interface rather than a concrete override. Invoking an
@@ -73,7 +72,7 @@
 
 - Add @Deprecated to method for ToolWindowManager.unregisterToolWindow to try to remove Plugin Verification warning
 - Update title numbering state across all open projects in the toggle listener
-    - Should address bug where toggling title numbering does not update all open window instances - just the focussed 
+    - Should address bug where toggling title numbering does not update all open window instances - just the focussed
       one
 
 ## [1.5.3]
@@ -672,7 +671,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...HEAD
+[1.6.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0
 [1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...1.5.2
