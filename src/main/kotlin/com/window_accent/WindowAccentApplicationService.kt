@@ -322,6 +322,15 @@ class WindowAccentApplicationService : Disposable {
          * Root cause confirmed via hprof snapshot analysis during v1.5.1 plugin-update test
          * (`unload-WindowAccent-30.06.2026_06.25.59.hprof`). Reflective access with graceful
          * fallback handles older IntelliJ versions where this cache does not exist.
+         *
+         * **`setAccessible(true)` is required on the resolved `invalidateAll` method.**
+         * `getMethod("invalidateAll")` resolves to the method as declared on the Caffeine
+         * [com.github.benmanes.caffeine.cache.LocalManualCache] interface rather than a
+         * concrete override (confirmed in IntelliJ 2026.1 build 261.22158.277 via
+         * `log-example-update-plugin-to-1.6.0.txt`, line 117:
+         * "cannot access a member of interface LocalManualCache with modifiers 'public'").
+         * Without `setAccessible(true)`, the JVM access check fires at invocation time and
+         * throws [IllegalAccessException], leaving the cache un-flushed.
          */
         private fun flushStrokeIconCache() {
             try {
@@ -333,6 +342,12 @@ class WindowAccentApplicationService : Disposable {
                     return
                 }
                 val invalidateAll = cache.javaClass.getMethod("invalidateAll")
+                // setAccessible is required: getMethod resolves invalidateAll() as declared on
+                // the Caffeine LocalManualCache interface. Invoking an interface-declared method
+                // reflectively without this causes IllegalAccessException at invoke time (JVM
+                // access check on the interface's package/module). setAccessible bypasses the
+                // check; InaccessibleObjectException is caught below if the module denies it.
+                invalidateAll.isAccessible = true
                 invalidateAll.invoke(cache)
                 LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache to release ImageDataByPathLoader → PluginClassLoader references")
             } catch (e: ClassNotFoundException) {
