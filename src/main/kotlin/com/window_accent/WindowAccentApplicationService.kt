@@ -7,11 +7,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
-import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
-import com.window_accent.configuration.persistence.WindowCustomColorStateService
-import com.window_accent.configuration.persistence.WindowCustomTitleStateService
-import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
-import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.WindowAccentApplicationService.Companion.cleanupCompleted
+import com.window_accent.WindowAccentApplicationService.Companion.performCleanup
+import com.window_accent.configuration.persistence.*
 import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
 import com.window_accent.feature.window_color.WindowColorApplier
@@ -122,26 +120,42 @@ class WindowAccentApplicationService : Disposable {
          * Proactively unregisters the Window Accent tool window from IntelliJ's
          * [ToolWindowManager] for each open project.
          *
-         * When IntelliJ registers a plugin tool window, its `ToolwindowKt` infrastructure
-         * creates a `stripeTitleProvider` lambda that directly captures the plugin's
-         * [com.intellij.ide.plugins.cl.PluginClassLoader] as `arg$1`, for resolving the
-         * stripe button title from the plugin's resource bundle. This lambda is stored inside
-         * a `ToolWindowEntry` in the tool window manager's `idToEntry` map, creating the chain:
+         * When IntelliJ registers a plugin tool window via the `com.intellij.toolWindow` EP,
+         * its `ToolwindowKt` infrastructure creates a `stripeTitleProvider` lambda that directly
+         * captures the plugin's [com.intellij.ide.plugins.cl.PluginClassLoader] as `arg$1`
+         * (for resolving the stripe button title from the plugin's resource bundle). This lambda
+         * is stored inside a `ToolWindowEntry` in the tool window manager's `idToEntry` map:
          *
          * ```
          * ToolWindowManager.idToEntry → ToolWindowEntry → ToolWindowImpl.stripeTitleProvider
          *   → ToolwindowKt$$Lambda { arg$1 = PluginClassLoader }
          * ```
          *
-         * IntelliJ's extension-point removal sequence also calls [ToolWindowManager.unregisterToolWindow]
-         * during plugin unload, but in some configurations (e.g. JetBrains Remote Development
-         * backend with [com.jetbrains.rdserver.toolWindow.BackendServerToolWindowManager]) this
-         * happens after IntelliJ's GC collectibility check, so the retention chain is still
-         * alive when the check runs.
+         * IntelliJ's own EP-removal sequence also triggers this cleanup during plugin unload,
+         * but in some configurations (e.g. JetBrains Remote Development backend with
+         * `BackendServerToolWindowManager`) it happens **after** IntelliJ's GC collectibility
+         * check, so the retention chain is still alive when the check runs.
          *
-         * Calling [ToolWindowManager.unregisterToolWindow] here — before the GC check — removes
-         * the `ToolWindowEntry` from the map proactively. IntelliJ's subsequent EP-removal call
-         * is a no-op if the tool window is already gone.
+         * **Why `@Suppress("DEPRECATION")` is the only viable approach:**
+         * `ToolWindowManager.unregisterToolWindow(String)` is `@Deprecated` ("Use ToolWindowFactory
+         * and com.intellij.toolWindow extension point"). Window Accent already uses both for
+         * registration, satisfying that intent. Three alternative paths were investigated:
+         *
+         * 1. `ExtensionPoint.unregisterExtension(T)` — also `@Deprecated` ("Deprecated in Java"),
+         *    confirmed via decompiled `ExtensionPoint.class` (`idea-2026.1-win/lib/util.jar`).
+         *
+         * 2. `ExtensionPoint.unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean)`
+         *    — not deprecated, but `ExtensionComponentAdapter` is `@Internal`. Kotlin emits the
+         *    type in the generic signature bytecode attribute even when referenced only as `_`,
+         *    causing a plugin-verifier failure ("usage of Internal API"). Not publishable.
+         *
+         * 3. `ExtensionPoint.unregisterExtension(Class<out T>)` — not deprecated, but removes
+         *    ALL extensions of that class type, which would unregister every plugin's tool
+         *    windows. Categorically wrong.
+         *
+         * `@Deprecated` does **not** fail the plugin verifier; `@Internal` does. The suppression
+         * is therefore the correct choice for a publishable plugin. The method does not carry
+         * `@ApiStatus.ScheduledForRemoval`, so suppression is safe for the foreseeable future.
          *
          * Root cause confirmed in `log-example-update-plugin-to-1.5.2.txt` via IntelliJ's own
          * snapshot analysis output (lines 492–530).
@@ -161,11 +175,15 @@ class WindowAccentApplicationService : Disposable {
                 try {
                     val twm = ToolWindowManager.getInstance(project)
                     if (twm.getToolWindow(toolWindowId) != null) {
+                        @Suppress("DEPRECATION")
                         twm.unregisterToolWindow(toolWindowId)
                         LOG.info("[Window Accent] Unregistered tool window '$toolWindowId' for project '${project.name}' to release stripeTitleProvider → PluginClassLoader reference")
                     }
                 } catch (e: Exception) {
-                    LOG.warn("[Window Accent] Could not unregister tool window '$toolWindowId' for project '${project.name}'", e)
+                    LOG.warn(
+                        "[Window Accent] Could not unregister tool window '$toolWindowId' for project '${project.name}'",
+                        e
+                    )
                 }
             }
         }
@@ -322,6 +340,15 @@ class WindowAccentApplicationService : Disposable {
          * Root cause confirmed via hprof snapshot analysis during v1.5.1 plugin-update test
          * (`unload-WindowAccent-30.06.2026_06.25.59.hprof`). Reflective access with graceful
          * fallback handles older IntelliJ versions where this cache does not exist.
+         *
+         * **`setAccessible(true)` is required on the resolved `invalidateAll` method.**
+         * `getMethod("invalidateAll")` resolves to the method as declared on the Caffeine
+         * [com.github.benmanes.caffeine.cache.LocalManualCache] interface rather than a
+         * concrete override (confirmed in IntelliJ 2026.1 build 261.22158.277 via
+         * `log-example-update-plugin-to-1.6.0.txt`, line 117:
+         * "cannot access a member of interface LocalManualCache with modifiers 'public'").
+         * Without `setAccessible(true)`, the JVM access check fires at invocation time and
+         * throws [IllegalAccessException], leaving the cache un-flushed.
          */
         private fun flushStrokeIconCache() {
             try {
@@ -332,7 +359,15 @@ class WindowAccentApplicationService : Disposable {
                     LOG.info("[Window Accent] StrokeKt.strokeIconCache is null — skipping flush")
                     return
                 }
+                // TODO BlakeGoudemond 2026/07/01 | if this invasive reflection works - consider asking Jetbrains:
+                //  IconLoader.clearCache() to also clear strokeIconCache
                 val invalidateAll = cache.javaClass.getMethod("invalidateAll")
+                // setAccessible is required: getMethod resolves invalidateAll() as declared on
+                // the Caffeine LocalManualCache interface. Invoking an interface-declared method
+                // reflectively without this causes IllegalAccessException at invoke time (JVM
+                // access check on the interface's package/module). setAccessible bypasses the
+                // check; InaccessibleObjectException is caught below if the module denies it.
+                invalidateAll.isAccessible = true
                 invalidateAll.invoke(cache)
                 LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache to release ImageDataByPathLoader → PluginClassLoader references")
             } catch (e: ClassNotFoundException) {

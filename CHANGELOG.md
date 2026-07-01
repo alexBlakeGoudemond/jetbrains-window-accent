@@ -2,6 +2,57 @@
 
 ## [Unreleased]
 
+### Known remaining issue
+
+- `BackendServerToolWindowManager.idToEntry` retains `stripeTitleProvider → PluginClassLoader`
+  after update, requiring a restart, despite the 1.5.3 `flushToolWindowRegistrations()` fix
+    - **Observed** (`log-example-update-plugin-to-1.6.0.txt`, line 664):
+      `"Plugin WindowAccent is not unload-safe because class loader cannot be unloaded"`
+    - **Root cause** (snapshot analysis, lines 530–587):
+      The same chain fixed in 1.5.3 persists. The 1.5.3 fix logs successful unregistration
+      (lines 109–110), but the hprof snapshot was taken *after* cleanup and still shows the
+      entry in `BackendServerToolWindowManager.idToEntry`. Most likely,
+      `ToolWindowManager.getInstance(project)` returns a different manager object than
+      `BackendServerToolWindowManager` in the JetBrains Remote Development backend
+      environment — so `unregisterToolWindow` clears the wrong map.
+    - **Note on `retained: n/a`**: The IntelliJ Profiler cannot compute retained heap for a
+      snapshot taken mid-unload. The authoritative signal is the SEVERE log entry at line 530
+      (IntelliJ's built-in hprof analyser output), not the retained column.
+    - **Note on the indeterminate progress warning** (line 440):
+      `HProfAnalysis.analyze` calls `setFraction()` on the `PotemkinProgress` indicator
+      created for the plugin unload. This is IntelliJ-internal and is not caused by the plugin.
+
+## [1.6.1]
+
+### Fixed
+
+- Accept the warning for `WindowAccentApplicationService.flushToolWindowRegistrations()`
+    - Confirm that `@Suppress("DEPRECATION")` on `flushToolWindowRegistrations` is the only
+      publishable approach after exhaustive investigation of all `ExtensionPoint` alternatives:
+        1. `unregisterExtension(T)` — also `@Deprecated` ("Deprecated in Java"), confirmed via
+           decompiled `ExtensionPoint.class` (`idea-2026.1-win/lib/util.jar`).
+        2. `unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean)` — not
+           deprecated, but `ExtensionComponentAdapter` is `@Internal`; Kotlin emits it in the
+           generic signature bytecode attribute even when referenced only as `_`, causing a
+           plugin-verifier failure ("usage of Internal API").
+        3. `unregisterExtension(Class<out T>)` — not deprecated, but removes ALL extensions of
+           that class type (unregisters every plugin's tool windows). Categorically wrong.
+    - `@Deprecated` does **not** fail the plugin verifier; `@Internal` does. `@Suppress` with
+      full documentation is the correct and only viable path for a publishable plugin.
+- Attempt to address update causing restart due to `StrokeKt.strokeIconCache`
+    - The flush failing with `IllegalAccessException` during plugin update
+    - **Root cause** (`log-example-update-plugin-to-1.6.0.txt`, lines 116–196):
+      `getMethod("invalidateAll")` resolves `invalidateAll()` as declared on the Caffeine
+      `LocalManualCache` interface rather than a concrete override. Invoking an
+      interface-declared method reflectively without `setAccessible(true)` causes
+      `IllegalAccessException` at invocation time (JVM access check on the interface's
+      package/module), leaving `strokeIconCache` un-flushed and retaining `PluginClassLoader`
+      references through the `StrokeKt → strokeIconCache → CachedImageIcon → ImageDataByPathLoader`
+      chain. This regressed on IntelliJ 2026.1 build 261.22158.277.
+    - **Fix:** added `invalidateAll.isAccessible = true` before `invalidateAll.invoke(cache)`.
+      A module-level `InaccessibleObjectException` is still caught by the existing `Exception`
+      handler with a graceful warning.
+
 ## [1.6.0]
 
 ### Added
@@ -620,7 +671,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...HEAD
+[1.6.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0
 [1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.1...1.5.2
