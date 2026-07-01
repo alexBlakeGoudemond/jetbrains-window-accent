@@ -2,9 +2,6 @@
 
 ## [Unreleased]
 
-## [1.6.1]
-
-
 ### Known remaining issue
 
 - `BackendServerToolWindowManager.idToEntry` retains `stripeTitleProvider → PluginClassLoader`
@@ -25,6 +22,7 @@
       `HProfAnalysis.analyze` calls `setFraction()` on the `PotemkinProgress` indicator
       created for the plugin unload. This is IntelliJ-internal and is not caused by the plugin.
 
+## [1.6.1]
 
 ### Fixed
 
