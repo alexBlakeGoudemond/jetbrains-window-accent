@@ -341,14 +341,30 @@ class WindowAccentApplicationService : Disposable {
          * (`unload-WindowAccent-30.06.2026_06.25.59.hprof`). Reflective access with graceful
          * fallback handles older IntelliJ versions where this cache does not exist.
          *
-         * **`setAccessible(true)` is required on the resolved `invalidateAll` method.**
-         * `getMethod("invalidateAll")` resolves to the method as declared on the Caffeine
-         * [com.github.benmanes.caffeine.cache.LocalManualCache] interface rather than a
-         * concrete override (confirmed in IntelliJ 2026.1 build 261.22158.277 via
-         * `log-example-update-plugin-to-1.6.0.txt`, line 117:
-         * "cannot access a member of interface LocalManualCache with modifiers 'public'").
-         * Without `setAccessible(true)`, the JVM access check fires at invocation time and
-         * throws [IllegalAccessException], leaving the cache un-flushed.
+         * **Why `getMethod("invalidateAll")` + `setAccessible(true)` is insufficient on JDK 25:**
+         * `cache.javaClass.getMethod("invalidateAll")` resolves to the **interface default method**
+         * declared on `com.github.benmanes.caffeine.cache.LocalManualCache`. On JDK 9+ with named
+         * modules, [Method.invoke] uses an internal `MethodHandle`-based dispatch path. For
+         * `INVOKEINTERFACE` dispatch (interface default methods), the module-boundary check is
+         * evaluated independently of the `accessible` flag set by `setAccessible(true)` — so
+         * `setAccessible(true)` succeeds (sets the flag) but `invoke` still throws
+         * `IllegalAccessException` at invoke time. Confirmed on JDK 25.0.2 via
+         * `log-example-update-plugin-to-1.6.1.txt` (line 136: `invoke` at `:336` still throws).
+         *
+         * **Fix — concrete class hierarchy traversal:**
+         * [Class.getDeclaredMethod] finds methods declared in a specific class (not inherited
+         * from interfaces). Walking the concrete class hierarchy avoids resolving to an interface
+         * default method. The concrete override uses `INVOKEVIRTUAL` dispatch, which IS properly
+         * suppressed by `setAccessible(true)`.
+         *
+         * **Fallback — `asMap().clear()`:**
+         * `Cache.asMap()` returns a [java.util.concurrent.ConcurrentMap] (a JDK type). Calling
+         * `clear()` on the returned map is always accessible regardless of Caffeine's module
+         * boundary, completely sidestepping the module issue.
+         *
+         * TODO BlakeGoudemond 2026/07/01 | consider asking JetBrains to extend
+         *  `IconLoader.clearCache()` to also clear `strokeIconCache` — would eliminate this
+         *  reflective workaround entirely.
          */
         private fun flushStrokeIconCache() {
             try {
@@ -359,17 +375,24 @@ class WindowAccentApplicationService : Disposable {
                     LOG.info("[Window Accent] StrokeKt.strokeIconCache is null — skipping flush")
                     return
                 }
-                // TODO BlakeGoudemond 2026/07/01 | if this invasive reflection works - consider asking Jetbrains:
-                //  IconLoader.clearCache() to also clear strokeIconCache
-                val invalidateAll = cache.javaClass.getMethod("invalidateAll")
-                // setAccessible is required: getMethod resolves invalidateAll() as declared on
-                // the Caffeine LocalManualCache interface. Invoking an interface-declared method
-                // reflectively without this causes IllegalAccessException at invoke time (JVM
-                // access check on the interface's package/module). setAccessible bypasses the
-                // check; InaccessibleObjectException is caught below if the module denies it.
-                invalidateAll.isAccessible = true
-                invalidateAll.invoke(cache)
-                LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache to release ImageDataByPathLoader → PluginClassLoader references")
+
+                // Strategy 1: walk concrete class hierarchy for a non-interface invalidateAll().
+                // getDeclaredMethod finds methods declared directly on the class (not inherited
+                // from interfaces), giving INVOKEVIRTUAL semantics that respect setAccessible.
+                if (tryClearViaConcreteInvalidateAll(cache)) return
+
+                // Strategy 2: asMap().clear() — asMap() returns java.util.concurrent.ConcurrentMap
+                // (JDK type). clear() on a JDK Map is always module-accessible, fully bypassing
+                // the Caffeine module boundary.
+                if (tryClearViaAsMap(cache)) return
+
+                // Strategy 3 (last resort): interface-method approach with setAccessible.
+                // Confirmed to fail on JDK 25 for interface default methods, but kept as a
+                // final fallback in case the concrete-method strategies are unavailable.
+                val m = cache.javaClass.getMethod("invalidateAll")
+                m.isAccessible = true
+                m.invoke(cache)
+                LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache via interface invalidateAll()")
             } catch (e: ClassNotFoundException) {
                 LOG.info("[Window Accent] StrokeKt not found — likely an older IntelliJ version, skipping strokeIconCache flush")
             } catch (e: NoSuchFieldException) {
@@ -377,6 +400,59 @@ class WindowAccentApplicationService : Disposable {
             } catch (e: Exception) {
                 LOG.warn("[Window Accent] Could not flush StrokeKt.strokeIconCache", e)
             }
+        }
+
+        /**
+         * Walks the concrete class hierarchy (superclasses only, not interfaces) looking for a
+         * declared `invalidateAll()` override. A concrete class method uses `INVOKEVIRTUAL`
+         * semantics, which are properly suppressed by `setAccessible(true)` even across module
+         * boundaries in JDK 9+.
+         *
+         * @return `true` if the cache was cleared; `false` if no concrete override was found or
+         *         if invocation failed (caller should try the next strategy).
+         */
+        private fun tryClearViaConcreteInvalidateAll(cache: Any): Boolean {
+            var cls: Class<*>? = cache.javaClass
+            while (cls != null && cls != Any::class.java) {
+                try {
+                    val m = cls.getDeclaredMethod("invalidateAll")
+                    m.isAccessible = true
+                    m.invoke(cache)
+                    LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache via concrete invalidateAll()")
+                    return true
+                } catch (e: NoSuchMethodException) {
+                    cls = cls.superclass
+                } catch (e: Exception) {
+                    return false // found the method but invocation failed
+                }
+            }
+            return false // no concrete override found in hierarchy
+        }
+
+        /**
+         * Calls `asMap()` via the concrete class hierarchy and then invokes `clear()` on the
+         * returned [java.util.Map]. `asMap()` returns a [java.util.concurrent.ConcurrentMap]
+         * (a JDK type), so `clear()` is always accessible regardless of Caffeine's module.
+         *
+         * @return `true` if the map was cleared; `false` if `asMap()` could not be found/called.
+         */
+        private fun tryClearViaAsMap(cache: Any): Boolean {
+            var cls: Class<*>? = cache.javaClass
+            while (cls != null && cls != Any::class.java) {
+                try {
+                    val asMap = cls.getDeclaredMethod("asMap")
+                    asMap.isAccessible = true
+                    val map = asMap.invoke(cache) as? java.util.Map<*, *> ?: return false
+                    map.clear()
+                    LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache via asMap().clear()")
+                    return true
+                } catch (e: NoSuchMethodException) {
+                    cls = cls.superclass
+                } catch (e: Exception) {
+                    return false
+                }
+            }
+            return false
         }
     }
 

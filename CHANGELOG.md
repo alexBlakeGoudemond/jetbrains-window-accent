@@ -2,25 +2,52 @@
 
 ## [Unreleased]
 
+## [1.6.2]
+
+### Fixed
+
+- Fix `StrokeKt.strokeIconCache` flush still failing on JDK 25 despite `setAccessible(true)`
+    - **Root cause** (`log-example-update-plugin-to-1.6.1.txt`, line 136): The fix in 1.6.1
+      added `invalidateAll.isAccessible = true`, but `getMethod("invalidateAll")` resolves to
+      the **interface default method** on `LocalManualCache`. On JDK 25, `Method.invoke()` uses
+      an internal `MethodHandle`-based dispatch path that enforces `INVOKEINTERFACE` module-
+      boundary access **independently of the accessible flag** — so `setAccessible(true)` sets
+      the flag but `invoke` still throws `IllegalAccessException`. Confirmed: the `:336` line
+      number in the 1.6.1 log is exactly `invoke`, proving `setAccessible` did not throw and
+      the fix reached `invoke` but was rejected by the JDK 25 dispatch path.
+    - **Fix:** replace `getMethod` (which may return an interface default method) with a concrete
+      class hierarchy traversal using `getDeclaredMethod`. A concrete class override uses
+      `INVOKEVIRTUAL` semantics which ARE properly suppressed by `setAccessible(true)`.
+      Fallback: call `asMap()` (same traversal) then `map.clear()` — `asMap()` returns a
+      `java.util.concurrent.ConcurrentMap` (JDK type), so `clear()` is always accessible
+      regardless of Caffeine's module boundary. Three-strategy fallback chain with distinct
+      log messages for each path.
+
 ### Known remaining issue
 
-- `BackendServerToolWindowManager.idToEntry` retains `stripeTitleProvider → PluginClassLoader`
-  after update, requiring a restart, despite the 1.5.3 `flushToolWindowRegistrations()` fix
-    - **Observed** (`log-example-update-plugin-to-1.6.0.txt`, line 664):
-      `"Plugin WindowAccent is not unload-safe because class loader cannot be unloaded"`
-    - **Root cause** (snapshot analysis, lines 530–587):
-      The same chain fixed in 1.5.3 persists. The 1.5.3 fix logs successful unregistration
-      (lines 109–110), but the hprof snapshot was taken *after* cleanup and still shows the
-      entry in `BackendServerToolWindowManager.idToEntry`. Most likely,
-      `ToolWindowManager.getInstance(project)` returns a different manager object than
-      `BackendServerToolWindowManager` in the JetBrains Remote Development backend
-      environment — so `unregisterToolWindow` clears the wrong map.
-    - **Note on `retained: n/a`**: The IntelliJ Profiler cannot compute retained heap for a
-      snapshot taken mid-unload. The authoritative signal is the SEVERE log entry at line 530
-      (IntelliJ's built-in hprof analyser output), not the retained column.
-    - **Note on the indeterminate progress warning** (line 440):
-      `HProfAnalysis.analyze` calls `setFraction()` on the `PotemkinProgress` indicator
-      created for the plugin unload. This is IntelliJ-internal and is not caused by the plugin.
+- `FeatureUsageSettingsEvents` channel retains `LogDefaultConfigurationState.aClass → PluginClassLoader`
+    - **Observed** (`log-example-update-plugin-to-1.6.1.txt`, lines 591–717): After the
+      tool window root was fixed in 1.6.1, the snapshot analyser found the next live reference:
+      ```
+      Thread: AppDelayQueue$TransferThread → CancellationScheduledFutureTask
+        → coroutine context → ProjectImpl → MyProjectStore
+        → FeatureUsageSettingsEvents.channel (BufferedChannel)
+        → LogDefaultConfigurationState.aClass: Class<SomeWindowAccentStateService>
+        → Class.classLoader: PluginClassLoader
+      ```
+    - **Root cause:** IntelliJ's FUS (Feature Usage Statistics) telemetry records state-component
+      usages via `FeatureUsageSettingsEvents`. It queues `LogDefaultConfigurationState(aClass)`
+      objects into a `BufferedChannel` for async processing. If the consumer coroutine has not
+      drained the queue before the GC check fires (~27s gap in this log), the `Class` objects
+      referencing the plugin's state service classes remain live and retain the `PluginClassLoader`.
+    - **Pre-existing:** This root was masked in 1.6.0 and earlier by the closer tool window root.
+      The tool window fix in 1.6.1 exposed it as the new dominant chain.
+    - **Plugin's responsibility:** None directly — the retention is fully inside IntelliJ's async
+      telemetry infrastructure. The plugin cannot clear a `BufferedChannel` without invasive
+      Kotlin coroutines internals reflection.
+    - **Action:** File a JetBrains issue requesting that `FeatureUsageSettingsEvents` be flushed
+      or its `Class<?>` references replaced during plugin unload, or that the channel is drained
+      synchronously before the GC collectibility check.
 
 ## [1.6.1]
 
@@ -72,7 +99,7 @@
 
 - Add @Deprecated to method for ToolWindowManager.unregisterToolWindow to try to remove Plugin Verification warning
 - Update title numbering state across all open projects in the toggle listener
-    - Should address bug where toggling title numbering does not update all open window instances - just the focussed 
+    - Should address bug where toggling title numbering does not update all open window instances - just the focussed
       one
 
 ## [1.5.3]
@@ -671,7 +698,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.2...HEAD
+[1.6.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.3...1.6.0
 [1.5.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.5.2...1.5.3
