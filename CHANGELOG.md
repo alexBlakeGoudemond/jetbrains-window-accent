@@ -28,6 +28,21 @@
 
 ### Fixed
 
+- Replace deprecated `ToolWindowManager.unregisterToolWindow` with the non-deprecated
+  `ExtensionPoint.unregisterExtensions` API in `flushToolWindowRegistrations`
+    - **Investigation**: `ToolWindowManager.unregisterToolWindow(String)` is `@Deprecated`
+      ("Use ToolWindowFactory and `com.intellij.toolWindow` extension point").
+      `ExtensionPoint.unregisterExtension(T)` (the obvious EP alternative) is **also**
+      `@Deprecated` ("Deprecated in Java"), confirmed via decompiled `ExtensionPoint.class`
+      (`idea-2026.1-win/lib/util.jar`).
+    - **Fix**: use `ExtensionPoint.unregisterExtensions(BiPredicate<String, ExtensionComponentAdapter>, Boolean)`
+      — not deprecated. The `String` parameter is the owning plugin ID; filtering on
+      `pluginId == "WindowAccent"` with `stopAfterFirstMatch = true` fires
+      `ToolWindowManagerImpl`'s `ExtensionPointListener.extensionRemoved` synchronously,
+      which internally calls `ToolWindowManager.unregisterToolWindow` for every open
+      project. 
+    - `ExtensionComponentAdapter` is `@Internal` but appears only as an inferred
+      lambda type (referenced via `_`, never imported explicitly). No `@Suppress` needed.
 - Fix `StrokeKt.strokeIconCache` flush failing with `IllegalAccessException` during plugin update
     - **Root cause** (`log-example-update-plugin-to-1.6.0.txt`, lines 116–196):
       `getMethod("invalidateAll")` resolves `invalidateAll()` as declared on the Caffeine
