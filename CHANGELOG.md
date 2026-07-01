@@ -4,6 +4,43 @@
 
 ## [1.6.1]
 
+
+### Known remaining issue
+
+- `BackendServerToolWindowManager.idToEntry` retains `stripeTitleProvider → PluginClassLoader`
+  after update, requiring a restart, despite the 1.5.3 `flushToolWindowRegistrations()` fix
+    - **Observed** (`log-example-update-plugin-to-1.6.0.txt`, line 664):
+      `"Plugin WindowAccent is not unload-safe because class loader cannot be unloaded"`
+    - **Root cause** (snapshot analysis, lines 530–587):
+      The same chain fixed in 1.5.3 persists. The 1.5.3 fix logs successful unregistration
+      (lines 109–110), but the hprof snapshot was taken *after* cleanup and still shows the
+      entry in `BackendServerToolWindowManager.idToEntry`. Most likely,
+      `ToolWindowManager.getInstance(project)` returns a different manager object than
+      `BackendServerToolWindowManager` in the JetBrains Remote Development backend
+      environment — so `unregisterToolWindow` clears the wrong map.
+    - **Note on `retained: n/a`**: The IntelliJ Profiler cannot compute retained heap for a
+      snapshot taken mid-unload. The authoritative signal is the SEVERE log entry at line 530
+      (IntelliJ's built-in hprof analyser output), not the retained column.
+    - **Note on the indeterminate progress warning** (line 440):
+      `HProfAnalysis.analyze` calls `setFraction()` on the `PotemkinProgress` indicator
+      created for the plugin unload. This is IntelliJ-internal and is not caused by the plugin.
+
+
+### Fixed
+
+- Fix `StrokeKt.strokeIconCache` flush failing with `IllegalAccessException` during plugin update
+    - **Root cause** (`log-example-update-plugin-to-1.6.0.txt`, lines 116–196):
+      `getMethod("invalidateAll")` resolves `invalidateAll()` as declared on the Caffeine
+      `LocalManualCache` interface rather than a concrete override. Invoking an
+      interface-declared method reflectively without `setAccessible(true)` causes
+      `IllegalAccessException` at invocation time (JVM access check on the interface's
+      package/module), leaving `strokeIconCache` un-flushed and retaining `PluginClassLoader`
+      references through the `StrokeKt → strokeIconCache → CachedImageIcon → ImageDataByPathLoader`
+      chain. This regressed on IntelliJ 2026.1 build 261.22158.277.
+    - **Fix:** added `invalidateAll.isAccessible = true` before `invalidateAll.invoke(cache)`.
+      A module-level `InaccessibleObjectException` is still caught by the existing `Exception`
+      handler with a graceful warning.
+
 ## [1.6.0]
 
 ### Added
