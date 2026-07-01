@@ -1,0 +1,25 @@
+CHANGELOG.md
+  h_1197a506f6c7d6 43-48,52-68,70-77
+  s_51de73849d5a21::t_04e1552a8bdcc4 5-23,26-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "0f45e3528bc1817bda313b13738d2179176fd3a3",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_51de73849d5a21": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1782874733533",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
