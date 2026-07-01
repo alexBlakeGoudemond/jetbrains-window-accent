@@ -148,5 +148,57 @@ class TitleTextStylerTest {
         val expected = cp(0x1D451) + cp(0x1D452) + cp(0x1D463) + "-" + "1"
         assertEquals(expected, result)
     }
+
+    // -------------------------------------------------------------------------
+    // Emoji passthrough — supplementary characters are not transformed
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("toBold - emoji (supplementary character) is passed through unchanged")
+    fun testToBoldEmojiPassthrough() {
+        val rocket = cp(0x1F680)  // 🚀
+        assertEquals(rocket, TitleTextStyler.toBold(rocket))
+    }
+
+    @Test
+    @DisplayName("toItalic - emoji (supplementary character) is passed through unchanged")
+    fun testToItalicEmojiPassthrough() {
+        val rocket = cp(0x1F680)  // 🚀
+        assertEquals(rocket, TitleTextStyler.toItalic(rocket))
+    }
+
+    @Test
+    @DisplayName("toBold - mixed ASCII and emoji transforms letters but preserves the emoji")
+    fun testToBoldMixedWithEmoji() {
+        val rocket = cp(0x1F680)  // 🚀
+        val result = TitleTextStyler.toBold("prod $rocket")
+        val expected = cp(0x1D429) + cp(0x1D42B) + cp(0x1D428) + cp(0x1D41D) + " " + rocket
+        assertEquals(expected, result)
+    }
+
+    @Test
+    @DisplayName("toItalic - mixed ASCII and emoji transforms letters but preserves the emoji")
+    fun testToItalicMixedWithEmoji() {
+        val rocket = cp(0x1F680)  // 🚀
+        val result = TitleTextStyler.toItalic("dev $rocket")
+        val expected = cp(0x1D451) + cp(0x1D452) + cp(0x1D463) + " " + rocket
+        assertEquals(expected, result)
+    }
+
+    @Test
+    @DisplayName("toBold - multiple emoji are all passed through unchanged")
+    fun testToBoldMultipleEmoji() {
+        val rocket = cp(0x1F680)  // 🚀
+        val party = cp(0x1F389)   // 🎉
+        assertEquals("$rocket$party", TitleTextStyler.toBold("$rocket$party"))
+    }
+
+    @Test
+    @DisplayName("toItalic - multiple emoji are all passed through unchanged")
+    fun testToItalicMultipleEmoji() {
+        val rocket = cp(0x1F680)  // 🚀
+        val party = cp(0x1F389)   // 🎉
+        assertEquals("$rocket$party", TitleTextStyler.toItalic("$rocket$party"))
+    }
 }
 

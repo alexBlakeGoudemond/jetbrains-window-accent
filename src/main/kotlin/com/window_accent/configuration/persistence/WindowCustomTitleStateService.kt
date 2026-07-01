@@ -28,10 +28,26 @@ class WindowCustomTitleStateService : PersistentStateComponent<WindowCustomTitle
 
     private var state = State()
 
-    override fun getState(): State = state
+    /**
+     * Returns a copy of the current state with the custom title encoded for safe XML
+     * attribute serialisation.
+     *
+     * Supplementary Unicode characters (emoji) are converted to ASCII-safe escape
+     * sequences by [UnicodeXmlSanitizer.encode] before reaching JDOM, preventing
+     * surrogate-pair corruption in the persisted XML file.
+     */
+    override fun getState(): State = state.copy(
+        customTitle = UnicodeXmlSanitizer.encode(state.customTitle)
+    )
 
+    /**
+     * Restores state from the persisted XML, decoding any emoji escape sequences
+     * written by [getState] back into their original Unicode characters.
+     */
     override fun loadState(state: State) {
-        this.state = state
+        this.state = state.copy(
+            customTitle = UnicodeXmlSanitizer.decode(state.customTitle)
+        )
     }
 
     fun getCustomTitle(): String = state.customTitle

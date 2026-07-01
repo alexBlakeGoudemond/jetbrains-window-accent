@@ -161,5 +161,71 @@ class WindowCustomTitleStateServiceTest {
         assertEquals(stateToLoad.customTitle, retrievedState.customTitle)
         assertEquals(stateToLoad.customTitleEnabled, retrievedState.customTitleEnabled)
     }
+
+    // -------------------------------------------------------------------------
+    // Emoji persistence — supplementary characters survive the XML round-trip
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `emoji is accessible in memory after being set`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+        service.setCustomTitle(rocket)
+        assertEquals(rocket, service.getCustomTitle())
+    }
+
+    @Test
+    fun `getState encodes emoji as ASCII-safe escape for XML serialisation`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+        service.setCustomTitle(rocket)
+        assertEquals("\\u{1F680}", service.getState().customTitle)
+    }
+
+    @Test
+    fun `loadState decodes emoji escape back to the original character`() {
+        service.loadState(WindowCustomTitleStateService.State(customTitle = "\\u{1F680}", customTitleEnabled = true))
+        assertEquals(String(Character.toChars(0x1F680)), service.getCustomTitle())
+    }
+
+    @Test
+    fun `emoji persists correctly across xml round-trip`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+
+        // Session 1: user sets the emoji title
+        service.setCustomTitle(rocket)
+
+        // Simulate: IntelliJ writes state to XML (encoded form)
+        val stateForXml = service.getState()
+
+        // Session 2: IntelliJ reads the state back from XML (encoded form passed to loadState)
+        val freshService = WindowCustomTitleStateService()
+        freshService.loadState(stateForXml)
+
+        assertEquals(rocket, freshService.getCustomTitle())
+    }
+
+    @Test
+    fun `mixed text and emoji persists correctly across xml round-trip`() {
+        val rocket = String(Character.toChars(0x1F680))  // 🚀
+        val original = "prod $rocket"
+
+        service.setCustomTitle(original)
+        val stateForXml = service.getState()
+
+        val freshService = WindowCustomTitleStateService()
+        freshService.loadState(stateForXml)
+
+        assertEquals(original, freshService.getCustomTitle())
+    }
+
+    @Test
+    fun `plain ASCII title is unaffected by encode and decode`() {
+        service.setCustomTitle("dattebayo")
+        val stateForXml = service.getState()
+        assertEquals("dattebayo", stateForXml.customTitle)
+
+        val freshService = WindowCustomTitleStateService()
+        freshService.loadState(stateForXml)
+        assertEquals("dattebayo", freshService.getCustomTitle())
+    }
 }
 
