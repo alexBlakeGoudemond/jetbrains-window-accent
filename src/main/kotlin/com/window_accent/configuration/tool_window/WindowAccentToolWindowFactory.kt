@@ -293,45 +293,47 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Custom color:"), labelConstraints)
             formPanel.add(colorPreview, fieldConstraints)
 
-            // Color buttons on second line
-            val colorButtonsRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
-                add(chooseColorButton)
-                add(dropperButton)
-            }
+            // Choose color button on second line
             labelConstraints.gridy = 2
             fieldConstraints.gridy = 2
             formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(colorButtonsRow, fieldConstraints)
+            formPanel.add(chooseColorButton, fieldConstraints)
+
+            // Dropper button on third line
+            labelConstraints.gridy = 3
+            fieldConstraints.gridy = 3
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(dropperButton, fieldConstraints)
 
             dropperButton.toolTipText = "Pick a color from the screen"
             dropperButton.isFocusable = false
 
-            labelConstraints.gridy = 3
-            fieldConstraints.gridy = 3
-            formPanel.add(customColorCheckBox, fieldConstraints)
-
             labelConstraints.gridy = 4
             fieldConstraints.gridy = 4
+            formPanel.add(customColorCheckBox, fieldConstraints)
+
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Preview:"), labelConstraints)
             formPanel.add(previewLabel, fieldConstraints)
 
             // Title numbering
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
+            labelConstraints.gridy = 6
+            fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Title numbering:"), labelConstraints)
             formPanel.add(titleNumberingCheckBox, fieldConstraints)
 
             // Custom title (this window)
-            labelConstraints.gridy = 6
-            fieldConstraints.gridy = 6
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off in the Tool Window."
 
             // Global custom title
-            labelConstraints.gridy = 7
-            fieldConstraints.gridy = 7
+            labelConstraints.gridy = 8
+            fieldConstraints.gridy = 8
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
