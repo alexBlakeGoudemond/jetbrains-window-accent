@@ -26,7 +26,9 @@ import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
+import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JTabbedPane
 import javax.swing.Timer
 
 /**
@@ -167,9 +169,21 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             ?.getService(GlobalCustomTitleStateService::class.java)
             ?: GlobalCustomTitleStateService()
 
-        val panel = JPanel()
-        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
-        panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
+        // Create the main tabbed pane
+        val tabbedPane = JTabbedPane()
+
+        // Tab 1: Quick toggles and controls
+        val quickControlsPanel = JPanel()
+        quickControlsPanel.layout = BoxLayout(quickControlsPanel, BoxLayout.Y_AXIS)
+        quickControlsPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
+
+        // Tab 2: Placeholder for future settings
+        val settingsPlaceholderPanel = JPanel()
+        settingsPlaceholderPanel.layout = BoxLayout(settingsPlaceholderPanel, BoxLayout.Y_AXIS)
+        settingsPlaceholderPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
+        settingsPlaceholderPanel.add(JLabel("Hello World!"))
+
+        val panel = quickControlsPanel
 
         val toggleAllColorsButton = JButton()
         val toggleCurrentColorButton = JButton()
@@ -312,7 +326,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleGlobalCustomTitleButton, toggleCurrentCustomTitleButton))
 
-        val content = ContentFactory.getInstance().createContent(panel, "", false)
+        // Add tabs to the tabbed pane
+        tabbedPane.addTab("Quick Controls", quickControlsPanel)
+        tabbedPane.addTab("Settings", settingsPlaceholderPanel)
+
+        val content = ContentFactory.getInstance().createContent(tabbedPane, "", false)
         toolWindow.contentManager.addContent(content)
 
         val listenerPairs = listOf(
