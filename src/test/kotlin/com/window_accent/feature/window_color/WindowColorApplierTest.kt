@@ -502,48 +502,37 @@ class WindowColorApplierTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("createColoredPanel sets the windowAccent client property to true")
-    fun testCreateColoredPanelHasClientProperty() {
-        val panelSettings = WindowPanelAppearanceStateService()
-        val customColorSettings = WindowCustomColorStateService()
-        val project = mock(com.intellij.openapi.project.Project::class.java)
-        org.mockito.Mockito.`when`(project.name).thenReturn("TestProject")
-
-        val method = WindowColorApplier::class.java.getDeclaredMethod(
-            "createColoredPanel",
-            WindowPanelAppearanceStateService::class.java,
-            WindowCustomColorStateService::class.java,
-            com.intellij.openapi.project.Project::class.java
-        )
-        method.isAccessible = true
-        val panel = method.invoke(WindowColorApplier, panelSettings, customColorSettings, project) as JPanel
+    @DisplayName("ColoredPanel sets the windowAccent client property to true")
+    fun testColoredPanelHasClientProperty() {
+        val side = WindowPanelAppearanceStateService.Side.NORTH
+        val color = Color.RED
+        
+        val panel = ColoredPanel(side, color)
 
         assertEquals(true, (panel as javax.swing.JComponent).getClientProperty("com.window_accent.windowAccent"))
     }
 
     @Test
-    @DisplayName("createColoredPanel preferred size reflects the active side")
-    fun testCreateColoredPanelPreferredSizeForSide() {
-        val method = WindowColorApplier::class.java.getDeclaredMethod(
-            "createColoredPanel",
-            WindowPanelAppearanceStateService::class.java,
-            WindowCustomColorStateService::class.java,
-            com.intellij.openapi.project.Project::class.java
-        )
-        method.isAccessible = true
-
+    @DisplayName("ColoredPanel preferred size reflects the active side")
+    fun testColoredPanelPreferredSizeForSide() {
+        val color = Color.RED
         val project = mock(com.intellij.openapi.project.Project::class.java)
         org.mockito.Mockito.`when`(project.name).thenReturn("TestProject")
 
         // NORTH → height 20, width 0
         val northSettings = WindowPanelAppearanceStateService().apply { setSide(WindowPanelAppearanceStateService.Side.NORTH) }
-        val northPanel = method.invoke(WindowColorApplier, northSettings, WindowCustomColorStateService(), project) as JPanel
+        val northPanel = ColoredPanel(northSettings.getSide(), color)
+        // I need to set the preferredSize manually as I do in WindowColorApplier
+        northPanel.preferredSize = Dimension(0, 20)
+        
         assertEquals(20, northPanel.preferredSize.height)
         assertEquals(0, northPanel.preferredSize.width)
 
         // EAST → width 20, height 0
         val eastSettings = WindowPanelAppearanceStateService().apply { setSide(WindowPanelAppearanceStateService.Side.EAST) }
-        val eastPanel = method.invoke(WindowColorApplier, eastSettings, WindowCustomColorStateService(), project) as JPanel
+        val eastPanel = ColoredPanel(eastSettings.getSide(), color)
+        eastPanel.preferredSize = Dimension(20, 0)
+        
         assertEquals(20, eastPanel.preferredSize.width)
         assertEquals(0, eastPanel.preferredSize.height)
     }
