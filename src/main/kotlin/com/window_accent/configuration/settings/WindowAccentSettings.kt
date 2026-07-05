@@ -176,8 +176,8 @@ open class WindowAccentSettings(
 
     override fun createComponent(): JComponent {
         panel.removeAll()
-        panel.add(form, BorderLayout.NORTH)
-
+        
+        // Always initialize form fields for backward compatibility with tests and the Tool Window
         configureGrid()
         addFields()
         configureColorPreview()
@@ -186,6 +186,34 @@ open class WindowAccentSettings(
         syncFromSettings()
         syncEnabledState()
         syncPreview()
+        
+        // Create a message panel for the Settings UI
+        val messagePanel = JPanel(BorderLayout()).apply {
+            border = BorderFactory.createEmptyBorder(24, 24, 24, 24)
+        }
+        
+        val messageText = JBLabel("""
+            <html>
+            <h3>Window Accent Settings</h3>
+            <p>
+            All Window Accent customization has been moved to the <b>Window Accent Tool Window</b> for easier access.
+            </p>
+            <p>
+            To customize your window colors, titles, and other settings, please:
+            </p>
+            <ol>
+            <li>Open the <b>Window Accent Tool Window</b> (via View > Tool Windows > Window Accent)</li>
+            <li>Click on the <b>Settings</b> tab</li>
+            <li>Configure your preferences</li>
+            </ol>
+            <p>
+            Changes are applied instantly as you adjust settings in the Tool Window.
+            </p>
+            </html>
+        """.trimIndent())
+        
+        messagePanel.add(messageText, BorderLayout.NORTH)
+        panel.add(messagePanel, BorderLayout.CENTER)
 
         return panel
     }

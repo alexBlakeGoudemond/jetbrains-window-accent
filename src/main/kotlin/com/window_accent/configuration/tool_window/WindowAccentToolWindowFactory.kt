@@ -1,5 +1,6 @@
 package com.window_accent.configuration.tool_window
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
@@ -9,25 +10,43 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.JBColor
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
+import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService.Side
+import com.window_accent.configuration.settings.IWindowAccentSettings
+import com.window_accent.configuration.settings.showScreenColorPicker
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
+import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Dimension
+import java.awt.FlowLayout
 import java.awt.Font
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
 import java.awt.GridLayout
+import java.awt.Insets
 import java.awt.event.ActionListener
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
+import javax.swing.JCheckBox
+import javax.swing.JColorChooser
+import javax.swing.JComboBox
+import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JTabbedPane
+import javax.swing.JTextField
 import javax.swing.Timer
+import javax.swing.event.DocumentEvent
+import javax.swing.event.DocumentListener
 
 /**
  * DumbAware is an IntelliJ Platform marker interface used in JetBrains IDE plugins.
@@ -102,26 +121,32 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         private val toolWindowCleanupDisposables = ConcurrentHashMap<Project, Disposable>()
 
         fun removeAllButtonListeners() {
-            // Stop in-flight border animations so TimerQueue releases their lambdas.
             stopAllAnimationTimers()
+            removeAllButtonActionListeners()
+            removeDisposables()
+        }
 
-            // Remove all button ActionListeners.
-            val snapshot = HashMap(allButtonListeners)
-            allButtonListeners.clear()
-            snapshot.values.flatten().forEach { (button, listener) ->
-                button.removeActionListener(listener)
-            }
-
-            // Explicitly dispose the Disposer entries registered under toolWindow.disposable.
-            // During a plugin UPDATE (isUpdate=true), the tool window is NOT closed before the
-            // classloader GC check, so toolWindow.disposable remains alive and any lambda
-            // registered as its child (a plugin class) would keep the classloader reachable.
-            // Calling Disposer.dispose on each tracked entry removes it from
-            // toolWindow.disposable's child tree, breaking the external reference chain.
+        private fun removeDisposables() {
             val disposablesSnapshot = HashMap(toolWindowCleanupDisposables)
             toolWindowCleanupDisposables.clear()
             disposablesSnapshot.values.forEach { disposable ->
                 Disposer.dispose(disposable)
+            }
+        }
+
+        /**
+         * Explicitly dispose the Disposer entries registered under toolWindow.disposable.
+         * During a plugin UPDATE (isUpdate=true), the tool window is NOT closed before the
+         * classloader GC check, so toolWindow.disposable remains alive and any lambda
+         * registered as its child (a plugin class) would keep the classloader reachable.
+         * Calling Disposer.dispose on each tracked entry removes it from
+         * toolWindow.disposable's child tree, breaking the external reference chain.
+         */
+        private fun removeAllButtonActionListeners() {
+            val snapshot = HashMap(allButtonListeners)
+            allButtonListeners.clear()
+            snapshot.values.flatten().forEach { (button, listener) ->
+                button.removeActionListener(listener)
             }
         }
 
@@ -161,15 +186,24 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val colorSettings = project.getService(WindowPanelAppearanceStateService::class.java)
+        val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
         val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
         val globalCustomTitleSettings = ApplicationManager.getApplication()
             ?.getService(GlobalCustomTitleStateService::class.java)
             ?: GlobalCustomTitleStateService()
 
-        val panel = JPanel()
-        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
-        panel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
+        val tabbedPane = JTabbedPane()
+
+        val quickControlsPanel = JPanel()
+        quickControlsPanel.layout = BoxLayout(quickControlsPanel, BoxLayout.Y_AXIS)
+        quickControlsPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
+
+        val settingsFormPanel = JPanel()
+        settingsFormPanel.layout = BoxLayout(settingsFormPanel, BoxLayout.Y_AXIS)
+        settingsFormPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
+
+        val panel = quickControlsPanel
 
         val toggleAllColorsButton = JButton()
         val toggleCurrentColorButton = JButton()
@@ -190,6 +224,126 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         styleAsCurrentButton(toggleCurrentCustomTitleButton)
         styleAsAllButton(toggleGlobalCustomTitleButton)
         styleAsCycleButton(cyclePanelDirectionButton)
+
+        // Settings form components
+        val sideCombo = JComboBox(WindowPanelAppearanceStateService.Side.entries.toTypedArray())
+        val customColorCheckBox = JCheckBox("Use custom color")
+        val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
+        val customTitleTextField = JTextField()
+        val globalCustomTitleTextField = JTextField()
+        val colorPreview = JPanel()
+        val chooseColorButton = JButton("Choose color")
+        val dropperButton = JButton(AllIcons.Actions.Colors)
+        val previewLabel = JLabel("")
+        var selectedColor: Color? = null
+
+        // Configure color preview
+        colorPreview.preferredSize = Dimension(24, 24)
+        colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+
+        fun syncEnabledState() {
+            val customColorEnabled = customColorCheckBox.isSelected
+            chooseColorButton.isEnabled = customColorEnabled
+            dropperButton.isEnabled = customColorEnabled
+            colorPreview.isEnabled = customColorEnabled
+        }
+
+        fun syncPreview() {
+            val color = if (customColorCheckBox.isSelected) selectedColor else null
+            colorPreview.background = color ?: settingsFormPanel.background
+            previewLabel.text = if (color == null) {
+                "Auto-generated from project name"
+            } else {
+                "RGB: ${color.red}, ${color.green}, ${color.blue}"
+            }
+            colorPreview.repaint()
+        }
+
+        fun syncFromSettings() {
+            sideCombo.selectedItem = colorSettings.getSide()
+            customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
+            selectedColor = customColorSettings.getCustomColor()
+            titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
+            customTitleTextField.text = customTitleSettings.getCustomTitle() ?: ""
+            globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle() ?: ""
+        }
+
+        fun buildSettingsForm(): JPanel {
+            val formPanel = JPanel(GridBagLayout())
+            val labelConstraints = GridBagConstraints().apply {
+                gridx = 0
+                gridy = 0
+                anchor = GridBagConstraints.WEST
+                insets = Insets(4, 4, 4, 8)
+            }
+
+            val fieldConstraints = GridBagConstraints().apply {
+                gridx = 1
+                gridy = 0
+                fill = GridBagConstraints.HORIZONTAL
+                weightx = 1.0
+                anchor = GridBagConstraints.WEST
+                insets = Insets(4, 4, 4, 4)
+            }
+
+            // Panel side
+            formPanel.add(JBLabel("Panel side:"), labelConstraints)
+            formPanel.add(sideCombo, fieldConstraints)
+
+            // Custom color - preview on first line
+            labelConstraints.gridy = 1
+            fieldConstraints.gridy = 1
+            formPanel.add(JBLabel("Custom color:"), labelConstraints)
+            formPanel.add(colorPreview, fieldConstraints)
+
+            // Choose color button on second line
+            labelConstraints.gridy = 2
+            fieldConstraints.gridy = 2
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(chooseColorButton, fieldConstraints)
+
+            // Dropper button on third line
+            labelConstraints.gridy = 3
+            fieldConstraints.gridy = 3
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(dropperButton, fieldConstraints)
+
+            dropperButton.toolTipText = "Pick a color from the screen"
+            dropperButton.isFocusable = false
+
+            labelConstraints.gridy = 4
+            fieldConstraints.gridy = 4
+            formPanel.add(customColorCheckBox, fieldConstraints)
+
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
+            formPanel.add(JBLabel("Preview:"), labelConstraints)
+            formPanel.add(previewLabel, fieldConstraints)
+
+            // Title numbering
+            labelConstraints.gridy = 6
+            fieldConstraints.gridy = 6
+            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
+            formPanel.add(titleNumberingCheckBox, fieldConstraints)
+
+            // Custom title (this window)
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
+            formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
+            formPanel.add(customTitleTextField, fieldConstraints)
+            customTitleTextField.toolTipText =
+                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off in the Tool Window."
+
+            // Global custom title
+            labelConstraints.gridy = 8
+            fieldConstraints.gridy = 8
+            formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
+            formPanel.add(globalCustomTitleTextField, fieldConstraints)
+            globalCustomTitleTextField.toolTipText =
+                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off in the Tool Window."
+
+            return formPanel
+        }
 
         fun refreshButtonText() {
             val colorsEnabled = colorSettings.panelIsEnabled()
@@ -295,6 +449,69 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             refreshButtonText()
         }
 
+        // Settings form listeners
+        fun applySettings() {
+            colorSettings.setSide(sideCombo.selectedItem as Side)
+            customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
+            customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
+            titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
+            customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
+            globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
+
+            WindowColorApplier.applyToCurrentOpenProject(project)
+            WindowTitleApplier.applyToCurrentOpenProject(project)
+        }
+
+        val chooseColorListener = ActionListener {
+            val chosen = JColorChooser.showDialog(
+                settingsFormPanel,
+                "Choose custom color",
+                selectedColor ?: Color(0, 0, 255)
+            )
+            if (chosen != null) {
+                selectedColor = chosen
+                syncPreview()
+                applySettings()
+            }
+        }
+
+        val dropperListener = ActionListener {
+            val settingsWrapper = object : IWindowAccentSettings {
+                override fun getProject(): Project = project
+                override fun getPanel(): JPanel = settingsFormPanel
+                override fun getCustomColorCheckBox(): JCheckBox = customColorCheckBox
+                override fun getCustomColorPreviewPanel(): JPanel = colorPreview
+                override fun setSelectedColor(color: Color?) {
+                    selectedColor = color
+                }
+
+                override fun syncEnabledState() = syncEnabledState()
+                override fun syncPreview() = syncPreview()
+            }
+            showScreenColorPicker(settingsWrapper)
+            applySettings()
+        }
+
+        val customColorCheckBoxListener = ActionListener {
+            syncEnabledState()
+            syncPreview()
+            applySettings()
+        }
+
+        val sideComboListener = ActionListener {
+            applySettings()
+        }
+
+        val titleNumberingListener = ActionListener {
+            applySettings()
+        }
+
+        val customTitleListener = object : DocumentListener {
+            override fun insertUpdate(e: DocumentEvent) = applySettings()
+            override fun removeUpdate(e: DocumentEvent) = applySettings()
+            override fun changedUpdate(e: DocumentEvent) = applySettings()
+        }
+
         toggleAllColorsButton.addActionListener(toggleAllColorsListener)
         toggleCurrentColorButton.addActionListener(toggleCurrentColorListener)
         cyclePanelDirectionButton.addActionListener(cyclePanelDirectionListener)
@@ -304,7 +521,22 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         toggleCurrentCustomTitleButton.addActionListener(toggleCurrentCustomTitleListener)
         toggleGlobalCustomTitleButton.addActionListener(toggleGlobalCustomTitleListener)
 
+        chooseColorButton.addActionListener(chooseColorListener)
+        dropperButton.addActionListener(dropperListener)
+        customColorCheckBox.addActionListener(customColorCheckBoxListener)
+        sideCombo.addActionListener(sideComboListener)
+        titleNumberingCheckBox.addActionListener(titleNumberingListener)
+        customTitleTextField.document.addDocumentListener(customTitleListener)
+        globalCustomTitleTextField.document.addDocumentListener(object : DocumentListener {
+            override fun insertUpdate(e: DocumentEvent) = applySettings()
+            override fun removeUpdate(e: DocumentEvent) = applySettings()
+            override fun changedUpdate(e: DocumentEvent) = applySettings()
+        })
+
         refreshButtonText()
+        syncFromSettings()
+        syncEnabledState()
+        syncPreview()
 
         panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
         panel.add(Box.createVerticalStrut(8))
@@ -312,7 +544,19 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleGlobalCustomTitleButton, toggleCurrentCustomTitleButton))
 
-        val content = ContentFactory.getInstance().createContent(panel, "", false)
+        // Build settings form and add to Tab 2
+        val settingsForm = buildSettingsForm()
+        settingsFormPanel.add(settingsForm)
+
+        // Add tabs to the tabbed pane
+        tabbedPane.addTab("Quick Controls", quickControlsPanel)
+        tabbedPane.addTab("Settings", JPanel(BorderLayout()).apply {
+            add(JPanel(BorderLayout()).apply {
+                add(settingsFormPanel, BorderLayout.NORTH)
+            }, BorderLayout.NORTH)
+        })
+
+        val content = ContentFactory.getInstance().createContent(tabbedPane, "", false)
         toolWindow.contentManager.addContent(content)
 
         val listenerPairs = listOf(
@@ -324,6 +568,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             resetTitleNumberingButton to resetTitleNumberingListener,
             toggleCurrentCustomTitleButton to toggleCurrentCustomTitleListener,
             toggleGlobalCustomTitleButton to toggleGlobalCustomTitleListener,
+            chooseColorButton to chooseColorListener,
+            dropperButton to dropperListener,
         )
         allButtonListeners[project] = listenerPairs
 
@@ -443,6 +689,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                     timer.stop()
                     runningAnimationTimers.remove(timer)
                 }
+
                 step % 2 == 0 -> button.border = flashBorder
                 else -> button.border = originalBorder
             }
