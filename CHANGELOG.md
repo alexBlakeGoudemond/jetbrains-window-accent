@@ -4,6 +4,13 @@
 
 ## [2.1.0]
 
+### Fixed
+
+- Improved the UI of the colored panel
+  - Layer the colored panel so there is a clear background
+  - Round the panel's corners
+  - Apply a shifting gradient to the colored panel
+
 ## [2.0.0]
 
 ### Added
