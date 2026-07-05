@@ -1,0 +1,28 @@
+src/main/kotlin/com/window_accent/feature/window_color/ColoredPanel.kt
+  s_1ea95ea6e9a62c::t_eb1d404805d03a 23-31
+  s_1ea95ea6e9a62c::t_44a8263889465e 46
+  s_1ea95ea6e9a62c::t_257ae4e784ed68 1-13,15-22,44,47-48
+  s_1ea95ea6e9a62c::t_98b254373d9864 14
+  s_1ea95ea6e9a62c::t_6c30236d30570d 32-43,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "892f1258a2dd8ddc77fb7f9a5eb68e1e14c4e509",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1ea95ea6e9a62c": {
+      "agent_id": {
+        "tool": "junie",
+        "id": "1783229100023",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
