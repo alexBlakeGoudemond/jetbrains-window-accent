@@ -6,14 +6,14 @@
 
 ### Added
 
-All settings are now done through the Tool Window
-- Quick Controls Panel: quickly toggle features through toggle buttons
-- Settings Panel: fine-grained control over Window Accent configuration
+- All settings are now done through the Tool Window
+  - Quick Controls Panel: quickly toggle features through toggle buttons
+  - Settings Panel: fine-grained control over Window Accent configuration
 
 ### Removed
 
-The configuration settings in the Settings view have been moved to the Tool Window
-- Settings now have a short paragraph informing the ready to use the Tool Window
+- The configuration settings in the Settings view have been moved to the Tool Window
+  - Settings now have a short paragraph informing the user about the Tool Window
 
 ## [1.6.3]
 
