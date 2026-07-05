@@ -1,0 +1,28 @@
+src/main/kotlin/com/window_accent/feature/window_color/WindowColorApplier.kt
+  s_82f66915bb1762::t_b79d362dc271ca 120
+src/main/resources/META-INF/plugin.xml
+  s_82f66915bb1762::t_54cd3fc9a99fda 65-70
+src/main/kotlin/com/window_accent/feature/window_color/ColoredPanel.kt
+  s_82f66915bb1762::t_5082a9f3e59e0d 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ba36d784fd8202ed15aa383ab5d600d20f096fd6",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_82f66915bb1762": {
+      "agent_id": {
+        "tool": "junie",
+        "id": "1783283665700",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
