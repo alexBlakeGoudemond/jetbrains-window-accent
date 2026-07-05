@@ -1,5 +1,6 @@
 package com.window_accent.feature.window_color
 
+import com.intellij.util.ui.UIUtil
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
 import javax.swing.JPanel
@@ -10,7 +11,8 @@ class ColoredPanel(
 ) : JPanel() {
 
     init {
-        isOpaque = false
+        isOpaque = true
+        background = UIUtil.getPanelBackground()
         putClientProperty(WindowColorApplier.PANEL_CLIENT_PROPERTY, true)
     }
 
