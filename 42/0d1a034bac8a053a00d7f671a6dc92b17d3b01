@@ -1,0 +1,14 @@
+.ai-resources/plugin-logs/log-example-update-plugin-to-2.0.0.txt
+  h_1197a506f6c7d6 1-885
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "420d1a034bac8a053a00d7f671a6dc92b17d3b01",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
