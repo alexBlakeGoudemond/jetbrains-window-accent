@@ -28,7 +28,7 @@ object WindowColorApplier {
 
     private val logger = logger<WindowColorApplier>()
 
-    private const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
+    internal const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
     private const val PANEL_THICKNESS = 20
     private const val RETRY_DELAY_MS = 500L
     private const val MAX_RETRIES = 60
@@ -178,7 +178,8 @@ object WindowColorApplier {
         projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
-        val panel = createColoredPanel(panelSettings, customColorSettings, project)
+        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project))
+        panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
 
         if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
@@ -227,17 +228,6 @@ object WindowColorApplier {
         wrapper.add(panel, BorderLayout.SOUTH)
     }
 
-    private fun createColoredPanel(
-        panelSettings: WindowPanelAppearanceStateService,
-        customColorSettings: WindowCustomColorStateService,
-        project: Project
-    ): JPanel {
-        return JPanel().apply {
-            putClientProperty(PANEL_CLIENT_PROPERTY, true)
-            background = resolveColor(customColorSettings, project)
-            preferredSize = panelDimension(panelSettings.getSide())
-        }
-    }
 
     private fun resolveColor(
         customColorSettings: WindowCustomColorStateService,
