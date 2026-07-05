@@ -1,0 +1,24 @@
+src/main/kotlin/com/window_accent/configuration/tool_window/WindowAccentToolWindowFactory.kt
+  s_82f66915bb1762::t_a3f78d9db91f53 279-281,399,407,413,568-570
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "dfce3b964199d50aa57b1d74f92b24e8472e1d10",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_82f66915bb1762": {
+      "agent_id": {
+        "tool": "junie",
+        "id": "1783283665700",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
