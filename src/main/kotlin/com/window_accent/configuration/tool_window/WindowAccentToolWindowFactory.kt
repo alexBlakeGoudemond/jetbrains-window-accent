@@ -276,9 +276,10 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             }
         }
 
-        fun buildColorPresetsPanel(): JPanel {
+        val colorPresetsGroup = ButtonGroup()
+
+        fun buildColorPresetsPanel(group: ButtonGroup): JPanel {
             val panel = JPanel(GridLayout(0, 4, 5, 5))
-            val group = ButtonGroup()
 
             val presets = listOf(
                 Triple("Red", Color.RED, "🔴"),
@@ -395,7 +396,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
-                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off in the Tool Window."
+                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
             // Global custom title
             labelConstraints.gridy = 8
@@ -403,13 +404,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
-                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off in the Tool Window."
+                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
             // Color presets
             labelConstraints.gridy = 9
             fieldConstraints.gridy = 9
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
-            formPanel.add(buildColorPresetsPanel(), fieldConstraints)
+            formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
             return formPanel
         }
@@ -564,6 +565,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         }
 
         val customColorCheckBoxListener = ActionListener {
+            if (!customColorCheckBox.isSelected) {
+                colorPresetsGroup.clearSelection()
+            }
             syncEnabledState()
             syncPreview()
             applySettings()
