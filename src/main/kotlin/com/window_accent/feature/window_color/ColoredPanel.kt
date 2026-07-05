@@ -17,6 +17,7 @@ class ColoredPanel(
     }
 
     override fun paintComponent(g: Graphics) {
+        println("[DEBUG_LOG] ColoredPanel: painting with color=$panelColor")
         super.paintComponent(g)
         val g2d = g as Graphics2D
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)

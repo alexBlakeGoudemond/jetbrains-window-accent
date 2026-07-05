@@ -192,8 +192,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
         val globalCustomTitleSettings = ApplicationManager.getApplication()
-            ?.getService(GlobalCustomTitleStateService::class.java)
-            ?: GlobalCustomTitleStateService()
+            .getService(GlobalCustomTitleStateService::class.java)
 
         val tabbedPane = JTabbedPane()
 
@@ -261,13 +260,20 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorPreview.repaint()
         }
 
+        var isSyncing = false
         fun syncFromSettings() {
-            sideCombo.selectedItem = colorSettings.getSide()
-            customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
-            selectedColor = customColorSettings.getCustomColor()
-            titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
-            customTitleTextField.text = customTitleSettings.getCustomTitle() ?: ""
-            globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle() ?: ""
+            isSyncing = true
+            try {
+                println("[DEBUG_LOG] syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
+                sideCombo.selectedItem = colorSettings.getSide()
+                customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
+                selectedColor = customColorSettings.getCustomColor()
+                titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
+                customTitleTextField.text = customTitleSettings.getCustomTitle() ?: ""
+                globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle() ?: ""
+            } finally {
+                isSyncing = false
+            }
         }
 
         fun buildColorPresetsPanel(): JPanel {
@@ -515,6 +521,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         // Settings form listeners
         fun applySettings() {
+            if (isSyncing) return
+            println("[DEBUG_LOG] applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
@@ -576,6 +584,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         }
 
+        refreshButtonText()
+        syncFromSettings()
+        syncEnabledState()
+        syncPreview()
+
         toggleAllColorsButton.addActionListener(toggleAllColorsListener)
         toggleCurrentColorButton.addActionListener(toggleCurrentColorListener)
         cyclePanelDirectionButton.addActionListener(cyclePanelDirectionListener)
@@ -596,11 +609,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun removeUpdate(e: DocumentEvent) = applySettings()
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         })
-
-        refreshButtonText()
-        syncFromSettings()
-        syncEnabledState()
-        syncPreview()
 
         panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
         panel.add(Box.createVerticalStrut(8))

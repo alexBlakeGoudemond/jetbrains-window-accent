@@ -10,6 +10,7 @@ import javax.swing.JPanel
 @DisplayName("WindowAccentToolWindowFactory Tests")
 class WindowAccentToolWindowFactoryTest {
 
+
     @Test
     @DisplayName("Should create tool window factory instance")
     fun testFactoryCreation() {

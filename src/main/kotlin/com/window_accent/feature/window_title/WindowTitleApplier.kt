@@ -188,12 +188,12 @@ class WindowTitleApplier {
         if (isShuttingDown) return
 
         val frame = getProjectFrame(project)
+        println("[DEBUG_LOG] WindowTitleApplier: frame=$frame for project=${project.name}")
         if (frame != null) {
             val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
             val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
             val globalCustomTitleService = ApplicationManager.getApplication()
-                ?.getService(GlobalCustomTitleStateService::class.java)
-                ?: GlobalCustomTitleStateService()
+                .getService(GlobalCustomTitleStateService::class.java)
             updateWindowTitle(
                 frame, number,
                 customTitle = customTitleService.getCustomTitle(),
