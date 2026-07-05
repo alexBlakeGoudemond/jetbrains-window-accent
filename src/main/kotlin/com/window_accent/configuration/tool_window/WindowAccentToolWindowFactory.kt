@@ -36,12 +36,14 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
+import javax.swing.ButtonGroup
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JColorChooser
 import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JRadioButton
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.Timer
@@ -268,6 +270,62 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle() ?: ""
         }
 
+        fun buildColorPresetsPanel(): JPanel {
+            val panel = JPanel(GridLayout(0, 4, 5, 5))
+            val group = ButtonGroup()
+
+            val presets = listOf(
+                Triple("Red", Color.RED, "🔴"),
+                Triple("Orange", Color.ORANGE, "🟠"),
+                Triple("Yellow", Color.YELLOW, "🟡"),
+                Triple("Green", Color.GREEN, "🟢"),
+                Triple("Blue", Color.BLUE, "🔵"),
+                Triple("Light Green", Color(144, 238, 144), "🌿"),
+                Triple("Purple", Color(128, 0, 128), "🟣")
+            )
+
+            for ((name, color, emoji) in presets) {
+                val radioButton = JRadioButton(emoji)
+                radioButton.toolTipText = name
+                radioButton.addActionListener {
+                    println("[DEBUG_LOG] Presets clicked: $name")
+                    radioButton.isSelected = true
+                    customColorSettings.setUseCustomColor(true)
+                    customColorSettings.setCustomColor(color)
+                    println("[DEBUG_LOG] Custom color set: $color")
+                    
+                    val currentTitle = customTitleSettings.getCustomTitle()
+                    println("[DEBUG_LOG] Current title: $currentTitle")
+                    // Simplified: just prepend or replace the emoji if it exists
+                    val emojiBallRegex = Regex("[🔴🟠🟡🟢🔵🌿🟣]")
+                    val newTitle = if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(2))) {
+                        emoji + currentTitle.substring(2)
+                    } else if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(1))) {
+                        emoji + currentTitle.substring(1)
+                    } else {
+                        emoji + " " + currentTitle
+                    }
+                    println("[DEBUG_LOG] New title: $newTitle")
+                    customTitleSettings.setCustomTitle(newTitle)
+                    customTitleSettings.setCustomTitleEnabled(true)
+                    println("[DEBUG_LOG] Custom title set")
+                    
+                    // Apply changes to the window
+                    WindowColorApplier.applyToCurrentOpenProject(project)
+                    WindowTitleApplier.getInstance().applyToCurrentOpenProject(project)
+                    
+                    // Sync UI
+                    syncFromSettings()
+                    syncPreview()
+                    syncEnabledState()
+                    println("[DEBUG_LOG] Sync done")
+                }
+                group.add(radioButton)
+                panel.add(radioButton)
+            }
+            return panel
+        }
+
         fun buildSettingsForm(): JPanel {
             val formPanel = JPanel(GridBagLayout())
             val labelConstraints = GridBagConstraints().apply {
@@ -341,6 +399,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off in the Tool Window."
+
+            // Color presets
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
+            formPanel.add(JBLabel("Color presets:"), labelConstraints)
+            formPanel.add(buildColorPresetsPanel(), fieldConstraints)
 
             return formPanel
         }
