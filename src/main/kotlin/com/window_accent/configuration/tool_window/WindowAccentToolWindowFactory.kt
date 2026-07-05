@@ -286,7 +286,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 Triple("Yellow", Color.YELLOW, "🟡"),
                 Triple("Green", Color.GREEN, "🟢"),
                 Triple("Blue", Color.BLUE, "🔵"),
-                Triple("Light Green", Color(144, 238, 144), "🌿"),
                 Triple("Purple", Color(128, 0, 128), "🟣")
             )
 
