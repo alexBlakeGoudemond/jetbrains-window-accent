@@ -121,26 +121,32 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         private val toolWindowCleanupDisposables = ConcurrentHashMap<Project, Disposable>()
 
         fun removeAllButtonListeners() {
-            // Stop in-flight border animations so TimerQueue releases their lambdas.
             stopAllAnimationTimers()
+            removeAllButtonActionListeners()
+            removeDisposables()
+        }
 
-            // Remove all button ActionListeners.
-            val snapshot = HashMap(allButtonListeners)
-            allButtonListeners.clear()
-            snapshot.values.flatten().forEach { (button, listener) ->
-                button.removeActionListener(listener)
-            }
-
-            // Explicitly dispose the Disposer entries registered under toolWindow.disposable.
-            // During a plugin UPDATE (isUpdate=true), the tool window is NOT closed before the
-            // classloader GC check, so toolWindow.disposable remains alive and any lambda
-            // registered as its child (a plugin class) would keep the classloader reachable.
-            // Calling Disposer.dispose on each tracked entry removes it from
-            // toolWindow.disposable's child tree, breaking the external reference chain.
+        private fun removeDisposables() {
             val disposablesSnapshot = HashMap(toolWindowCleanupDisposables)
             toolWindowCleanupDisposables.clear()
             disposablesSnapshot.values.forEach { disposable ->
                 Disposer.dispose(disposable)
+            }
+        }
+
+        /**
+         * Explicitly dispose the Disposer entries registered under toolWindow.disposable.
+         * During a plugin UPDATE (isUpdate=true), the tool window is NOT closed before the
+         * classloader GC check, so toolWindow.disposable remains alive and any lambda
+         * registered as its child (a plugin class) would keep the classloader reachable.
+         * Calling Disposer.dispose on each tracked entry removes it from
+         * toolWindow.disposable's child tree, breaking the external reference chain.
+         */
+        private fun removeAllButtonActionListeners() {
+            val snapshot = HashMap(allButtonListeners)
+            allButtonListeners.clear()
+            snapshot.values.flatten().forEach { (button, listener) ->
+                button.removeActionListener(listener)
             }
         }
 
@@ -187,15 +193,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             ?.getService(GlobalCustomTitleStateService::class.java)
             ?: GlobalCustomTitleStateService()
 
-        // Create the main tabbed pane
         val tabbedPane = JTabbedPane()
 
-        // Tab 1: Quick toggles and controls
         val quickControlsPanel = JPanel()
         quickControlsPanel.layout = BoxLayout(quickControlsPanel, BoxLayout.Y_AXIS)
         quickControlsPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
-        // Tab 2: Settings form
         val settingsFormPanel = JPanel()
         settingsFormPanel.layout = BoxLayout(settingsFormPanel, BoxLayout.Y_AXIS)
         settingsFormPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
@@ -454,7 +457,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
             globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
-            
+
             WindowColorApplier.applyToCurrentOpenProject(project)
             WindowTitleApplier.applyToCurrentOpenProject(project)
         }
@@ -481,6 +484,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 override fun setSelectedColor(color: Color?) {
                     selectedColor = color
                 }
+
                 override fun syncEnabledState() = syncEnabledState()
                 override fun syncPreview() = syncPreview()
             }
@@ -685,6 +689,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                     timer.stop()
                     runningAnimationTimers.remove(timer)
                 }
+
                 step % 2 == 0 -> button.border = flashBorder
                 else -> button.border = originalBorder
             }
