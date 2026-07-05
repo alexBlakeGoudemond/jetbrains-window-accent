@@ -282,7 +282,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             val presets = listOf(
                 Triple("Red", Color.RED, "🔴"),
-                Triple("Orange", Color.ORANGE, "🟠"),
+                Triple("Orange", Color(255, 102, 20), "🟠"),
                 Triple("Yellow", Color.YELLOW, "🟡"),
                 Triple("Green", Color.GREEN, "🟢"),
                 Triple("Blue", Color.BLUE, "🔵"),
