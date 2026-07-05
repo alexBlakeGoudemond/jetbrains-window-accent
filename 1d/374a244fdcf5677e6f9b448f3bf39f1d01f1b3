@@ -1,12 +1,22 @@
 ---
 {
   "schema_version": "authorship/3.0.0",
-  "git_ai_version": "1.6.5",
+  "git_ai_version": "1.6.10",
   "base_commit_sha": "1d374a244fdcf5677e6f9b448f3bf39f1d01f1b3",
   "prompts": {},
   "humans": {
     "h_1197a506f6c7d6": {
       "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1ea95ea6e9a62c": {
+      "agent_id": {
+        "tool": "junie",
+        "id": "1783229100023",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
     }
   }
 }
