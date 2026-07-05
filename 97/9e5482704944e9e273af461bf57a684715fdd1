@@ -1,0 +1,30 @@
+src/main/kotlin/com/window_accent/configuration/tool_window/WindowAccentToolWindowFactory.kt
+  s_1ea95ea6e9a62c::t_ce9d5eab93ea7b 273,275-290,293-294,296-297,302,305-307,309-310,312,317-320,322-328
+  s_1ea95ea6e9a62c::t_df27d0abb9072c 39,46
+  s_1ea95ea6e9a62c::t_0841f4cebc0bff 403-408
+  s_1ea95ea6e9a62c::t_7d6f6b18e183bc 295,298,308,311,321
+  s_1ea95ea6e9a62c::t_d5aa4784d696e0 292,299-301,303-304
+  s_1ea95ea6e9a62c::t_14bc675ad98fd7 313-316
+  s_1ea95ea6e9a62c::t_a5007b2c6b8807 274,291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "979e5482704944e9e273af461bf57a684715fdd1",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1ea95ea6e9a62c": {
+      "agent_id": {
+        "tool": "junie",
+        "id": "1783229100023",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
