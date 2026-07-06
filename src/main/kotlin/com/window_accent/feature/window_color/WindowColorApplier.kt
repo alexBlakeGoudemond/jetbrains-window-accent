@@ -1,7 +1,7 @@
 package com.window_accent.feature.window_color
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
@@ -26,9 +26,9 @@ import javax.swing.RootPaneContainer
  */
 object WindowColorApplier {
 
-    private val logger = logger<WindowColorApplier>()
+    private val logger = windowAccentLogger<WindowColorApplier>()
 
-    private const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
+    internal const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
     private const val PANEL_THICKNESS = 20
     private const val RETRY_DELAY_MS = 500L
     private const val MAX_RETRIES = 60
@@ -95,7 +95,7 @@ object WindowColorApplier {
     }
 
     fun removeColorFromAllOpenProjectsSync() {
-        logger.info("[Window Accent] removeColorFromAllOpenProjects triggered")
+        logger.info("removeColorFromAllOpenProjects triggered")
 
         // Remove all tracked panels first, even if a project frame is already unavailable.
         val trackedProjects = addedPanels.keys.toList()
@@ -117,6 +117,7 @@ object WindowColorApplier {
             return
         }
         val frame = getProjectFrame(project)
+        logger.debug("[Window Accent] WindowColorApplier: frame=$frame for project=${project.name}")
         if (frame != null) {
             val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
             val customColorSettings = project.getService(WindowCustomColorStateService::class.java)
@@ -178,7 +179,8 @@ object WindowColorApplier {
         projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
-        val panel = createColoredPanel(panelSettings, customColorSettings, project)
+        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project))
+        panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
 
         if (side == WindowPanelAppearanceStateService.Side.SOUTH) {
@@ -227,17 +229,6 @@ object WindowColorApplier {
         wrapper.add(panel, BorderLayout.SOUTH)
     }
 
-    private fun createColoredPanel(
-        panelSettings: WindowPanelAppearanceStateService,
-        customColorSettings: WindowCustomColorStateService,
-        project: Project
-    ): JPanel {
-        return JPanel().apply {
-            putClientProperty(PANEL_CLIENT_PROPERTY, true)
-            background = resolveColor(customColorSettings, project)
-            preferredSize = panelDimension(panelSettings.getSide())
-        }
-    }
 
     private fun resolveColor(
         customColorSettings: WindowCustomColorStateService,

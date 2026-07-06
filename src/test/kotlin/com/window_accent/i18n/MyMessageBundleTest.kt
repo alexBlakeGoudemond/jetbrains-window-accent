@@ -1,9 +1,12 @@
 package com.window_accent.i18n
 
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 class MyMessageBundleTest {
+
+    private var logger = windowAccentLogger<MyMessageBundleTest>()
 
     @Test
     fun `test bundle instance is not null`() {
@@ -23,7 +26,7 @@ class MyMessageBundleTest {
             assertNotNull(message)
         } catch (e: Exception) {
             // Ignore if platform is not initialized, as this is just a structural test
-            println("Platform not initialized, skipping detailed message check")
+            logger.info("Platform not initialized, skipping detailed message check")
         }
     }
 }

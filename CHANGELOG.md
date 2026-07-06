@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [2.1.0]
+
+### Added
+
+- Added color presets to the Tool Window
+  - The settings tab has radio buttons to select from preset colors: 🔴🟠🟡🟢🔵🟣
+  - Selecting a color preset adds an emoji to the title and sets the colored panel to the selected color
+
+### Fixed
+
+- Improved the UI of the colored panel
+  - Layer the colored panel so there is a clear background
+  - Round the panel's corners
+  - Apply a shifting gradient to the colored panel
+
 ## [2.0.0]
 
 ### Added
@@ -718,7 +733,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.3...2.0.0
 [1.6.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.1...1.6.2

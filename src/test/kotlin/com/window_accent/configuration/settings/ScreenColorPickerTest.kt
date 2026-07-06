@@ -1,5 +1,6 @@
 package com.window_accent.configuration.settings
 
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.DisplayName
@@ -18,6 +19,8 @@ import javax.swing.WindowConstants
 @DisplayName("ScreenColorPicker Tests")
 class ScreenColorPickerTest : BaseScreenColorPickerTest() {
 
+    private var logger = windowAccentLogger<ScreenColorPickerTest>()
+    
     @Test
     @DisplayName("showScreenColorPicker should return early if window ancestor is null")
     fun testShowScreenColorPickerNullWindowAncestor() {
@@ -30,7 +33,7 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
                 }
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testShowScreenColorPickerNullWindowAncestor: ${e.message}")
+            logger.info("Soft-skipping testShowScreenColorPickerNullWindowAncestor: ${e.message}")
         }
     }
 
@@ -334,7 +337,7 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
                 }
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testShowScreenColorPickerNullWindow: ${e.message}")
+            logger.info("Soft-skipping testShowScreenColorPickerNullWindow: ${e.message}")
         }
     }
 
@@ -350,7 +353,7 @@ class ScreenColorPickerTest : BaseScreenColorPickerTest() {
             try {
                 showColorChooserViaFullScreenScreenshot(bounds, owner, mockSettings)
             } catch (e: Exception) {
-                System.err.println("[DEBUG_LOG] showColorChooserViaScreenshot partial fail: ${e.message}")
+                logger.info("showColorChooserViaScreenshot partial fail: ${e.message}")
             }
         } finally {
             owner.dispose()

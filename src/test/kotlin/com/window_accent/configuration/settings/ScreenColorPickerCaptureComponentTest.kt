@@ -1,5 +1,6 @@
 package com.window_accent.configuration.settings
 
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -11,6 +12,8 @@ import java.awt.image.BufferedImage
 
 @DisplayName("ScreenColorPicker Capture Component Tests")
 class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
+
+    private var logger = windowAccentLogger<ScreenColorPickerCaptureComponentTest>()
 
     @Test
     @DisplayName("takeScreenshot should throw when component width is 0")
@@ -52,7 +55,7 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
                 assertEquals(480, image.height)
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testCaptureComponentCreatesCorrectDimensions: ${e.message}")
+            logger.info("Soft-skipping testCaptureComponentCreatesCorrectDimensions: ${e.message}")
         }
     }
 
@@ -69,7 +72,7 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
                 }
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testCaptureComponentDoesNotThrow: ${e.message}")
+            logger.info("Soft-skipping testCaptureComponentDoesNotThrow: ${e.message}")
         }
     }
 

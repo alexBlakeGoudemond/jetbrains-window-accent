@@ -3,7 +3,7 @@ package com.window_accent
 import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.project.ProjectManager
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
@@ -22,11 +22,11 @@ import com.window_accent.feature.window_title.WindowTitleApplier
 class PluginLifecycleListener : DynamicPluginListener {
 
     companion object {
-        private val LOG = logger<PluginLifecycleListener>()
+        private val LOG = windowAccentLogger<PluginLifecycleListener>()
     }
 
     init {
-        LOG.info("[Window Accent] Lifecycle Listener registered")
+        LOG.info("Lifecycle Listener registered")
     }
 
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
@@ -37,7 +37,7 @@ class PluginLifecycleListener : DynamicPluginListener {
             // and panels alive — preventing the classloader from being GC'd.
             WindowAccentApplicationService.resetCleanupState()
             ensureApplicationServiceHasBeenInstantiated()
-            LOG.info("[Window Accent] Window Accent enabled/loaded: Restoring decorations")
+            LOG.info("Window Accent enabled/loaded: Restoring decorations")
             restoreDecorations()
         }
     }
@@ -49,13 +49,13 @@ class PluginLifecycleListener : DynamicPluginListener {
         val windowAccentService = ApplicationManager
             .getApplication()
             .getService(WindowAccentApplicationService::class.java)
-        LOG.info("[Window Accent] Window Accent Application Service created: ${windowAccentService.javaClass.name}")
+        LOG.info("Window Accent Application Service created: ${windowAccentService.javaClass.name}")
     }
 
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         val pluginId = pluginDescriptor.pluginId.idString
         if (pluginId == "WindowAccent") {
-            LOG.info("[Window Accent] Plugin unload triggered (update=$isUpdate) — running cleanup")
+            LOG.info("Plugin unload triggered (update=$isUpdate) — running cleanup")
             WindowAccentApplicationService.performCleanup("before-plugin-unload")
             // NOTE: ClassLoaderLeakDiagnostics.scheduleLeakCheck is intentionally NOT called here.
             // Scheduling any async task during the unload path means a plugin-class lambda will be
@@ -77,7 +77,7 @@ class PluginLifecycleListener : DynamicPluginListener {
 
     override fun pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         // This might not show up if the plugin is already fully disposed
-        LOG.info("[Window Accent] pluginUnloaded event for: ${pluginDescriptor.pluginId.idString}")
+        LOG.info("pluginUnloaded event for: ${pluginDescriptor.pluginId.idString}")
     }
 
     private fun restoreDecorations() {
