@@ -197,6 +197,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val globalCustomTitleSettings = ApplicationManager.getApplication()
             .getService(GlobalCustomTitleStateService::class.java)
 
+        val windowAccentSettings = WindowAccentSettings(project)
+
         val tabbedPane = JTabbedPane()
 
         val quickControlsPanel = JPanel()
