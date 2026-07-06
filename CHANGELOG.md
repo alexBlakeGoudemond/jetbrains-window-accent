@@ -4,6 +4,13 @@
 
 ## [2.1.1]
 
+### Fixed
+
+- Updating plugin should not restart
+    - Code changes brought in through 2.1.0 prevented the Garbage Collector form unloading the plugin, forcing a restart
+    - This version addresses that by adding support to cleanup the color preset radio buttons in the Tool Window, which
+      were retaining a reference to the plugin classloader
+
 ## [2.1.0]
 
 ### Added
