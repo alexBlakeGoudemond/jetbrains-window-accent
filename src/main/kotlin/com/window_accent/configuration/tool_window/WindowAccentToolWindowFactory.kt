@@ -335,23 +335,19 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             val formPanel = JPanel(GridBagLayout())
             val (labelConstraints, fieldConstraints) = windowAccentSettings.configureGrid()
 
-            // Panel side
             formPanel.add(JBLabel("Panel side:"), labelConstraints)
             formPanel.add(sideCombo, fieldConstraints)
 
-            // Custom color - preview on first line
             labelConstraints.gridy = 1
             fieldConstraints.gridy = 1
             formPanel.add(JBLabel("Custom color:"), labelConstraints)
             formPanel.add(colorPreview, fieldConstraints)
 
-            // Choose color button on second line
             labelConstraints.gridy = 2
             fieldConstraints.gridy = 2
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(chooseColorButton, fieldConstraints)
 
-            // Dropper button on third line
             labelConstraints.gridy = 3
             fieldConstraints.gridy = 3
             formPanel.add(JLabel(""), labelConstraints)
@@ -369,13 +365,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Preview:"), labelConstraints)
             formPanel.add(previewLabel, fieldConstraints)
 
-            // Title numbering
             labelConstraints.gridy = 6
             fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Title numbering:"), labelConstraints)
             formPanel.add(titleNumberingCheckBox, fieldConstraints)
 
-            // Custom title (this window)
             labelConstraints.gridy = 7
             fieldConstraints.gridy = 7
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
@@ -383,7 +377,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            // Global custom title
             labelConstraints.gridy = 8
             fieldConstraints.gridy = 8
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
@@ -391,7 +384,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            // Color presets
             labelConstraints.gridy = 9
             fieldConstraints.gridy = 9
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
@@ -437,11 +429,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
         }
 
-        // Assign listeners to named variables so they can be tracked and removed on plugin unload.
-        // Each listener lambda captures plugin objects (service instances, singletons) via the
-        // refreshButtonText closure. If these listeners remain registered on Swing buttons held
-        // by IntelliJ's ContentManager after the plugin is unloaded, the plugin classloader stays
-        // reachable and IntelliJ's GC check fails, forcing an unnecessary restart.
         val toggleAllColorsListener = ActionListener {
             animateButtonClick(toggleAllColorsButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = colorSettings.panelIsDisabled()
@@ -467,14 +454,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val toggleAllTitlesListener = ActionListener {
             animateButtonClick(toggleAllTitlesButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = titleSettings.isTitleNumberingDisabled()
-            // Update the persisted state for EVERY open project, not just the current one.
-            // Without this, non-focused windows keep their own stale service value (enabled=true)
-            // and the focus listener / title listener re-apply the number prefix the next time
-            // those windows are visited or the IDE rewrites their title.
-            ProjectManager.getInstance().openProjects.forEach { openProject ->
-                openProject.getService(WindowTitleNumberingStateService::class.java)
-                    .setTitleNumberingEnabled(enabled)
-            }
+            updateStateForAllOpenProjects(enabled)
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
@@ -504,10 +484,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             refreshButtonText()
         }
 
-        // Settings form listeners
         fun applySettings() {
             if (isSyncing) return
-            println("[DEBUG_LOG] applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
+            LOG.debug("[Window Accent] applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
@@ -591,12 +570,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         resetTitleNumberingButton.addActionListener(resetTitleNumberingListener)
         toggleCurrentCustomTitleButton.addActionListener(toggleCurrentCustomTitleListener)
         toggleGlobalCustomTitleButton.addActionListener(toggleGlobalCustomTitleListener)
-
         chooseColorButton.addActionListener(chooseColorListener)
         dropperButton.addActionListener(dropperListener)
         customColorCheckBox.addActionListener(customColorCheckBoxListener)
         sideCombo.addActionListener(sideComboListener)
         titleNumberingCheckBox.addActionListener(titleNumberingListener)
+
         customTitleTextField.document.addDocumentListener(customTitleListener)
         globalCustomTitleTextField.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
@@ -610,11 +589,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleGlobalCustomTitleButton, toggleCurrentCustomTitleButton))
 
-        // Build settings form and add to Tab 2
         val settingsForm = buildSettingsForm()
         settingsFormPanel.add(settingsForm)
 
-        // Add tabs to the tabbed pane
         tabbedPane.addTab("Quick Controls", quickControlsPanel)
         tabbedPane.addTab("Settings", JPanel(BorderLayout()).apply {
             add(JPanel(BorderLayout()).apply {
@@ -639,13 +616,17 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         )
         allButtonListeners[project] = listenerPairs
 
-        // Register a belt-and-suspenders cleanup for the normal project-close path.
-        //
-        // The disposable is tracked in toolWindowCleanupDisposables so that
-        // removeAllButtonListeners() can explicitly Disposer.dispose() it during plugin
-        // UPDATE (isUpdate=true), where the tool window is NOT closed before the GC check
-        // and toolWindow.disposable would otherwise remain alive with this plugin-class
-        // lambda still registered as a child.
+        registerCleanupForProjectClose(project, toolWindow)
+    }
+
+    // Register a belt-and-suspenders cleanup for the normal project-close path.
+    //
+    // The disposable is tracked in toolWindowCleanupDisposables so that
+    // removeAllButtonListeners() can explicitly Disposer.dispose() it during plugin
+    // UPDATE (isUpdate=true), where the tool window is NOT closed before the GC check
+    // and toolWindow.disposable would otherwise remain alive with this plugin-class
+    // lambda still registered as a child.
+    private fun registerCleanupForProjectClose(project: Project, toolWindow: ToolWindow) {
         val cleanupDisposable = Disposer.newDisposable("WindowAccent-toolwindow-button-cleanup")
         toolWindowCleanupDisposables[project] = cleanupDisposable
         Disposer.register(toolWindow.disposable, cleanupDisposable)
@@ -656,6 +637,17 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             // Self-remove from tracking when naturally disposed (project/tool-window close),
             // so removeAllButtonListeners() does not try to dispose an already-disposed entry.
             toolWindowCleanupDisposables.remove(project)
+        }
+    }
+
+    // Update the persisted state for EVERY open project, not just the current one.
+    // Without this, non-focused windows keep their own stale service value (enabled=true),
+    // and the focus listener / title listener re-applies the number prefix the next time
+    // those windows are visited or the IDE rewrites their title.
+    private fun updateStateForAllOpenProjects(enabled: Boolean) {
+        ProjectManager.getInstance().openProjects.forEach { openProject ->
+            openProject.getService(WindowTitleNumberingStateService::class.java)
+                .setTitleNumberingEnabled(enabled)
         }
     }
 
