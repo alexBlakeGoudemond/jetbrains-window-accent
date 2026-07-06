@@ -1,7 +1,7 @@
 package com.window_accent.feature.window_color
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
@@ -26,7 +26,7 @@ import javax.swing.RootPaneContainer
  */
 object WindowColorApplier {
 
-    private val logger = logger<WindowColorApplier>()
+    private val logger = windowAccentLogger<WindowColorApplier>()
 
     internal const val PANEL_CLIENT_PROPERTY = "com.window_accent.windowAccent"
     private const val PANEL_THICKNESS = 20
@@ -95,7 +95,7 @@ object WindowColorApplier {
     }
 
     fun removeColorFromAllOpenProjectsSync() {
-        logger.info("[Window Accent] removeColorFromAllOpenProjects triggered")
+        logger.info("removeColorFromAllOpenProjects triggered")
 
         // Remove all tracked panels first, even if a project frame is already unavailable.
         val trackedProjects = addedPanels.keys.toList()
@@ -117,6 +117,7 @@ object WindowColorApplier {
             return
         }
         val frame = getProjectFrame(project)
+        logger.debug("[Window Accent] WindowColorApplier: frame=$frame for project=${project.name}")
         if (frame != null) {
             val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
             val customColorSettings = project.getService(WindowCustomColorStateService::class.java)

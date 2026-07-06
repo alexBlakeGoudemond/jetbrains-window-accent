@@ -1,7 +1,7 @@
 package com.window_accent.feature.window_title
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
@@ -34,14 +34,12 @@ class WindowTitleApplier {
 
         fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) = getInstance().applyToCurrentOpenProject(project, enabled)
         fun applyToAllOpenProjects(enabled: Boolean? = null) = getInstance().applyToAllOpenProjects(enabled)
-        fun removeFromAllOpenProjects() = getInstance().removeFromAllOpenProjects()
         fun removeFromAllOpenProjectsSync() = getInstance().removeFromAllOpenProjectsSync()
         fun cancelAllPendingOperations() = getInstance().cancelAllPendingOperations()
-        fun resetProjectNumbering() = getInstance().resetProjectNumbering()
         fun renumberAllOpenWindows(focusedProject: Project) = getInstance().renumberAllOpenWindows(focusedProject)
     }
 
-    private val logger = logger<WindowTitleApplier>()
+    private val logger = windowAccentLogger<WindowTitleApplier>()
 
     /**
      * Set to true at the very start of [cancelAllPendingOperations].
@@ -108,7 +106,7 @@ class WindowTitleApplier {
     }
 
     fun removeFromAllOpenProjectsSync() {
-        logger.info("[Window Accent] removeFromAllOpenProjectsSync triggered")
+        logger.info("removeFromAllOpenProjectsSync triggered")
         ProjectManager.getInstance().openProjects.forEach { project ->
             removeTitleFromWindowSync(project)
         }
@@ -188,12 +186,12 @@ class WindowTitleApplier {
         if (isShuttingDown) return
 
         val frame = getProjectFrame(project)
+        logger.debug("[Window Accent] WindowTitleApplier: frame=$frame for project=${project.name}")
         if (frame != null) {
             val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
             val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
             val globalCustomTitleService = ApplicationManager.getApplication()
-                ?.getService(GlobalCustomTitleStateService::class.java)
-                ?: GlobalCustomTitleStateService()
+                .getService(GlobalCustomTitleStateService::class.java)
             updateWindowTitle(
                 frame, number,
                 customTitle = customTitleService.getCustomTitle(),

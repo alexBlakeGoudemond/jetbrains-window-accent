@@ -2,7 +2,7 @@ package com.window_accent.configuration.settings
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
@@ -35,6 +35,7 @@ interface IWindowAccentSettings {
     fun setSelectedColor(color: Color?)
     fun syncEnabledState()
     fun syncPreview()
+    fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints>
 }
 
 open class WindowAccentSettings(
@@ -42,7 +43,7 @@ open class WindowAccentSettings(
 ) : Configurable, IWindowAccentSettings {
 
     companion object {
-        private val LOG = logger<WindowAccentSettings>()
+        private val LOG = windowAccentLogger<WindowAccentSettings>()
 
         /**
          * WeakReference tracking so [disposeAllTrackedInstances] can call
@@ -68,7 +69,7 @@ open class WindowAccentSettings(
                     disposed++
                 }
             }
-            LOG.info("[Window Accent] disposeAllTrackedInstances completed ($disposed live instance(s) disposed, ${snapshot.size - disposed} already GC'd)")
+            LOG.info("disposeAllTrackedInstances completed ($disposed live instance(s) disposed, ${snapshot.size - disposed} already GC'd)")
         }
 
         /**
@@ -216,26 +217,6 @@ open class WindowAccentSettings(
         panel.add(messagePanel, BorderLayout.CENTER)
 
         return panel
-    }
-
-    private fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
-        val labelConstraints = GridBagConstraints().apply {
-            gridx = 0
-            gridy = 0
-            anchor = GridBagConstraints.WEST
-            insets = Insets(4, 4, 4, 8)
-        }
-
-        val fieldConstraints = GridBagConstraints().apply {
-            gridx = 1
-            gridy = 0
-            fill = GridBagConstraints.HORIZONTAL
-            weightx = 1.0
-            anchor = GridBagConstraints.WEST
-            insets = Insets(4, 4, 4, 4)
-        }
-
-        return labelConstraints to fieldConstraints
     }
 
     private fun addFields() {
@@ -464,4 +445,25 @@ open class WindowAccentSettings(
         }
         colorPreview.repaint()
     }
+
+    override fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
+        val labelConstraints = GridBagConstraints().apply {
+            gridx = 0
+            gridy = 0
+            anchor = GridBagConstraints.WEST
+            insets = Insets(4, 4, 4, 8)
+        }
+
+        val fieldConstraints = GridBagConstraints().apply {
+            gridx = 1
+            gridy = 0
+            fill = GridBagConstraints.HORIZONTAL
+            weightx = 1.0
+            anchor = GridBagConstraints.WEST
+            insets = Insets(4, 4, 4, 4)
+        }
+
+        return labelConstraints to fieldConstraints
+    }
+
 }

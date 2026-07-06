@@ -3,6 +3,7 @@ package com.window_accent.configuration.tool_window
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
@@ -20,28 +21,29 @@ import com.window_accent.configuration.persistence.WindowPanelAppearanceStateSer
 import com.window_accent.configuration.settings.IWindowAccentSettings
 import com.window_accent.configuration.settings.showScreenColorPicker
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
-import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.GridLayout
-import java.awt.Insets
 import java.awt.event.ActionListener
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
+import javax.swing.ButtonGroup
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JColorChooser
 import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JRadioButton
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.Timer
@@ -65,6 +67,9 @@ import javax.swing.event.DocumentListener
 class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
     companion object {
+
+        private val LOG = windowAccentLogger<WindowAccentToolWindowFactory>()
+
         /**
          * Tracks all (button, listener) pairs added to tool window panels across all projects.
          *
@@ -190,8 +195,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val titleSettings = project.getService(WindowTitleNumberingStateService::class.java)
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
         val globalCustomTitleSettings = ApplicationManager.getApplication()
-            ?.getService(GlobalCustomTitleStateService::class.java)
-            ?: GlobalCustomTitleStateService()
+            .getService(GlobalCustomTitleStateService::class.java)
+
+        val windowAccentSettings = WindowAccentSettings(project)
 
         val tabbedPane = JTabbedPane()
 
@@ -248,61 +254,100 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorPreview.isEnabled = customColorEnabled
         }
 
-        fun syncPreview() {
-            val color = if (customColorCheckBox.isSelected) selectedColor else null
-            colorPreview.background = color ?: settingsFormPanel.background
-            previewLabel.text = if (color == null) {
-                "Auto-generated from project name"
-            } else {
-                "RGB: ${color.red}, ${color.green}, ${color.blue}"
-            }
-            colorPreview.repaint()
-        }
+        var isSyncing = false
 
         fun syncFromSettings() {
-            sideCombo.selectedItem = colorSettings.getSide()
-            customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
-            selectedColor = customColorSettings.getCustomColor()
-            titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
-            customTitleTextField.text = customTitleSettings.getCustomTitle() ?: ""
-            globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle() ?: ""
+            isSyncing = true
+            try {
+                LOG.debug("syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
+                sideCombo.selectedItem = colorSettings.getSide()
+                customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
+                selectedColor = customColorSettings.getCustomColor()
+                titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
+                customTitleTextField.text = customTitleSettings.getCustomTitle()
+                globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
+            } finally {
+                isSyncing = false
+            }
+        }
+
+        val colorPresetsGroup = ButtonGroup()
+
+        fun setTitleWithEmojiPreset(emojiBallRegex: Regex, emoji: String) {
+            val currentTitle = customTitleSettings.getCustomTitle()
+            LOG.debug("Current title: $currentTitle")
+            val newTitle = if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(2))) {
+                emoji + currentTitle.substring(2)
+            } else if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(1))) {
+                emoji + currentTitle.substring(1)
+            } else {
+                "$emoji $currentTitle"
+            }
+            LOG.debug("New title: $newTitle")
+            customTitleSettings.setCustomTitle(newTitle)
+            customTitleSettings.setCustomTitleEnabled(true)
+            LOG.debug("Custom title set")
+        }
+
+        fun setPanelColor(name: String, radioButton: JRadioButton, color: Color?) {
+            LOG.debug("Presets clicked: $name")
+            radioButton.isSelected = true
+            customColorSettings.setUseCustomColor(true)
+            customColorSettings.setCustomColor(color)
+            LOG.debug("Custom color set: $color")
+        }
+
+        fun buildColorPresetsPanel(group: ButtonGroup): JPanel {
+            val panel = JPanel(GridLayout(0, 3, 5, 5))
+
+            val presets = listOf(
+                Triple("Red", Color.RED, "🔴"),
+                Triple("Orange", Color(255, 102, 20), "🟠"),
+                Triple("Yellow", Color.YELLOW, "🟡"),
+                Triple("Green", Color.GREEN, "🟢"),
+                Triple("Blue", Color.BLUE, "🔵"),
+                Triple("Purple", Color(128, 0, 128), "🟣")
+            )
+            val emojiBallRegex = Regex("[🔴🟠🟡🟢🔵🟣]")
+
+            for ((name, color, emoji) in presets) {
+                val radioButton = JRadioButton(emoji)
+                radioButton.toolTipText = name
+                radioButton.addActionListener {
+                    setTitleWithEmojiPreset(emojiBallRegex, emoji)
+                    setPanelColor(name, radioButton, color)
+
+                    WindowColorApplier.applyToCurrentOpenProject(project)
+                    WindowTitleApplier.getInstance().applyToCurrentOpenProject(project)
+
+                    syncFromSettings()
+                    windowAccentSettings.syncPreview()
+                    syncEnabledState()
+                    LOG.debug("Sync done")
+                }
+                group.add(radioButton)
+                panel.add(radioButton)
+            }
+            return panel
         }
 
         fun buildSettingsForm(): JPanel {
             val formPanel = JPanel(GridBagLayout())
-            val labelConstraints = GridBagConstraints().apply {
-                gridx = 0
-                gridy = 0
-                anchor = GridBagConstraints.WEST
-                insets = Insets(4, 4, 4, 8)
-            }
+            val (labelConstraints, fieldConstraints) = windowAccentSettings.configureGrid()
 
-            val fieldConstraints = GridBagConstraints().apply {
-                gridx = 1
-                gridy = 0
-                fill = GridBagConstraints.HORIZONTAL
-                weightx = 1.0
-                anchor = GridBagConstraints.WEST
-                insets = Insets(4, 4, 4, 4)
-            }
-
-            // Panel side
             formPanel.add(JBLabel("Panel side:"), labelConstraints)
             formPanel.add(sideCombo, fieldConstraints)
 
-            // Custom color - preview on first line
             labelConstraints.gridy = 1
             fieldConstraints.gridy = 1
             formPanel.add(JBLabel("Custom color:"), labelConstraints)
             formPanel.add(colorPreview, fieldConstraints)
 
-            // Choose color button on second line
             labelConstraints.gridy = 2
             fieldConstraints.gridy = 2
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(chooseColorButton, fieldConstraints)
 
-            // Dropper button on third line
             labelConstraints.gridy = 3
             fieldConstraints.gridy = 3
             formPanel.add(JLabel(""), labelConstraints)
@@ -320,27 +365,29 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Preview:"), labelConstraints)
             formPanel.add(previewLabel, fieldConstraints)
 
-            // Title numbering
             labelConstraints.gridy = 6
             fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Title numbering:"), labelConstraints)
             formPanel.add(titleNumberingCheckBox, fieldConstraints)
 
-            // Custom title (this window)
             labelConstraints.gridy = 7
             fieldConstraints.gridy = 7
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
-                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off in the Tool Window."
+                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            // Global custom title
             labelConstraints.gridy = 8
             fieldConstraints.gridy = 8
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
-                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off in the Tool Window."
+                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
+
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
+            formPanel.add(JBLabel("Color presets:"), labelConstraints)
+            formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
             return formPanel
         }
@@ -382,11 +429,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
         }
 
-        // Assign listeners to named variables so they can be tracked and removed on plugin unload.
-        // Each listener lambda captures plugin objects (service instances, singletons) via the
-        // refreshButtonText closure. If these listeners remain registered on Swing buttons held
-        // by IntelliJ's ContentManager after the plugin is unloaded, the plugin classloader stays
-        // reachable and IntelliJ's GC check fails, forcing an unnecessary restart.
         val toggleAllColorsListener = ActionListener {
             animateButtonClick(toggleAllColorsButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = colorSettings.panelIsDisabled()
@@ -412,14 +454,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val toggleAllTitlesListener = ActionListener {
             animateButtonClick(toggleAllTitlesButton, JBColor(Color(0x87CEEB), Color(0x79C0FF)))
             val enabled = titleSettings.isTitleNumberingDisabled()
-            // Update the persisted state for EVERY open project, not just the current one.
-            // Without this, non-focused windows keep their own stale service value (enabled=true)
-            // and the focus listener / title listener re-apply the number prefix the next time
-            // those windows are visited or the IDE rewrites their title.
-            ProjectManager.getInstance().openProjects.forEach { openProject ->
-                openProject.getService(WindowTitleNumberingStateService::class.java)
-                    .setTitleNumberingEnabled(enabled)
-            }
+            updateStateForAllOpenProjects(enabled)
             WindowTitleApplier.applyToAllOpenProjects(enabled)
             refreshButtonText()
         }
@@ -449,8 +484,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             refreshButtonText()
         }
 
-        // Settings form listeners
         fun applySettings() {
+            if (isSyncing) return
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
@@ -470,7 +506,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedColor = chosen
-                syncPreview()
+                windowAccentSettings.syncPreview()
                 applySettings()
             }
         }
@@ -486,15 +522,24 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 }
 
                 override fun syncEnabledState() = syncEnabledState()
-                override fun syncPreview() = syncPreview()
+                override fun syncPreview() {
+                    windowAccentSettings.syncPreview()
+                }
+
+                override fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
+                    return windowAccentSettings.configureGrid()
+                }
             }
             showScreenColorPicker(settingsWrapper)
             applySettings()
         }
 
         val customColorCheckBoxListener = ActionListener {
+            if (!customColorCheckBox.isSelected) {
+                colorPresetsGroup.clearSelection()
+            }
             syncEnabledState()
-            syncPreview()
+            windowAccentSettings.syncPreview()
             applySettings()
         }
 
@@ -512,6 +557,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         }
 
+        refreshButtonText()
+        syncFromSettings()
+        syncEnabledState()
+        windowAccentSettings.syncPreview()
+
         toggleAllColorsButton.addActionListener(toggleAllColorsListener)
         toggleCurrentColorButton.addActionListener(toggleCurrentColorListener)
         cyclePanelDirectionButton.addActionListener(cyclePanelDirectionListener)
@@ -520,12 +570,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         resetTitleNumberingButton.addActionListener(resetTitleNumberingListener)
         toggleCurrentCustomTitleButton.addActionListener(toggleCurrentCustomTitleListener)
         toggleGlobalCustomTitleButton.addActionListener(toggleGlobalCustomTitleListener)
-
         chooseColorButton.addActionListener(chooseColorListener)
         dropperButton.addActionListener(dropperListener)
         customColorCheckBox.addActionListener(customColorCheckBoxListener)
         sideCombo.addActionListener(sideComboListener)
         titleNumberingCheckBox.addActionListener(titleNumberingListener)
+
         customTitleTextField.document.addDocumentListener(customTitleListener)
         globalCustomTitleTextField.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
@@ -533,22 +583,15 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         })
 
-        refreshButtonText()
-        syncFromSettings()
-        syncEnabledState()
-        syncPreview()
-
         panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleAllTitlesButton, toggleCurrentTitleButton, resetTitleNumberingButton))
         panel.add(Box.createVerticalStrut(8))
         panel.add(buildButtonRow(toggleGlobalCustomTitleButton, toggleCurrentCustomTitleButton))
 
-        // Build settings form and add to Tab 2
         val settingsForm = buildSettingsForm()
         settingsFormPanel.add(settingsForm)
 
-        // Add tabs to the tabbed pane
         tabbedPane.addTab("Quick Controls", quickControlsPanel)
         tabbedPane.addTab("Settings", JPanel(BorderLayout()).apply {
             add(JPanel(BorderLayout()).apply {
@@ -573,13 +616,17 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         )
         allButtonListeners[project] = listenerPairs
 
-        // Register a belt-and-suspenders cleanup for the normal project-close path.
-        //
-        // The disposable is tracked in toolWindowCleanupDisposables so that
-        // removeAllButtonListeners() can explicitly Disposer.dispose() it during plugin
-        // UPDATE (isUpdate=true), where the tool window is NOT closed before the GC check
-        // and toolWindow.disposable would otherwise remain alive with this plugin-class
-        // lambda still registered as a child.
+        registerCleanupForProjectClose(project, toolWindow)
+    }
+
+    // Register a belt-and-suspenders cleanup for the normal project-close path.
+    //
+    // The disposable is tracked in toolWindowCleanupDisposables so that
+    // removeAllButtonListeners() can explicitly Disposer.dispose() it during plugin
+    // UPDATE (isUpdate=true), where the tool window is NOT closed before the GC check
+    // and toolWindow.disposable would otherwise remain alive with this plugin-class
+    // lambda still registered as a child.
+    private fun registerCleanupForProjectClose(project: Project, toolWindow: ToolWindow) {
         val cleanupDisposable = Disposer.newDisposable("WindowAccent-toolwindow-button-cleanup")
         toolWindowCleanupDisposables[project] = cleanupDisposable
         Disposer.register(toolWindow.disposable, cleanupDisposable)
@@ -590,6 +637,17 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             // Self-remove from tracking when naturally disposed (project/tool-window close),
             // so removeAllButtonListeners() does not try to dispose an already-disposed entry.
             toolWindowCleanupDisposables.remove(project)
+        }
+    }
+
+    // Update the persisted state for EVERY open project, not just the current one.
+    // Without this, non-focused windows keep their own stale service value (enabled=true),
+    // and the focus listener / title listener re-applies the number prefix the next time
+    // those windows are visited or the IDE rewrites their title.
+    private fun updateStateForAllOpenProjects(enabled: Boolean) {
+        ProjectManager.getInstance().openProjects.forEach { openProject ->
+            openProject.getService(WindowTitleNumberingStateService::class.java)
+                .setTitleNumberingEnabled(enabled)
         }
     }
 
