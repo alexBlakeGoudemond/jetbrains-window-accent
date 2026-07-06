@@ -3,6 +3,7 @@ package com.window_accent
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.ProjectManager
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 
 @DisplayName("PluginLifecycleListener Tests")
 class PluginLifecycleListenerTest {
+
+    private var logger = windowAccentLogger<PluginLifecycleListenerTest>()
 
     @Test
     @DisplayName("Should not throw when plugin is unloaded")
@@ -31,7 +34,7 @@ class PluginLifecycleListenerTest {
                 }
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping lifecycle unload test due to Mockito/JVM limitations: ${e.message}")
+            logger.info("Soft-skipping lifecycle unload test due to Mockito/JVM limitations: ${e.message}")
             return
         }
     }

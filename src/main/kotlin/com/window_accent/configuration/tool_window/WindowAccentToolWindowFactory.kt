@@ -3,7 +3,7 @@ package com.window_accent.configuration.tool_window
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
@@ -68,7 +68,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
     companion object {
 
-        private val LOG = logger<WindowAccentToolWindowFactory>()
+        private val LOG = windowAccentLogger<WindowAccentToolWindowFactory>()
 
         /**
          * Tracks all (button, listener) pairs added to tool window panels across all projects.
@@ -259,7 +259,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         fun syncFromSettings() {
             isSyncing = true
             try {
-                LOG.debug("[Window Accent] syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
+                LOG.debug("syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
                 sideCombo.selectedItem = colorSettings.getSide()
                 customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
                 selectedColor = customColorSettings.getCustomColor()
@@ -275,7 +275,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun setTitleWithEmojiPreset(emojiBallRegex: Regex, emoji: String) {
             val currentTitle = customTitleSettings.getCustomTitle()
-            LOG.debug("[Window Accent] Current title: $currentTitle")
+            LOG.debug("Current title: $currentTitle")
             val newTitle = if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(2))) {
                 emoji + currentTitle.substring(2)
             } else if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(1))) {
@@ -283,18 +283,18 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             } else {
                 "$emoji $currentTitle"
             }
-            LOG.debug("[Window Accent] New title: $newTitle")
+            LOG.debug("New title: $newTitle")
             customTitleSettings.setCustomTitle(newTitle)
             customTitleSettings.setCustomTitleEnabled(true)
-            LOG.debug("[Window Accent] Custom title set")
+            LOG.debug("Custom title set")
         }
 
         fun setPanelColor(name: String, radioButton: JRadioButton, color: Color?) {
-            LOG.debug("[Window Accent] Presets clicked: $name")
+            LOG.debug("Presets clicked: $name")
             radioButton.isSelected = true
             customColorSettings.setUseCustomColor(true)
             customColorSettings.setCustomColor(color)
-            LOG.debug("[Window Accent] Custom color set: $color")
+            LOG.debug("Custom color set: $color")
         }
 
         fun buildColorPresetsPanel(group: ButtonGroup): JPanel {
@@ -323,7 +323,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                     syncFromSettings()
                     windowAccentSettings.syncPreview()
                     syncEnabledState()
-                    LOG.debug("[Window Accent] Sync done")
+                    LOG.debug("Sync done")
                 }
                 group.add(radioButton)
                 panel.add(radioButton)
@@ -486,7 +486,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
-            LOG.debug("[Window Accent] applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)

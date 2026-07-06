@@ -1,6 +1,6 @@
 package com.window_accent.feature.window_color
 
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.util.ui.UIUtil
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
@@ -11,7 +11,7 @@ class ColoredPanel(
     private val panelColor: Color
 ) : JPanel() {
 
-    var log = logger<ColoredPanel>()
+    private val log = windowAccentLogger<ColoredPanel>()
 
     init {
         isOpaque = true
@@ -20,7 +20,7 @@ class ColoredPanel(
     }
 
     override fun paintComponent(g: Graphics) {
-        log.debug("[Window Accent] ColoredPanel: painting with color=$panelColor")
+        log.debug("ColoredPanel: painting with color=$panelColor")
         super.paintComponent(g)
         val g2d = g as Graphics2D
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)

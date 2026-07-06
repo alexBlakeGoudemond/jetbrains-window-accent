@@ -1,7 +1,7 @@
 package com.window_accent
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import java.lang.ref.WeakReference
 
 /**
@@ -56,7 +56,7 @@ import java.lang.ref.WeakReference
  */
 internal object ClassLoaderLeakDiagnostics {
 
-    private val LOG = logger<ClassLoaderLeakDiagnostics>()
+    private val LOG = windowAccentLogger<ClassLoaderLeakDiagnostics>()
 
     private const val LEAK_HUNTER_CLASS = "com.intellij.testFramework.LeakHunter"
 
@@ -82,12 +82,12 @@ internal object ClassLoaderLeakDiagnostics {
      */
     fun scheduleLeakCheck(classLoader: ClassLoader) {
         if (!isInternalMode()) {
-            LOG.debug("[Window Accent][LeakDiagnostics] Skipping leak check — not running in internal IDE mode")
+            LOG.debug("[LeakDiagnostics] Skipping leak check — not running in internal IDE mode")
             return
         }
 
         val weakRef = WeakReference(classLoader)
-        LOG.info("[Window Accent][LeakDiagnostics] ClassLoader GC check scheduled (delay=${WAIT_BEFORE_GC_MS}ms, gcRounds=$GC_ROUNDS)")
+        LOG.info("[LeakDiagnostics] ClassLoader GC check scheduled (delay=${WAIT_BEFORE_GC_MS}ms, gcRounds=$GC_ROUNDS)")
 
         ApplicationManager.getApplication().executeOnPooledThread {
             // IMPORTANT: do NOT capture `classLoader` directly in this lambda.
@@ -101,7 +101,7 @@ internal object ClassLoaderLeakDiagnostics {
             try {
                 performLeakCheck(weakRef)
             } catch (e: Exception) {
-                LOG.warn("[Window Accent][LeakDiagnostics] Unexpected error during leak check", e)
+                LOG.warn("[LeakDiagnostics] Unexpected error during leak check", e)
             }
         }
     }
@@ -137,12 +137,12 @@ internal object ClassLoaderLeakDiagnostics {
         // retaining root is somewhere else — safe to hold a local ref for scanning.
         val leakedClassLoader = weakRef.get()
         if (leakedClassLoader == null) {
-            LOG.info("[Window Accent][LeakDiagnostics] ✓ ClassLoader was GC'd — no leak detected")
+            LOG.info("[LeakDiagnostics] ✓ ClassLoader was GC'd — no leak detected")
             return
         }
 
         LOG.warn(
-            "[Window Accent][LeakDiagnostics] ✗ ClassLoader is still reachable after cleanup " +
+            "[LeakDiagnostics] ✗ ClassLoader is still reachable after cleanup " +
                     "+ $GC_ROUNDS GC rounds. Running diagnostic scans..."
         )
 

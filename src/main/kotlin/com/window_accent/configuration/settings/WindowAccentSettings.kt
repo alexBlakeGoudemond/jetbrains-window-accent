@@ -2,7 +2,7 @@ package com.window_accent.configuration.settings
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
@@ -43,7 +43,7 @@ open class WindowAccentSettings(
 ) : Configurable, IWindowAccentSettings {
 
     companion object {
-        private val LOG = logger<WindowAccentSettings>()
+        private val LOG = windowAccentLogger<WindowAccentSettings>()
 
         /**
          * WeakReference tracking so [disposeAllTrackedInstances] can call
@@ -69,7 +69,7 @@ open class WindowAccentSettings(
                     disposed++
                 }
             }
-            LOG.info("[Window Accent] disposeAllTrackedInstances completed ($disposed live instance(s) disposed, ${snapshot.size - disposed} already GC'd)")
+            LOG.info("disposeAllTrackedInstances completed ($disposed live instance(s) disposed, ${snapshot.size - disposed} already GC'd)")
         }
 
         /**

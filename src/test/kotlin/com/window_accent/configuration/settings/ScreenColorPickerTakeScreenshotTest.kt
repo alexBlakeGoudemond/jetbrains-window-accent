@@ -1,5 +1,7 @@
 package com.window_accent.configuration.settings
 
+import com.window_accent.diagnostic.windowAccentLogger
+import com.window_accent.i18n.MyMessageBundleTest
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
@@ -13,6 +15,8 @@ import java.awt.Robot
 
 @DisplayName("ScreenColorPicker Take Screenshot Tests")
 class ScreenColorPickerTakeScreenshotTest : BaseScreenColorPickerTest() {
+
+    private var logger = windowAccentLogger<ScreenColorPickerTakeScreenshotTest>()
 
     @Test
     @DisplayName("takeScreenshot should throw when screen width is 0")
@@ -54,7 +58,7 @@ class ScreenColorPickerTakeScreenshotTest : BaseScreenColorPickerTest() {
                 assertTrue(exception.message?.contains("Failed to capture screenshot") ?: false)
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping testTakeScreenshotRobotFailure: ${e.message}")
+            logger.info("Soft-skipping testTakeScreenshotRobotFailure: ${e.message}")
         }
     }
 

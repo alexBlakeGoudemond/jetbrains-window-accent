@@ -1,6 +1,7 @@
 package com.window_accent.configuration.tool_window
 
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -10,6 +11,7 @@ import javax.swing.JPanel
 @DisplayName("WindowAccentToolWindowFactory Tests")
 class WindowAccentToolWindowFactoryTest {
 
+    private var logger = windowAccentLogger<WindowAccentToolWindowFactoryTest>()
 
     @Test
     @DisplayName("Should create tool window factory instance")
@@ -518,8 +520,8 @@ class WindowAccentToolWindowFactoryTest {
         if (allButtonListeners == null) {
             // Cannot locate the field – soft skip rather than a hard failure,
             // consistent with the pattern used for Mockito/Java 25 edge cases.
-            System.err.println(
-                "[DEBUG_LOG] Soft-skipping removeAllButtonListeners field test — field not found. " +
+            logger.info(
+                "Soft-skipping removeAllButtonListeners field test — field not found. " +
                         "Companion fields: ${companion.javaClass.declaredFields.map { it.name }}"
             )
             return

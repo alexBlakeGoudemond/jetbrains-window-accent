@@ -7,7 +7,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
-import com.window_accent.feature.window_title.TitleTextStyler
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -41,6 +41,7 @@ class WindowTitleApplierTest {
 
     /** Real service instance shared across @BeforeEach and setupFullMocks. */
     private lateinit var mockGlobalCustomTitleService: GlobalCustomTitleStateService
+    private var logger = windowAccentLogger<WindowTitleApplierTest>()
 
     @BeforeEach
     fun setup() {
@@ -244,7 +245,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testApplyToCurrentOpenProjectEnabled due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testApplyToCurrentOpenProjectEnabled due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         applier.applyToCurrentOpenProject(mockProject1, true)
@@ -258,7 +259,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testApplyToCurrentOpenProjectDisabled due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testApplyToCurrentOpenProjectDisabled due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         applier.applyToCurrentOpenProject(mockProject1, true)
@@ -273,7 +274,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testApplyToCurrentOpenProjectNullFrame due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testApplyToCurrentOpenProjectNullFrame due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         Mockito.`when`(mockWindowManager.getFrame(mockProject1)).thenReturn(null)
@@ -292,7 +293,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testApplyToAllOpenProjects due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testApplyToAllOpenProjects due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
@@ -309,7 +310,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testRemoveFromAllOpenProjects due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testRemoveFromAllOpenProjects due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
@@ -327,7 +328,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testRenumberAllOpenWindows due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testRenumberAllOpenWindows due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
@@ -358,7 +359,7 @@ class WindowTitleApplierTest {
         try {
             setupFullMocks()
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Skipping testRenumberAllOpenWindowsFocusedProjectNotInList due to Mockito/Java 25 limitations: ${e.message}")
+            logger.info("Skipping testRenumberAllOpenWindowsFocusedProjectNotInList due to Mockito/Java 25 limitations: ${e.message}")
             return
         }
         // Only project2 is "open", but project1 is the focused project

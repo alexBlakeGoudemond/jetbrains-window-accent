@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.util.Alarm
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
+import com.window_accent.diagnostic.windowAccentLogger
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import org.junit.jupiter.api.Assertions
@@ -31,6 +32,8 @@ class PluginUnloadingVerificationTest {
 
     private lateinit var windowTitleApplier: WindowTitleApplier
     private lateinit var mockProject1: Project
+    private var logger = windowAccentLogger<PluginUnloadingVerificationTest>()
+
 
     @BeforeEach
     fun setup() {
@@ -151,7 +154,7 @@ class PluginUnloadingVerificationTest {
                 }
             }
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] Soft-skipping lifecycle sequence test due to Mockito/JVM limitations: ${e.message}")
+            logger.info("Soft-skipping lifecycle sequence test due to Mockito/JVM limitations: ${e.message}")
             return
         }
     }

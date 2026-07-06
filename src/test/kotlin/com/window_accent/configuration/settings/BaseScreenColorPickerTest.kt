@@ -1,6 +1,7 @@
 package com.window_accent.configuration.settings
 
 import com.intellij.openapi.project.Project
+import com.window_accent.diagnostic.windowAccentLogger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.MockedStatic
@@ -26,6 +27,8 @@ open class BaseScreenColorPickerTest {
     protected lateinit var mockPanel: JPanel
     protected lateinit var mockCheckBox: JCheckBox
     private var mockedUIManager: MockedStatic<UIManager>? = null
+    private var logger = windowAccentLogger<BaseScreenColorPickerTest>()
+
 
     @BeforeEach
     open fun setUp() {
@@ -47,7 +50,7 @@ open class BaseScreenColorPickerTest {
             }
             mockedUIManager?.`when`<ComponentUI> { UIManager.getUI(any()) }?.thenAnswer(uiAnswer)
         } catch (e: Exception) {
-            System.err.println("[DEBUG_LOG] UIManager mock failed: ${e.message}")
+            logger.debug("UIManager mock failed: ${e.message}")
         }
 
         try {
@@ -60,7 +63,7 @@ open class BaseScreenColorPickerTest {
             `when`(mockSettings.getCustomColorCheckBox()).thenReturn(mockCheckBox)
             `when`(mockSettings.getProject()).thenReturn(mockProject)
         } catch (e: Exception) {
-             System.err.println("[DEBUG_LOG] BaseScreenColorPickerTest setup failed: ${e.message}")
+             logger.info("BaseScreenColorPickerTest setup failed: ${e.message}")
         }
     }
 

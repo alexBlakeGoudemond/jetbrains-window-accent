@@ -12,6 +12,7 @@ import com.window_accent.WindowAccentApplicationService.Companion.performCleanup
 import com.window_accent.configuration.persistence.*
 import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.configuration.tool_window.WindowAccentToolWindowFactory
+import com.window_accent.diagnostic.windowAccentLogger
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.Window
@@ -58,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class WindowAccentApplicationService : Disposable {
 
     companion object {
-        private val LOG = logger<WindowAccentApplicationService>()
+        private val LOG = windowAccentLogger<WindowAccentApplicationService>()
 
         /**
          * Guards against double-cleanup. IntelliJ may call dispose multiple times,
@@ -86,7 +87,7 @@ class WindowAccentApplicationService : Disposable {
 
         fun performCleanup(reason: String) {
             if (cleanupCompleted.compareAndSet(false, true)) {
-                LOG.info("[Window Accent] Running final cleanup (reason=$reason)")
+                LOG.info("Running final cleanup (reason=$reason)")
                 WindowColorApplier.cancelCoroutines()
                 WindowTitleApplier.cancelAllPendingOperations()
                 WindowColorApplier.removeColorFromAllOpenProjectsSync()
@@ -99,11 +100,11 @@ class WindowAccentApplicationService : Disposable {
                 flushIconLoaderCache()
                 flushStrokeIconCache()
 
-                LOG.info("[Window Accent] Final cleanup completed successfully")
+                LOG.info("Final cleanup completed successfully")
             } else {
                 // Changing from debug to info so this is visible in standard logs.
                 // This helps confirm whether dispose() was called after beforePluginUnload already ran.
-                LOG.info("[Window Accent] Cleanup already completed, skipping duplicate (reason=$reason)")
+                LOG.info("Cleanup already completed, skipping duplicate (reason=$reason)")
             }
         }
 
@@ -177,11 +178,11 @@ class WindowAccentApplicationService : Disposable {
                     if (twm.getToolWindow(toolWindowId) != null) {
                         @Suppress("DEPRECATION")
                         twm.unregisterToolWindow(toolWindowId)
-                        LOG.info("[Window Accent] Unregistered tool window '$toolWindowId' for project '${project.name}' to release stripeTitleProvider → PluginClassLoader reference")
+                        LOG.info("Unregistered tool window '$toolWindowId' for project '${project.name}' to release stripeTitleProvider → PluginClassLoader reference")
                     }
                 } catch (e: Exception) {
                     LOG.warn(
-                        "[Window Accent] Could not unregister tool window '$toolWindowId' for project '${project.name}'",
+                        "Could not unregister tool window '$toolWindowId' for project '${project.name}'",
                         e
                     )
                 }
@@ -232,9 +233,9 @@ class WindowAccentApplicationService : Disposable {
             // hierarchy and would cause SwingUtilities.getWindowAncestor(panel) to return null.
             val settingsWindows: Set<Window> = WindowAccentSettings.findContainingWindows()
             if (settingsWindows.isNotEmpty()) {
-                LOG.info("[Window Accent] Found ${settingsWindows.size} Settings dialog window(s) containing Window Accent panel — will dispose after clearing instances")
+                LOG.info("Found ${settingsWindows.size} Settings dialog window(s) containing Window Accent panel — will dispose after clearing instances")
             } else {
-                LOG.info("[Window Accent] No Settings dialog window found containing Window Accent panel (panel not yet shown, or Settings already closed)")
+                LOG.info("No Settings dialog window found containing Window Accent panel (panel not yet shown, or Settings already closed)")
             }
 
             // Step 2: Proactively call disposeUIResources() on all tracked instances.
@@ -250,10 +251,10 @@ class WindowAccentApplicationService : Disposable {
             // IntelliJ runs its GC collectibility check.
             settingsWindows.forEach { window ->
                 if (window.isVisible) {
-                    LOG.info("[Window Accent] Disposing Settings dialog (${window::class.simpleName}) to release configurable cache reference before GC check")
+                    LOG.info("Disposing Settings dialog (${window::class.simpleName}) to release configurable cache reference before GC check")
                     window.dispose()
                 } else {
-                    LOG.info("[Window Accent] Settings dialog (${window::class.simpleName}) already hidden — skipping dispose")
+                    LOG.info("Settings dialog (${window::class.simpleName}) already hidden — skipping dispose")
                 }
             }
         }
@@ -297,7 +298,7 @@ class WindowAccentApplicationService : Disposable {
                 WindowPanelAppearanceStateService.Side::class.java,
             )
             classesToFlush.forEach { Introspector.flushFromCaches(it) }
-            LOG.info("[Window Accent] Flushed Introspector BeanInfo caches for ${classesToFlush.size} classes (services + state types)")
+            LOG.info("Flushed Introspector BeanInfo caches for ${classesToFlush.size} classes (services + state types)")
         }
 
         /**
@@ -318,7 +319,7 @@ class WindowAccentApplicationService : Disposable {
          */
         private fun flushIconLoaderCache() {
             IconLoader.clearCache()
-            LOG.info("[Window Accent] Flushed IconLoader cache to release ImageDataByPathLoader → PluginClassLoader references")
+            LOG.info("Flushed IconLoader cache to release ImageDataByPathLoader → PluginClassLoader references")
         }
 
         /**
@@ -372,7 +373,7 @@ class WindowAccentApplicationService : Disposable {
                 val cacheField = strokeKtClass.getDeclaredField("strokeIconCache")
                 cacheField.isAccessible = true
                 val cache = cacheField.get(null) ?: run {
-                    LOG.info("[Window Accent] StrokeKt.strokeIconCache is null — skipping flush")
+                    LOG.info("StrokeKt.strokeIconCache is null — skipping flush")
                     return
                 }
 
@@ -392,13 +393,13 @@ class WindowAccentApplicationService : Disposable {
                 val m = cache.javaClass.getMethod("invalidateAll")
                 m.isAccessible = true
                 m.invoke(cache)
-                LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache via interface invalidateAll()")
+                LOG.info("Flushed StrokeKt strokeIconCache via interface invalidateAll()")
             } catch (e: ClassNotFoundException) {
-                LOG.info("[Window Accent] StrokeKt not found — likely an older IntelliJ version, skipping strokeIconCache flush")
+                LOG.info("StrokeKt not found — likely an older IntelliJ version, skipping strokeIconCache flush")
             } catch (e: NoSuchFieldException) {
-                LOG.info("[Window Accent] StrokeKt.strokeIconCache field not found — cache may have been renamed, skipping flush")
+                LOG.info("StrokeKt.strokeIconCache field not found — cache may have been renamed, skipping flush")
             } catch (e: Exception) {
-                LOG.warn("[Window Accent] Could not flush StrokeKt.strokeIconCache", e)
+                LOG.warn("Could not flush StrokeKt.strokeIconCache", e)
             }
         }
 
@@ -418,7 +419,7 @@ class WindowAccentApplicationService : Disposable {
                     val m = cls.getDeclaredMethod("invalidateAll")
                     m.isAccessible = true
                     m.invoke(cache)
-                    LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache via concrete invalidateAll()")
+                    LOG.info("Flushed StrokeKt strokeIconCache via concrete invalidateAll()")
                     return true
                 } catch (e: NoSuchMethodException) {
                     cls = cls.superclass
@@ -444,7 +445,7 @@ class WindowAccentApplicationService : Disposable {
                     asMap.isAccessible = true
                     val map = asMap.invoke(cache) as? java.util.Map<*, *> ?: return false
                     map.clear()
-                    LOG.info("[Window Accent] Flushed StrokeKt strokeIconCache via asMap().clear()")
+                    LOG.info("Flushed StrokeKt strokeIconCache via asMap().clear()")
                     return true
                 } catch (e: NoSuchMethodException) {
                     cls = cls.superclass
@@ -458,7 +459,7 @@ class WindowAccentApplicationService : Disposable {
 
     override fun dispose() {
         val onEdt = ApplicationManager.getApplication().isDispatchThread
-        LOG.info("[Window Accent] dispose() called (onEdt=$onEdt, thread=${Thread.currentThread().name})")
+        LOG.info("dispose() called (onEdt=$onEdt, thread=${Thread.currentThread().name})")
         performCleanup("application-service-dispose")
     }
 

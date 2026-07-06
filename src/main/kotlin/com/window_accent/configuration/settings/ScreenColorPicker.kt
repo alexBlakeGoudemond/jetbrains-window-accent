@@ -1,6 +1,6 @@
 package com.window_accent.configuration.settings
 
-import com.intellij.openapi.diagnostic.logger
+import com.window_accent.diagnostic.windowAccentLogger
 import java.awt.*
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
@@ -9,7 +9,7 @@ import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
 
-private val logger = logger<ScreenColorPicker>()
+private val logger = windowAccentLogger<ScreenColorPicker>()
 
 internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 
@@ -108,7 +108,7 @@ fun showScreenColorPicker(windowAccentSettings: IWindowAccentSettings) {
     try {
         showColorChooserViaFullScreenScreenshot(virtualBounds, owner, windowAccentSettings)
     } catch (e: Exception) {
-        logger.info("[Window Accent] unable to capture screenshot: ${e.message}")
+        logger.info("unable to capture screenshot: ${e.message}")
     }
 }
 
