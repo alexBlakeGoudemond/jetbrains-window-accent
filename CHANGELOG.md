@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [2.1.1]
+
+### Fixed
+
+- Updating plugin should not restart
+    - Code changes brought in through 2.1.0 prevented the Garbage Collector form unloading the plugin, forcing a restart
+    - This version addresses that by adding support to cleanup the color preset radio buttons in the Tool Window, which
+      were retaining a reference to the plugin classloader
+
 ## [2.1.0]
 
 ### Added
@@ -733,7 +742,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.1...HEAD
+[2.1.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.3...2.0.0
 [1.6.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.2...1.6.3
