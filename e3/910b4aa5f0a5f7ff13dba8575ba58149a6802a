@@ -1,0 +1,14 @@
+src/main/kotlin/com/window_accent/feature/window_color/ColoredPanel.kt
+  h_1197a506f6c7d6 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e3910b4aa5f0a5f7ff13dba8575ba58149a6802a",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
