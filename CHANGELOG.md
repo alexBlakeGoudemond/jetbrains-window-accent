@@ -4,6 +4,12 @@
 
 ## [2.1.0]
 
+### Added
+
+- Added color presets to the Tool Window
+  - The settings tab has radio buttons to select from preset colors: 🔴🟠🟡🟢🔵🟣
+  - Selecting a color preset adds an emoji to the title and sets the colored panel to the selected color
+
 ### Fixed
 
 - Improved the UI of the colored panel
