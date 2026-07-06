@@ -117,7 +117,7 @@ object WindowColorApplier {
             return
         }
         val frame = getProjectFrame(project)
-        println("[DEBUG_LOG] WindowColorApplier: frame=$frame for project=${project.name}")
+        logger.debug("[Window Accent] WindowColorApplier: frame=$frame for project=${project.name}")
         if (frame != null) {
             val panelSettings = project.getService(WindowPanelAppearanceStateService::class.java)
             val customColorSettings = project.getService(WindowCustomColorStateService::class.java)

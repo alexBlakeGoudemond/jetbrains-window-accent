@@ -34,10 +34,8 @@ class WindowTitleApplier {
 
         fun applyToCurrentOpenProject(project: Project, enabled: Boolean? = null) = getInstance().applyToCurrentOpenProject(project, enabled)
         fun applyToAllOpenProjects(enabled: Boolean? = null) = getInstance().applyToAllOpenProjects(enabled)
-        fun removeFromAllOpenProjects() = getInstance().removeFromAllOpenProjects()
         fun removeFromAllOpenProjectsSync() = getInstance().removeFromAllOpenProjectsSync()
         fun cancelAllPendingOperations() = getInstance().cancelAllPendingOperations()
-        fun resetProjectNumbering() = getInstance().resetProjectNumbering()
         fun renumberAllOpenWindows(focusedProject: Project) = getInstance().renumberAllOpenWindows(focusedProject)
     }
 
@@ -188,7 +186,7 @@ class WindowTitleApplier {
         if (isShuttingDown) return
 
         val frame = getProjectFrame(project)
-        println("[DEBUG_LOG] WindowTitleApplier: frame=$frame for project=${project.name}")
+        logger.debug("[Window Accent] WindowTitleApplier: frame=$frame for project=${project.name}")
         if (frame != null) {
             val numberingService = project.getService(WindowTitleNumberingStateService::class.java)
             val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
