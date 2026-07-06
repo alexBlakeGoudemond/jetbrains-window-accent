@@ -12,6 +12,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
@@ -606,10 +607,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         settingsFormPanel.add(settingsForm)
 
         tabbedPane.addTab("Quick Controls", quickControlsPanel)
-        tabbedPane.addTab("Settings", JPanel(BorderLayout()).apply {
-            add(JPanel(BorderLayout()).apply {
-                add(settingsFormPanel, BorderLayout.NORTH)
-            }, BorderLayout.NORTH)
+        tabbedPane.addTab("Settings", JBScrollPane(settingsFormPanel).apply {
+            border = BorderFactory.createEmptyBorder()
         })
 
         val content = ContentFactory.getInstance().createContent(tabbedPane, "", false)

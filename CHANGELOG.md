@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [2.1.2]
+
+### Fixed
+
+- Plugin Tool Window resizes nicely when interacting with other tool windows
+  - The Quick Settings tab does not have any scroll bar (vertical or horizontal) – all buttons are always in view
+  - The Settings tab has a vertical scroll bar if the window is too small to show all settings
+
 ## [2.1.1]
 
 ### Fixed
@@ -742,7 +750,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.1...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.2...HEAD
+[2.1.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/1.6.3...2.0.0
