@@ -87,6 +87,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         private val allButtonListeners =
             ConcurrentHashMap<Project, List<Pair<JButton, ActionListener>>>()
 
+        private val allRadioButtonListeners =
+            ConcurrentHashMap<Project, List<Pair<JRadioButton, ActionListener>>>()
+
         /**
          * Tracks every [Timer] currently running a border-pulse animation.
          *
@@ -151,6 +154,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             val snapshot = HashMap(allButtonListeners)
             allButtonListeners.clear()
             snapshot.values.flatten().forEach { (button, listener) ->
+                button.removeActionListener(listener)
+            }
+            val radioButtonSnapshot = HashMap(allRadioButtonListeners)
+            allRadioButtonListeners.clear()
+            radioButtonSnapshot.values.flatten().forEach { (button, listener) ->
                 button.removeActionListener(listener)
             }
         }
@@ -310,10 +318,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             val emojiBallRegex = Regex("[🔴🟠🟡🟢🔵🟣]")
 
+            val presetListenerPairs = mutableListOf<Pair<JRadioButton, ActionListener>>()
+
             for ((name, color, emoji) in presets) {
                 val radioButton = JRadioButton(emoji)
                 radioButton.toolTipText = name
-                radioButton.addActionListener {
+                val listener = ActionListener {
                     setTitleWithEmojiPreset(emojiBallRegex, emoji)
                     setPanelColor(name, radioButton, color)
 
@@ -325,9 +335,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                     syncEnabledState()
                     LOG.debug("Sync done")
                 }
+                radioButton.addActionListener(listener)
+                presetListenerPairs.add(radioButton to listener)
                 group.add(radioButton)
                 panel.add(radioButton)
             }
+            allRadioButtonListeners[project] = presetListenerPairs
             return panel
         }
 
@@ -632,6 +645,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         Disposer.register(toolWindow.disposable, cleanupDisposable)
         Disposer.register(cleanupDisposable) {
             allButtonListeners.remove(project)?.forEach { (button, listener) ->
+                button.removeActionListener(listener)
+            }
+            allRadioButtonListeners.remove(project)?.forEach { (button, listener) ->
                 button.removeActionListener(listener)
             }
             // Self-remove from tracking when naturally disposed (project/tool-window close),
