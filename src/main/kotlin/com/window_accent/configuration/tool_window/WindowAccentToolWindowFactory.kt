@@ -3,6 +3,7 @@ package com.window_accent.configuration.tool_window
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
@@ -20,17 +21,16 @@ import com.window_accent.configuration.persistence.WindowPanelAppearanceStateSer
 import com.window_accent.configuration.settings.IWindowAccentSettings
 import com.window_accent.configuration.settings.showScreenColorPicker
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
+import com.window_accent.configuration.settings.WindowAccentSettings
 import com.window_accent.feature.window_color.WindowColorApplier
 import com.window_accent.feature.window_title.WindowTitleApplier
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
-import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.GridLayout
-import java.awt.Insets
 import java.awt.event.ActionListener
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
@@ -67,6 +67,9 @@ import javax.swing.event.DocumentListener
 class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
     companion object {
+
+        private val LOG = logger<WindowAccentToolWindowFactory>()
+
         /**
          * Tracks all (button, listener) pairs added to tool window panels across all projects.
          *
@@ -249,28 +252,18 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorPreview.isEnabled = customColorEnabled
         }
 
-        fun syncPreview() {
-            val color = if (customColorCheckBox.isSelected) selectedColor else null
-            colorPreview.background = color ?: settingsFormPanel.background
-            previewLabel.text = if (color == null) {
-                "Auto-generated from project name"
-            } else {
-                "RGB: ${color.red}, ${color.green}, ${color.blue}"
-            }
-            colorPreview.repaint()
-        }
-
         var isSyncing = false
+
         fun syncFromSettings() {
             isSyncing = true
             try {
-                println("[DEBUG_LOG] syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
+                LOG.debug("[Window Accent] syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
                 sideCombo.selectedItem = colorSettings.getSide()
                 customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
                 selectedColor = customColorSettings.getCustomColor()
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
-                customTitleTextField.text = customTitleSettings.getCustomTitle() ?: ""
-                globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle() ?: ""
+                customTitleTextField.text = customTitleSettings.getCustomTitle()
+                globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
             } finally {
                 isSyncing = false
             }
@@ -278,8 +271,32 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         val colorPresetsGroup = ButtonGroup()
 
+        fun setTitleWithEmojiPreset(emojiBallRegex: Regex, emoji: String) {
+            val currentTitle = customTitleSettings.getCustomTitle()
+            LOG.debug("[Window Accent] Current title: $currentTitle")
+            val newTitle = if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(2))) {
+                emoji + currentTitle.substring(2)
+            } else if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(1))) {
+                emoji + currentTitle.substring(1)
+            } else {
+                "$emoji $currentTitle"
+            }
+            LOG.debug("[Window Accent] New title: $newTitle")
+            customTitleSettings.setCustomTitle(newTitle)
+            customTitleSettings.setCustomTitleEnabled(true)
+            LOG.debug("[Window Accent] Custom title set")
+        }
+
+        fun setPanelColor(name: String, radioButton: JRadioButton, color: Color?) {
+            LOG.debug("[Window Accent] Presets clicked: $name")
+            radioButton.isSelected = true
+            customColorSettings.setUseCustomColor(true)
+            customColorSettings.setCustomColor(color)
+            LOG.debug("[Window Accent] Custom color set: $color")
+        }
+
         fun buildColorPresetsPanel(group: ButtonGroup): JPanel {
-            val panel = JPanel(GridLayout(0, 4, 5, 5))
+            val panel = JPanel(GridLayout(0, 3, 5, 5))
 
             val presets = listOf(
                 Triple("Red", Color.RED, "🔴"),
@@ -289,42 +306,22 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 Triple("Blue", Color.BLUE, "🔵"),
                 Triple("Purple", Color(128, 0, 128), "🟣")
             )
+            val emojiBallRegex = Regex("[🔴🟠🟡🟢🔵🟣]")
 
             for ((name, color, emoji) in presets) {
                 val radioButton = JRadioButton(emoji)
                 radioButton.toolTipText = name
                 radioButton.addActionListener {
-                    println("[DEBUG_LOG] Presets clicked: $name")
-                    radioButton.isSelected = true
-                    customColorSettings.setUseCustomColor(true)
-                    customColorSettings.setCustomColor(color)
-                    println("[DEBUG_LOG] Custom color set: $color")
-                    
-                    val currentTitle = customTitleSettings.getCustomTitle()
-                    println("[DEBUG_LOG] Current title: $currentTitle")
-                    // Simplified: just prepend or replace the emoji if it exists
-                    val emojiBallRegex = Regex("[🔴🟠🟡🟢🔵🌿🟣]")
-                    val newTitle = if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(2))) {
-                        emoji + currentTitle.substring(2)
-                    } else if (currentTitle.isNotEmpty() && emojiBallRegex.containsMatchIn(currentTitle.take(1))) {
-                        emoji + currentTitle.substring(1)
-                    } else {
-                        emoji + " " + currentTitle
-                    }
-                    println("[DEBUG_LOG] New title: $newTitle")
-                    customTitleSettings.setCustomTitle(newTitle)
-                    customTitleSettings.setCustomTitleEnabled(true)
-                    println("[DEBUG_LOG] Custom title set")
-                    
-                    // Apply changes to the window
+                    setTitleWithEmojiPreset(emojiBallRegex, emoji)
+                    setPanelColor(name, radioButton, color)
+
                     WindowColorApplier.applyToCurrentOpenProject(project)
                     WindowTitleApplier.getInstance().applyToCurrentOpenProject(project)
-                    
-                    // Sync UI
+
                     syncFromSettings()
-                    syncPreview()
+                    windowAccentSettings.syncPreview()
                     syncEnabledState()
-                    println("[DEBUG_LOG] Sync done")
+                    LOG.debug("[Window Accent] Sync done")
                 }
                 group.add(radioButton)
                 panel.add(radioButton)
@@ -334,21 +331,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun buildSettingsForm(): JPanel {
             val formPanel = JPanel(GridBagLayout())
-            val labelConstraints = GridBagConstraints().apply {
-                gridx = 0
-                gridy = 0
-                anchor = GridBagConstraints.WEST
-                insets = Insets(4, 4, 4, 8)
-            }
-
-            val fieldConstraints = GridBagConstraints().apply {
-                gridx = 1
-                gridy = 0
-                fill = GridBagConstraints.HORIZONTAL
-                weightx = 1.0
-                anchor = GridBagConstraints.WEST
-                insets = Insets(4, 4, 4, 4)
-            }
+            val (labelConstraints, fieldConstraints) = windowAccentSettings.configureGrid()
 
             // Panel side
             formPanel.add(JBLabel("Panel side:"), labelConstraints)
@@ -542,7 +525,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedColor = chosen
-                syncPreview()
+                windowAccentSettings.syncPreview()
                 applySettings()
             }
         }
@@ -558,7 +541,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 }
 
                 override fun syncEnabledState() = syncEnabledState()
-                override fun syncPreview() = syncPreview()
+                override fun syncPreview() {
+                    windowAccentSettings.syncPreview()
+                }
+
+                override fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
+                    return windowAccentSettings.configureGrid()
+                }
             }
             showScreenColorPicker(settingsWrapper)
             applySettings()
@@ -569,7 +558,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 colorPresetsGroup.clearSelection()
             }
             syncEnabledState()
-            syncPreview()
+            windowAccentSettings.syncPreview()
             applySettings()
         }
 
@@ -590,7 +579,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         refreshButtonText()
         syncFromSettings()
         syncEnabledState()
-        syncPreview()
+        windowAccentSettings.syncPreview()
 
         toggleAllColorsButton.addActionListener(toggleAllColorsListener)
         toggleCurrentColorButton.addActionListener(toggleCurrentColorListener)
