@@ -1,0 +1,49 @@
+src/test/kotlin/com/window_accent/i18n/MyMessageBundleTest.kt
+  h_1197a506f6c7d6 3
+src/main/kotlin/com/window_accent/feature/window_color/ColoredPanel.kt
+  s_5177efff84435d::t_0d7fccf47bdc3e 3,14,23
+src/main/kotlin/com/window_accent/diagnostic/WindowAccentLogger.kt
+  h_1197a506f6c7d6 5-7,9
+  s_5177efff84435d::t_15cf769f7cf776 1-4,8,10-45,47
+  s_5177efff84435d::t_521d3fe19e4833 46
+src/main/kotlin/com/window_accent/configuration/tool_window/WindowAccentToolWindowFactory.kt
+  s_5177efff84435d::t_0cdc02d4311ae3 6,71
+  s_5177efff84435d::t_707e2a4b11a99f 262,278,286,289,293,297,326,489
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  s_5177efff84435d::t_965223dde8106d 15
+src/main/kotlin/com/window_accent/ClassLoaderLeakDiagnostics.kt
+  s_5177efff84435d::t_6f63891e19594a 4
+src/test/kotlin/com/window_accent/configuration/tool_window/WindowAccentToolWindowFactoryTest.kt
+  h_1197a506f6c7d6 4
+src/test/kotlin/com/window_accent/configuration/settings/ScreenColorPickerTest.kt
+  h_1197a506f6c7d6 3
+src/main/kotlin/com/window_accent/PluginLifecycleListener.kt
+  s_5177efff84435d::t_a36fdffc4703ee 6,25,29,40,52,58,80
+src/test/kotlin/com/window_accent/configuration/settings/BaseScreenColorPickerTest.kt
+  h_1197a506f6c7d6 4
+src/main/kotlin/com/window_accent/configuration/settings/ScreenColorPicker.kt
+  s_5177efff84435d::t_d1e127aab6fd30 3,12,111
+src/test/kotlin/com/window_accent/configuration/settings/ScreenColorPickerTakeScreenshotTest.kt
+  h_1197a506f6c7d6 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e5e84ec0630495011e094b3318cd6f7375e1f317",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_5177efff84435d": {
+      "agent_id": {
+        "tool": "junie",
+        "id": "1783305826813",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
