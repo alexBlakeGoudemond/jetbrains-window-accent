@@ -4,6 +4,12 @@
 
 ## [2.1.2]
 
+### Fixed
+
+- Plugin Tool Window resizes nicely when interacting with other tool windows
+  - The Quick Settings tab does not have any scroll bar (vertical or horizontal) – all buttons are always in view
+  - The Settings tab has a vertical scroll bar if the window is too small to show all settings
+
 ## [2.1.1]
 
 ### Fixed
