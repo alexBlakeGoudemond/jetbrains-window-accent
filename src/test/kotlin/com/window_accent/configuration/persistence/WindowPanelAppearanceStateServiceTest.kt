@@ -78,7 +78,8 @@ class WindowPanelAppearanceStateServiceTest {
     fun `can load panel direction`() {
         val newState = WindowPanelAppearanceStateService.State(
             side = WindowPanelAppearanceStateService.Side.NORTH,
-            panelEnabled = false
+            panelEnabled = false,
+            panelOpaque = true
         )
         service.loadState(newState)
 

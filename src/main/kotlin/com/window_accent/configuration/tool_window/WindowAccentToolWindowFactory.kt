@@ -15,6 +15,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
+import com.window_accent.configuration.persistence.GlobalPanelBackgroundColorStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -45,9 +46,13 @@ import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JRadioButton
+import javax.swing.JSeparator
+import javax.swing.SwingConstants
+import javax.swing.JSlider
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.Timer
+import javax.swing.event.ChangeListener
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
@@ -205,6 +210,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
         val globalCustomTitleSettings = ApplicationManager.getApplication()
             .getService(GlobalCustomTitleStateService::class.java)
+        val bgColorSettings = ApplicationManager.getApplication()
+            .getService(GlobalPanelBackgroundColorStateService::class.java)
 
         val windowAccentSettings = WindowAccentSettings(project)
 
@@ -214,8 +221,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         quickControlsPanel.layout = BoxLayout(quickControlsPanel, BoxLayout.Y_AXIS)
         quickControlsPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
-        val settingsFormPanel = JPanel()
-        settingsFormPanel.layout = BoxLayout(settingsFormPanel, BoxLayout.Y_AXIS)
+        val settingsFormPanel = JPanel(BorderLayout())
         settingsFormPanel.border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
 
         val panel = quickControlsPanel
@@ -246,22 +252,58 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
         val customTitleTextField = JTextField()
         val globalCustomTitleTextField = JTextField()
-        val colorPreview = JPanel()
+        val colorPreview = JPanel(BorderLayout())
+        val colorPreviewLabel = JLabel("Preview", SwingConstants.CENTER)
+        colorPreview.add(colorPreviewLabel, BorderLayout.CENTER)
         val chooseColorButton = JButton("Choose color")
         val dropperButton = JButton(AllIcons.Actions.Colors)
-        val previewLabel = JLabel("")
         var selectedColor: Color? = null
 
+        // Background color components
+        val bgColorPreview = JPanel(BorderLayout())
+        val bgColorPreviewLabel = JLabel("Preview", SwingConstants.CENTER)
+        bgColorPreview.add(bgColorPreviewLabel, BorderLayout.CENTER)
+        val chooseBgColorButton = JButton("Choose color")
+        val bgDropperButton = JButton(AllIcons.Actions.Colors)
+        val bgColorCheckBox = JCheckBox("Use custom color")
+        var selectedBgColor: Color? = null
+        val paddingSlider = JSlider(0, 10, colorSettings.getPanelPadding()).apply {
+            majorTickSpacing = 5
+            minorTickSpacing = 1
+            paintTicks = true
+            paintLabels = true
+            snapToTicks = true
+        }
+
         // Configure color preview
-        colorPreview.preferredSize = Dimension(24, 24)
+        colorPreview.preferredSize = Dimension(60, 24)
         colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+        colorPreview.isOpaque = true
+
+        // Configure background color preview
+        bgColorPreview.preferredSize = Dimension(60, 24)
+        bgColorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+        bgColorPreview.isOpaque = true
+
+        fun updateColorPreview() {
+            colorPreview.background = selectedColor ?: Color.DARK_GRAY
+            colorPreviewLabel.foreground = if ((selectedColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
+                Color.DARK_GRAY else Color.LIGHT_GRAY
+            colorPreview.repaint()
+        }
+
+        fun updateBgColorPreview() {
+            bgColorPreview.background = selectedBgColor ?: Color.DARK_GRAY
+            bgColorPreviewLabel.foreground =
+                if ((selectedBgColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
+                    Color.DARK_GRAY else Color.LIGHT_GRAY
+            bgColorPreview.repaint()
+        }
 
         fun syncEnabledState() {
-            val customColorEnabled = customColorCheckBox.isSelected
-            chooseColorButton.isEnabled = customColorEnabled
-            dropperButton.isEnabled = customColorEnabled
-            colorPreview.isEnabled = customColorEnabled
+            // All color picker controls are always enabled — no checkboxes to gate them
         }
+
 
         var isSyncing = false
 
@@ -270,11 +312,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             try {
                 LOG.debug("syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
                 sideCombo.selectedItem = colorSettings.getSide()
-                customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
                 selectedColor = customColorSettings.getCustomColor()
+                updateColorPreview()
+                selectedBgColor = bgColorSettings.getCustomBackgroundColor()
+                updateBgColorPreview()
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
                 customTitleTextField.text = customTitleSettings.getCustomTitle()
                 globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
+                paddingSlider.value = colorSettings.getPanelPadding()
             } finally {
                 isSyncing = false
             }
@@ -345,6 +390,22 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             return panel
         }
 
+        fun getSeparatorConstraints(
+            fieldConstraints: GridBagConstraints,
+            gridX: Int,
+            gridY: Int,
+            gridWidth: Int
+        ): GridBagConstraints {
+            val panelSeparatorConstraints = (fieldConstraints.clone() as GridBagConstraints).apply {
+                gridx = gridX
+                gridy = gridY
+                gridwidth = gridWidth
+                fill = GridBagConstraints.HORIZONTAL
+                weightx = 1.0
+            }
+            return panelSeparatorConstraints
+        }
+
         fun buildSettingsForm(): JPanel {
             val formPanel = JPanel(GridBagLayout())
             val (labelConstraints, fieldConstraints) = windowAccentSettings.configureGrid()
@@ -354,54 +415,75 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             labelConstraints.gridy = 1
             fieldConstraints.gridy = 1
-            formPanel.add(JBLabel("Custom color:"), labelConstraints)
-            formPanel.add(colorPreview, fieldConstraints)
+            formPanel.add(JBLabel("Panel padding:"), labelConstraints)
+            formPanel.add(paddingSlider, fieldConstraints)
+            paddingSlider.toolTipText = "Control the padding between the accent panel and the IDE window edge"
 
-            labelConstraints.gridy = 2
-            fieldConstraints.gridy = 2
-            formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(chooseColorButton, fieldConstraints)
+            val panelSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 2, 2)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), panelSeparatorConstraints)
 
             labelConstraints.gridy = 3
             fieldConstraints.gridy = 3
-            formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(dropperButton, fieldConstraints)
-
-            dropperButton.toolTipText = "Pick a color from the screen"
-            dropperButton.isFocusable = false
-
-            labelConstraints.gridy = 4
-            fieldConstraints.gridy = 4
-            formPanel.add(customColorCheckBox, fieldConstraints)
-
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
-            formPanel.add(JBLabel("Preview:"), labelConstraints)
-            formPanel.add(previewLabel, fieldConstraints)
-
-            labelConstraints.gridy = 6
-            fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Title numbering:"), labelConstraints)
             formPanel.add(titleNumberingCheckBox, fieldConstraints)
 
-            labelConstraints.gridy = 7
-            fieldConstraints.gridy = 7
+            labelConstraints.gridy = 4
+            fieldConstraints.gridy = 4
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            labelConstraints.gridy = 8
-            fieldConstraints.gridy = 8
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            labelConstraints.gridy = 9
-            fieldConstraints.gridy = 9
+            val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 6, 2)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), titleSeparatorConstraints)
+
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
             formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
+
+            val presetSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 8, 1)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), presetSeparatorConstraints)
+
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
+            formPanel.add(JBLabel("Custom color:"), labelConstraints)
+            formPanel.add(colorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 10
+            fieldConstraints.gridy = 10
+            val colorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
+            dropperButton.toolTipText = "Pick a color from the screen"
+            dropperButton.isFocusable = false
+            colorButtonsRow.add(chooseColorButton)
+            colorButtonsRow.add(dropperButton)
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(colorButtonsRow, fieldConstraints)
+
+            val customColorSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 11, 1)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), customColorSeparatorConstraints)
+
+            labelConstraints.gridy = 12
+            fieldConstraints.gridy = 12
+            formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
+            formPanel.add(bgColorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 13
+            fieldConstraints.gridy = 13
+            val bgColorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
+            bgDropperButton.toolTipText = "Pick a background color from the screen"
+            bgDropperButton.isFocusable = false
+            bgColorButtonsRow.add(chooseBgColorButton)
+            bgColorButtonsRow.add(bgDropperButton)
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(bgColorButtonsRow, fieldConstraints)
 
             return formPanel
         }
@@ -500,10 +582,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
-            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
-            customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
-            customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
+            colorSettings.setPanelPadding(paddingSlider.value)
+            customColorSettings.setUseCustomColor(selectedColor != null)
+            customColorSettings.setCustomColor(selectedColor)
+            bgColorSettings.setUseCustomBackgroundColor(selectedBgColor != null)
+            bgColorSettings.setCustomBackgroundColor(selectedBgColor)
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
             globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
@@ -520,8 +605,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedColor = chosen
-                windowAccentSettings.syncPreview()
+                updateColorPreview()
                 applySettings()
+                windowAccentSettings.syncPreview()
             }
         }
 
@@ -533,6 +619,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 override fun getCustomColorPreviewPanel(): JPanel = colorPreview
                 override fun setSelectedColor(color: Color?) {
                     selectedColor = color
+                    updateColorPreview()
+                    applySettings()
+                    windowAccentSettings.syncPreview()
                 }
 
                 override fun syncEnabledState() = syncEnabledState()
@@ -545,16 +634,41 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 }
             }
             showScreenColorPicker(settingsWrapper)
-            applySettings()
         }
 
-        val customColorCheckBoxListener = ActionListener {
-            if (!customColorCheckBox.isSelected) {
-                colorPresetsGroup.clearSelection()
+        val chooseBgColorListener = ActionListener {
+            val chosen = JColorChooser.showDialog(
+                settingsFormPanel,
+                "Choose background/gradient color",
+                selectedBgColor ?: GlobalPanelBackgroundColorStateService.DEFAULT_BACKGROUND
+            )
+            if (chosen != null) {
+                selectedBgColor = chosen
+                updateBgColorPreview()
+                applySettings()
             }
-            syncEnabledState()
-            windowAccentSettings.syncPreview()
-            applySettings()
+        }
+
+        val bgDropperListener = ActionListener {
+            val settingsWrapper = object : IWindowAccentSettings {
+                override fun getProject(): Project = project
+                override fun getPanel(): JPanel = settingsFormPanel
+                override fun getCustomColorCheckBox(): JCheckBox = bgColorCheckBox
+                override fun getCustomColorPreviewPanel(): JPanel = bgColorPreview
+                override fun setSelectedColor(color: Color?) {
+                    selectedBgColor = color
+                    updateBgColorPreview()
+                    applySettings()
+                }
+
+                override fun syncEnabledState() = syncEnabledState()
+                override fun syncPreview() {}
+
+                override fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
+                    return windowAccentSettings.configureGrid()
+                }
+            }
+            showScreenColorPicker(settingsWrapper)
         }
 
         val sideComboListener = ActionListener {
@@ -586,7 +700,10 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         toggleGlobalCustomTitleButton.addActionListener(toggleGlobalCustomTitleListener)
         chooseColorButton.addActionListener(chooseColorListener)
         dropperButton.addActionListener(dropperListener)
-        customColorCheckBox.addActionListener(customColorCheckBoxListener)
+        chooseBgColorButton.addActionListener(chooseBgColorListener)
+        bgDropperButton.addActionListener(bgDropperListener)
+        val paddingSliderListener = ChangeListener { if (!paddingSlider.valueIsAdjusting) applySettings() }
+        paddingSlider.addChangeListener(paddingSliderListener)
         sideCombo.addActionListener(sideComboListener)
         titleNumberingCheckBox.addActionListener(titleNumberingListener)
 
@@ -604,7 +721,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         panel.add(buildButtonRow(toggleGlobalCustomTitleButton, toggleCurrentCustomTitleButton))
 
         val settingsForm = buildSettingsForm()
-        settingsFormPanel.add(settingsForm)
+        settingsFormPanel.add(settingsForm, BorderLayout.NORTH)
 
         tabbedPane.addTab("Quick Controls", quickControlsPanel)
         tabbedPane.addTab("Settings", JBScrollPane(settingsFormPanel).apply {
@@ -625,6 +742,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             toggleGlobalCustomTitleButton to toggleGlobalCustomTitleListener,
             chooseColorButton to chooseColorListener,
             dropperButton to dropperListener,
+            chooseBgColorButton to chooseBgColorListener,
+            bgDropperButton to bgDropperListener,
         )
         allButtonListeners[project] = listenerPairs
 
