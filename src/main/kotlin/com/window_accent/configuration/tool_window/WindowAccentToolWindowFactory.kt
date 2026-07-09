@@ -299,14 +299,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         }
 
         fun syncEnabledState() {
-            val customColorEnabled = customColorCheckBox.isSelected
-            dropperButton.isEnabled = customColorEnabled
-            colorPreview.isEnabled = customColorEnabled
-            // chooseColorButton is always enabled — picking a color auto-checks the checkbox
-            val bgColorEnabled = bgColorCheckBox.isSelected
-            bgDropperButton.isEnabled = bgColorEnabled
-            bgColorPreview.isEnabled = bgColorEnabled
-            // chooseBgColorButton is always enabled — picking a color auto-checks the checkbox
+            // All color picker controls are always enabled — no checkboxes to gate them
         }
 
 
@@ -317,10 +310,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             try {
                 LOG.debug("syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
                 sideCombo.selectedItem = colorSettings.getSide()
-                customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
                 selectedColor = customColorSettings.getCustomColor()
                 updateColorPreview()
-                bgColorCheckBox.isSelected = bgColorSettings.isUseCustomBackgroundColor()
                 selectedBgColor = bgColorSettings.getCustomBackgroundColor()
                 updateBgColorPreview()
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
@@ -411,71 +402,57 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             labelConstraints.gridy = 2
             fieldConstraints.gridy = 2
+            val colorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
+            dropperButton.toolTipText = "Pick a color from the screen"
+            dropperButton.isFocusable = false
+            colorButtonsRow.add(chooseColorButton)
+            colorButtonsRow.add(dropperButton)
             formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(chooseColorButton, fieldConstraints)
+            formPanel.add(colorButtonsRow, fieldConstraints)
 
             labelConstraints.gridy = 3
             fieldConstraints.gridy = 3
-            formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(dropperButton, fieldConstraints)
-
-            dropperButton.toolTipText = "Pick a color from the screen"
-            dropperButton.isFocusable = false
-
-            labelConstraints.gridy = 4
-            fieldConstraints.gridy = 4
-            formPanel.add(customColorCheckBox, fieldConstraints)
-
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Title numbering:"), labelConstraints)
             formPanel.add(titleNumberingCheckBox, fieldConstraints)
 
-            labelConstraints.gridy = 6
-            fieldConstraints.gridy = 6
+            labelConstraints.gridy = 4
+            fieldConstraints.gridy = 4
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            labelConstraints.gridy = 7
-            fieldConstraints.gridy = 7
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            labelConstraints.gridy = 8
-            fieldConstraints.gridy = 8
+            labelConstraints.gridy = 6
+            fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
             formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
-            labelConstraints.gridy = 9
-            fieldConstraints.gridy = 9
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
             formPanel.add(JBLabel("Panel padding:"), labelConstraints)
             formPanel.add(paddingSlider, fieldConstraints)
 
-            labelConstraints.gridy = 10
-            fieldConstraints.gridy = 10
+            labelConstraints.gridy = 8
+            fieldConstraints.gridy = 8
             formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
             formPanel.add(bgColorPreview, fieldConstraints)
 
-            labelConstraints.gridy = 11
-            fieldConstraints.gridy = 11
-            formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(chooseBgColorButton, fieldConstraints)
-
-            labelConstraints.gridy = 12
-            fieldConstraints.gridy = 12
-            formPanel.add(JLabel(""), labelConstraints)
-            formPanel.add(bgDropperButton, fieldConstraints)
-
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
+            val bgColorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             bgDropperButton.toolTipText = "Pick a background color from the screen"
             bgDropperButton.isFocusable = false
-
-            labelConstraints.gridy = 13
-            fieldConstraints.gridy = 13
-            formPanel.add(bgColorCheckBox, fieldConstraints)
+            bgColorButtonsRow.add(chooseBgColorButton)
+            bgColorButtonsRow.add(bgDropperButton)
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(bgColorButtonsRow, fieldConstraints)
 
             return formPanel
         }
@@ -577,10 +554,10 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             colorSettings.setPanelPadding(paddingSlider.value)
-            customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
-            customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
-            bgColorSettings.setUseCustomBackgroundColor(bgColorCheckBox.isSelected)
-            bgColorSettings.setCustomBackgroundColor(if (bgColorCheckBox.isSelected) selectedBgColor else null)
+            customColorSettings.setUseCustomColor(selectedColor != null)
+            customColorSettings.setCustomColor(selectedColor)
+            bgColorSettings.setUseCustomBackgroundColor(selectedBgColor != null)
+            bgColorSettings.setCustomBackgroundColor(selectedBgColor)
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
             globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
@@ -597,9 +574,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedColor = chosen
-                customColorCheckBox.isSelected = true
                 updateColorPreview()
-                syncEnabledState()
                 applySettings()
                 windowAccentSettings.syncPreview()
             }
@@ -613,9 +588,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 override fun getCustomColorPreviewPanel(): JPanel = colorPreview
                 override fun setSelectedColor(color: Color?) {
                     selectedColor = color
-                    customColorCheckBox.isSelected = true
                     updateColorPreview()
-                    syncEnabledState()
                     applySettings()
                     windowAccentSettings.syncPreview()
                 }
@@ -640,9 +613,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedBgColor = chosen
-                bgColorCheckBox.isSelected = true
                 updateBgColorPreview()
-                syncEnabledState()
                 applySettings()
             }
         }
@@ -655,9 +626,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 override fun getCustomColorPreviewPanel(): JPanel = bgColorPreview
                 override fun setSelectedColor(color: Color?) {
                     selectedBgColor = color
-                    bgColorCheckBox.isSelected = true
                     updateBgColorPreview()
-                    syncEnabledState()
                     applySettings()
                 }
 
@@ -669,20 +638,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 }
             }
             showScreenColorPicker(settingsWrapper)
-        }
-
-        val bgColorCheckBoxListener = ActionListener {
-            syncEnabledState()
-            applySettings()
-        }
-
-        val customColorCheckBoxListener = ActionListener {
-            if (!customColorCheckBox.isSelected) {
-                colorPresetsGroup.clearSelection()
-            }
-            syncEnabledState()
-            windowAccentSettings.syncPreview()
-            applySettings()
         }
 
         val sideComboListener = ActionListener {
@@ -716,10 +671,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         dropperButton.addActionListener(dropperListener)
         chooseBgColorButton.addActionListener(chooseBgColorListener)
         bgDropperButton.addActionListener(bgDropperListener)
-        bgColorCheckBox.addActionListener(bgColorCheckBoxListener)
         val paddingSliderListener = ChangeListener { if (!paddingSlider.valueIsAdjusting) applySettings() }
         paddingSlider.addChangeListener(paddingSliderListener)
-        customColorCheckBox.addActionListener(customColorCheckBoxListener)
         sideCombo.addActionListener(sideComboListener)
         titleNumberingCheckBox.addActionListener(titleNumberingListener)
 
