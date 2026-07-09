@@ -4,6 +4,13 @@
 
 ## [2.2.0]
 
+### Added
+
+- Color Panel now has a colored background and adjustable padding
+  - The user can control the thickness of the padding between the colored panel and the JPanel
+  - The user can choose the color of both the color panel and the background
+    - This is particularly useful to create a fading effect
+
 ## [2.1.2]
 
 ### Fixed
