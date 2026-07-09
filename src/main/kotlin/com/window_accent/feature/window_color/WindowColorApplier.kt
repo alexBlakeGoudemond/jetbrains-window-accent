@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import com.intellij.util.Alarm
+import com.window_accent.configuration.persistence.GlobalPanelBackgroundColorStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
@@ -179,7 +180,15 @@ object WindowColorApplier {
         projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
-        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project), panelSettings.isPanelOpaque(), panelSettings.getPanelPadding())
+        val backgroundColorSettings = ApplicationManager.getApplication()
+            .getService(GlobalPanelBackgroundColorStateService::class.java)
+        val panel = ColoredPanel(
+            panelSettings.getSide(),
+            resolveColor(customColorSettings, project),
+            panelSettings.isPanelOpaque(),
+            panelSettings.getPanelPadding(),
+            backgroundColorSettings.resolveBackgroundColor()
+        )
         panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
 

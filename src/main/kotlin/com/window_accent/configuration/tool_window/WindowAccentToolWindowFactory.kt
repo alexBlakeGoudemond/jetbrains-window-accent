@@ -15,6 +15,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
+import com.window_accent.configuration.persistence.GlobalPanelBackgroundColorStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
@@ -208,6 +209,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
         val globalCustomTitleSettings = ApplicationManager.getApplication()
             .getService(GlobalCustomTitleStateService::class.java)
+        val bgColorSettings = ApplicationManager.getApplication()
+            .getService(GlobalPanelBackgroundColorStateService::class.java)
 
         val windowAccentSettings = WindowAccentSettings(project)
 
@@ -254,6 +257,15 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val chooseColorButton = JButton("Choose color")
         val dropperButton = JButton(AllIcons.Actions.Colors)
         var selectedColor: Color? = null
+
+        // Background color components
+        val bgColorPreview = JPanel(BorderLayout())
+        val bgColorPreviewLabel = JLabel("Preview", SwingConstants.CENTER)
+        bgColorPreview.add(bgColorPreviewLabel, BorderLayout.CENTER)
+        val chooseBgColorButton = JButton("Choose color")
+        val bgDropperButton = JButton(AllIcons.Actions.Colors)
+        val bgColorCheckBox = JCheckBox("Use custom color")
+        var selectedBgColor: Color? = null
         val paddingSlider = JSlider(0, 10, colorSettings.getPanelPadding()).apply {
             majorTickSpacing = 5
             minorTickSpacing = 1
@@ -267,6 +279,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
         colorPreview.isOpaque = true
 
+        // Configure background color preview
+        bgColorPreview.preferredSize = Dimension(60, 24)
+        bgColorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+        bgColorPreview.isOpaque = true
+
         fun updateColorPreview() {
             colorPreview.background = selectedColor ?: Color.DARK_GRAY
             colorPreviewLabel.foreground = if ((selectedColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
@@ -274,11 +291,22 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorPreview.repaint()
         }
 
+        fun updateBgColorPreview() {
+            bgColorPreview.background = selectedBgColor ?: Color.DARK_GRAY
+            bgColorPreviewLabel.foreground = if ((selectedBgColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
+                Color.DARK_GRAY else Color.LIGHT_GRAY
+            bgColorPreview.repaint()
+        }
+
         fun syncEnabledState() {
             val customColorEnabled = customColorCheckBox.isSelected
-            chooseColorButton.isEnabled = customColorEnabled
             dropperButton.isEnabled = customColorEnabled
             colorPreview.isEnabled = customColorEnabled
+            // chooseColorButton is always enabled — picking a color auto-checks the checkbox
+            val bgColorEnabled = bgColorCheckBox.isSelected
+            bgDropperButton.isEnabled = bgColorEnabled
+            bgColorPreview.isEnabled = bgColorEnabled
+            // chooseBgColorButton is always enabled — picking a color auto-checks the checkbox
         }
 
 
@@ -292,6 +320,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
                 selectedColor = customColorSettings.getCustomColor()
                 updateColorPreview()
+                bgColorCheckBox.isSelected = bgColorSettings.isUseCustomBackgroundColor()
+                selectedBgColor = bgColorSettings.getCustomBackgroundColor()
+                updateBgColorPreview()
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
                 customTitleTextField.text = customTitleSettings.getCustomTitle()
                 globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
@@ -424,6 +455,28 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Panel padding:"), labelConstraints)
             formPanel.add(paddingSlider, fieldConstraints)
 
+            labelConstraints.gridy = 10
+            fieldConstraints.gridy = 10
+            formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
+            formPanel.add(bgColorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 11
+            fieldConstraints.gridy = 11
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(chooseBgColorButton, fieldConstraints)
+
+            labelConstraints.gridy = 12
+            fieldConstraints.gridy = 12
+            formPanel.add(JLabel(""), labelConstraints)
+            formPanel.add(bgDropperButton, fieldConstraints)
+
+            bgDropperButton.toolTipText = "Pick a background color from the screen"
+            bgDropperButton.isFocusable = false
+
+            labelConstraints.gridy = 13
+            fieldConstraints.gridy = 13
+            formPanel.add(bgColorCheckBox, fieldConstraints)
+
             return formPanel
         }
 
@@ -526,6 +579,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorSettings.setPanelPadding(paddingSlider.value)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
+            bgColorSettings.setUseCustomBackgroundColor(bgColorCheckBox.isSelected)
+            bgColorSettings.setCustomBackgroundColor(if (bgColorCheckBox.isSelected) selectedBgColor else null)
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
             globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
@@ -542,9 +597,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedColor = chosen
+                customColorCheckBox.isSelected = true
                 updateColorPreview()
-                windowAccentSettings.syncPreview()
+                syncEnabledState()
                 applySettings()
+                windowAccentSettings.syncPreview()
             }
         }
 
@@ -556,7 +613,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 override fun getCustomColorPreviewPanel(): JPanel = colorPreview
                 override fun setSelectedColor(color: Color?) {
                     selectedColor = color
+                    customColorCheckBox.isSelected = true
                     updateColorPreview()
+                    syncEnabledState()
+                    applySettings()
+                    windowAccentSettings.syncPreview()
                 }
 
                 override fun syncEnabledState() = syncEnabledState()
@@ -569,6 +630,49 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 }
             }
             showScreenColorPicker(settingsWrapper)
+        }
+
+        val chooseBgColorListener = ActionListener {
+            val chosen = JColorChooser.showDialog(
+                settingsFormPanel,
+                "Choose background/gradient color",
+                selectedBgColor ?: GlobalPanelBackgroundColorStateService.DEFAULT_BACKGROUND
+            )
+            if (chosen != null) {
+                selectedBgColor = chosen
+                bgColorCheckBox.isSelected = true
+                updateBgColorPreview()
+                syncEnabledState()
+                applySettings()
+            }
+        }
+
+        val bgDropperListener = ActionListener {
+            val settingsWrapper = object : IWindowAccentSettings {
+                override fun getProject(): Project = project
+                override fun getPanel(): JPanel = settingsFormPanel
+                override fun getCustomColorCheckBox(): JCheckBox = bgColorCheckBox
+                override fun getCustomColorPreviewPanel(): JPanel = bgColorPreview
+                override fun setSelectedColor(color: Color?) {
+                    selectedBgColor = color
+                    bgColorCheckBox.isSelected = true
+                    updateBgColorPreview()
+                    syncEnabledState()
+                    applySettings()
+                }
+
+                override fun syncEnabledState() = syncEnabledState()
+                override fun syncPreview() {}
+
+                override fun configureGrid(): Pair<GridBagConstraints, GridBagConstraints> {
+                    return windowAccentSettings.configureGrid()
+                }
+            }
+            showScreenColorPicker(settingsWrapper)
+        }
+
+        val bgColorCheckBoxListener = ActionListener {
+            syncEnabledState()
             applySettings()
         }
 
@@ -610,6 +714,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         toggleGlobalCustomTitleButton.addActionListener(toggleGlobalCustomTitleListener)
         chooseColorButton.addActionListener(chooseColorListener)
         dropperButton.addActionListener(dropperListener)
+        chooseBgColorButton.addActionListener(chooseBgColorListener)
+        bgDropperButton.addActionListener(bgDropperListener)
+        bgColorCheckBox.addActionListener(bgColorCheckBoxListener)
         val paddingSliderListener = ChangeListener { if (!paddingSlider.valueIsAdjusting) applySettings() }
         paddingSlider.addChangeListener(paddingSliderListener)
         customColorCheckBox.addActionListener(customColorCheckBoxListener)
@@ -651,6 +758,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             toggleGlobalCustomTitleButton to toggleGlobalCustomTitleListener,
             chooseColorButton to chooseColorListener,
             dropperButton to dropperListener,
+            chooseBgColorButton to chooseBgColorListener,
+            bgDropperButton to bgDropperListener,
         )
         allButtonListeners[project] = listenerPairs
 

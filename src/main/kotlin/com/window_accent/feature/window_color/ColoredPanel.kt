@@ -9,19 +9,18 @@ class ColoredPanel(
     private val side: WindowPanelAppearanceStateService.Side,
     private val panelColor: Color,
     private val isPanelOpaque: Boolean,
-    private val panelPadding: Int = 4
+    private val panelPadding: Int = 4,
+    private val backgroundColor: Color = Color(0x26, 0x28, 0x2C)
 ) : JPanel() {
 
     private val log = windowAccentLogger<ColoredPanel>()
 
-    private val ideBackground = Color(0x26, 0x28, 0x2C)
-
     init {
-        // Make the panel opaque with the IDE background colour so any unpainted pixels
-        // (e.g. the 1-px padding border outside the gradient rect) match the fade target
+        // Make the panel opaque with the background colour so any unpainted pixels
+        // (e.g. the padding border outside the gradient rect) match the fade target
         // rather than showing whatever dark/black surface lies behind the component.
         isOpaque = true
-        background = ideBackground
+        background = backgroundColor
         putClientProperty(WindowColorApplier.PANEL_CLIENT_PROPERTY, true)
     }
 
@@ -51,7 +50,7 @@ class ColoredPanel(
             // The accent colour fades into the IntelliJ dark background (#26282C).
             val solidColor = Color(panelColor.red, panelColor.green, panelColor.blue, 255)
             val colorWithAlpha = solidColor
-            val transparentColor = ideBackground
+            val transparentColor = backgroundColor
 
             val gradient = when (side) {
                 // NORTH + SOUTH: color on the left, fades to transparent on the right
