@@ -417,6 +417,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             fieldConstraints.gridy = 1
             formPanel.add(JBLabel("Panel padding:"), labelConstraints)
             formPanel.add(paddingSlider, fieldConstraints)
+            paddingSlider.toolTipText = "Control the padding between the accent panel and the IDE window edge"
 
             val panelSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 2, 2)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), panelSeparatorConstraints)
