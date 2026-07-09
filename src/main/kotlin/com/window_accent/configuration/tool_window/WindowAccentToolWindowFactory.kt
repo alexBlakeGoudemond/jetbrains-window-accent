@@ -45,9 +45,11 @@ import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JRadioButton
+import javax.swing.JSlider
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.Timer
+import javax.swing.event.ChangeListener
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
@@ -251,6 +253,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val dropperButton = JButton(AllIcons.Actions.Colors)
         val previewLabel = JLabel("")
         var selectedColor: Color? = null
+        val paddingSlider = JSlider(0, 20, colorSettings.getPanelPadding()).apply {
+            majorTickSpacing = 5
+            minorTickSpacing = 1
+            paintTicks = true
+            paintLabels = true
+            snapToTicks = true
+        }
 
         // Configure color preview
         colorPreview.preferredSize = Dimension(24, 24)
@@ -276,6 +285,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
                 customTitleTextField.text = customTitleSettings.getCustomTitle()
                 globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
+                paddingSlider.value = colorSettings.getPanelPadding()
             } finally {
                 isSyncing = false
             }
@@ -409,6 +419,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
             formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
+            labelConstraints.gridy = 11
+            fieldConstraints.gridy = 11
+            formPanel.add(JBLabel("Panel padding:"), labelConstraints)
+            formPanel.add(paddingSlider, fieldConstraints)
+
             return formPanel
         }
 
@@ -506,9 +521,10 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
-            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, opaque=${opaqueCheckBox.isSelected}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, opaque=${opaqueCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             colorSettings.setPanelOpaque(opaqueCheckBox.isSelected)
+            colorSettings.setPanelPadding(paddingSlider.value)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
@@ -594,6 +610,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         chooseColorButton.addActionListener(chooseColorListener)
         dropperButton.addActionListener(dropperListener)
         opaqueCheckBox.addActionListener { applySettings() }
+        val paddingSliderListener = ChangeListener { if (!paddingSlider.valueIsAdjusting) applySettings() }
+        paddingSlider.addChangeListener(paddingSliderListener)
         customColorCheckBox.addActionListener(customColorCheckBoxListener)
         sideCombo.addActionListener(sideComboListener)
         titleNumberingCheckBox.addActionListener(titleNumberingListener)

@@ -8,7 +8,8 @@ import javax.swing.JPanel
 class ColoredPanel(
     private val side: WindowPanelAppearanceStateService.Side,
     private val panelColor: Color,
-    private val isPanelOpaque: Boolean
+    private val isPanelOpaque: Boolean,
+    private val panelPadding: Int = 4
 ) : JPanel() {
 
     private val log = windowAccentLogger<ColoredPanel>()
@@ -34,14 +35,10 @@ class ColoredPanel(
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
             g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER)
 
-            // Add some padding to make it look "inside" the container panel
-            val padding = 1
-            val rect = when (side) {
-                WindowPanelAppearanceStateService.Side.NORTH -> Rectangle(padding, padding, width - 2 * padding, height - padding)
-                WindowPanelAppearanceStateService.Side.SOUTH -> Rectangle(padding, 0, width - 2 * padding, height - padding)
-                WindowPanelAppearanceStateService.Side.WEST -> Rectangle(padding, padding, width - padding, height - 2 * padding)
-                WindowPanelAppearanceStateService.Side.EAST -> Rectangle(0, padding, width - padding, height - 2 * padding)
-            }
+            // Inset the gradient rect by the user-configurable panelPadding on all four edges,
+            // centering the accent panel within the JPanel regardless of which side it is on.
+            val p = panelPadding
+            val rect = Rectangle(p, p, width - 2 * p, height - 2 * p)
 
             // Draw the solid background only when the opaque mode is explicitly enabled
             if (isPanelOpaque) {

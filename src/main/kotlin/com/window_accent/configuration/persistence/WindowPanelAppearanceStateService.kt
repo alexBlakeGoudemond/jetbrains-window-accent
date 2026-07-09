@@ -22,7 +22,8 @@ class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAp
     data class State(
         var side: Side = Side.EAST,
         var panelEnabled: Boolean = true,
-        var panelOpaque: Boolean = true
+        var panelOpaque: Boolean = true,
+        var panelPadding: Int = 4
     )
 
     enum class Side {
@@ -58,5 +59,11 @@ class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAp
 
     fun setPanelOpaque(opaque: Boolean) {
         state.panelOpaque = opaque
+    }
+
+    fun getPanelPadding(): Int = state.panelPadding
+
+    fun setPanelPadding(padding: Int) {
+        state.panelPadding = padding
     }
 }

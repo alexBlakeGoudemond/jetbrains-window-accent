@@ -179,7 +179,7 @@ object WindowColorApplier {
         projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
-        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project), panelSettings.isPanelOpaque())
+        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project), panelSettings.isPanelOpaque(), panelSettings.getPanelPadding())
         panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
 
