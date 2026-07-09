@@ -8,7 +8,7 @@ import javax.swing.JPanel
 class ColoredPanel(
     private val side: WindowPanelAppearanceStateService.Side,
     private val panelColor: Color,
-    private val isPanelOpaque: Boolean,
+    private val isPanelOpaque: Boolean = true,
     private val panelPadding: Int = 4,
     private val backgroundColor: Color = Color(0x26, 0x28, 0x2C)
 ) : JPanel() {
