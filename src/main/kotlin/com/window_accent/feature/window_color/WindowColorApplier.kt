@@ -181,13 +181,13 @@ object WindowColorApplier {
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
         val backgroundColorSettings = ApplicationManager.getApplication()
-            .getService(GlobalPanelBackgroundColorStateService::class.java)
+            ?.getService(GlobalPanelBackgroundColorStateService::class.java)
         val panel = ColoredPanel(
             panelSettings.getSide(),
             resolveColor(customColorSettings, project),
             panelSettings.isPanelOpaque(),
             panelSettings.getPanelPadding(),
-            backgroundColorSettings.resolveBackgroundColor()
+            backgroundColorSettings?.resolveBackgroundColor() ?: Color(0x26, 0x28, 0x2C)
         )
         panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
