@@ -179,7 +179,7 @@ object WindowColorApplier {
         projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
-        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project))
+        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project), panelSettings.isPanelOpaque())
         panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
 
@@ -223,6 +223,7 @@ object WindowColorApplier {
     private fun placeSouthPanelAtBottomOfStatusBar(rootPane: JRootPane, panel: JPanel) {
         val originalContentPane = rootPane.contentPane
         val wrapper = JPanel(BorderLayout())
+        wrapper.isOpaque = false
         wrapper.putClientProperty(PANEL_CLIENT_PROPERTY, true)
         rootPane.contentPane = wrapper
         wrapper.add(originalContentPane, BorderLayout.CENTER)
