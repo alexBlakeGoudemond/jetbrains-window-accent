@@ -253,7 +253,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val dropperButton = JButton(AllIcons.Actions.Colors)
         val previewLabel = JLabel("")
         var selectedColor: Color? = null
-        val paddingSlider = JSlider(0, 20, colorSettings.getPanelPadding()).apply {
+        val paddingSlider = JSlider(0, 10, colorSettings.getPanelPadding()).apply {
             majorTickSpacing = 5
             minorTickSpacing = 1
             paintTicks = true
