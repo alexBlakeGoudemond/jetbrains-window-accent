@@ -45,6 +45,7 @@ import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JRadioButton
+import javax.swing.SwingConstants
 import javax.swing.JSlider
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
@@ -243,15 +244,15 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         // Settings form components
         val sideCombo = JComboBox(WindowPanelAppearanceStateService.Side.entries.toTypedArray())
-        val opaqueCheckBox = JCheckBox("Panel opaque")
         val customColorCheckBox = JCheckBox("Use custom color")
         val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
         val customTitleTextField = JTextField()
         val globalCustomTitleTextField = JTextField()
-        val colorPreview = JPanel()
+        val colorPreview = JPanel(BorderLayout())
+        val colorPreviewLabel = JLabel("Preview", SwingConstants.CENTER)
+        colorPreview.add(colorPreviewLabel, BorderLayout.CENTER)
         val chooseColorButton = JButton("Choose color")
         val dropperButton = JButton(AllIcons.Actions.Colors)
-        val previewLabel = JLabel("")
         var selectedColor: Color? = null
         val paddingSlider = JSlider(0, 10, colorSettings.getPanelPadding()).apply {
             majorTickSpacing = 5
@@ -262,8 +263,16 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         }
 
         // Configure color preview
-        colorPreview.preferredSize = Dimension(24, 24)
+        colorPreview.preferredSize = Dimension(60, 24)
         colorPreview.border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+        colorPreview.isOpaque = true
+
+        fun updateColorPreview() {
+            colorPreview.background = selectedColor ?: Color.DARK_GRAY
+            colorPreviewLabel.foreground = if ((selectedColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
+                Color.DARK_GRAY else Color.LIGHT_GRAY
+            colorPreview.repaint()
+        }
 
         fun syncEnabledState() {
             val customColorEnabled = customColorCheckBox.isSelected
@@ -272,6 +281,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorPreview.isEnabled = customColorEnabled
         }
 
+
         var isSyncing = false
 
         fun syncFromSettings() {
@@ -279,9 +289,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             try {
                 LOG.debug("syncFromSettings: side=${colorSettings.getSide()}, useCustomColor=${customColorSettings.isUseCustomColor()}, customTitle='${customTitleSettings.getCustomTitle()}', globalTitle='${globalCustomTitleSettings.getGlobalCustomTitle()}'")
                 sideCombo.selectedItem = colorSettings.getSide()
-                opaqueCheckBox.isSelected = colorSettings.isPanelOpaque()
                 customColorCheckBox.isSelected = customColorSettings.isUseCustomColor()
                 selectedColor = customColorSettings.getCustomColor()
+                updateColorPreview()
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
                 customTitleTextField.text = customTitleSettings.getCustomTitle()
                 globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
@@ -365,62 +375,52 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             labelConstraints.gridy = 1
             fieldConstraints.gridy = 1
-            formPanel.add(JBLabel("Panel opaque:"), labelConstraints)
-            formPanel.add(opaqueCheckBox, fieldConstraints)
-
-            labelConstraints.gridy = 2
-            fieldConstraints.gridy = 2
             formPanel.add(JBLabel("Custom color:"), labelConstraints)
             formPanel.add(colorPreview, fieldConstraints)
 
-            labelConstraints.gridy = 3
-            fieldConstraints.gridy = 3
+            labelConstraints.gridy = 2
+            fieldConstraints.gridy = 2
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(chooseColorButton, fieldConstraints)
 
-            labelConstraints.gridy = 4
-            fieldConstraints.gridy = 4
+            labelConstraints.gridy = 3
+            fieldConstraints.gridy = 3
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(dropperButton, fieldConstraints)
 
             dropperButton.toolTipText = "Pick a color from the screen"
             dropperButton.isFocusable = false
 
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
+            labelConstraints.gridy = 4
+            fieldConstraints.gridy = 4
             formPanel.add(customColorCheckBox, fieldConstraints)
 
-            labelConstraints.gridy = 6
-            fieldConstraints.gridy = 6
-            formPanel.add(JBLabel("Preview:"), labelConstraints)
-            formPanel.add(previewLabel, fieldConstraints)
-
-            labelConstraints.gridy = 7
-            fieldConstraints.gridy = 7
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Title numbering:"), labelConstraints)
             formPanel.add(titleNumberingCheckBox, fieldConstraints)
 
-            labelConstraints.gridy = 8
-            fieldConstraints.gridy = 8
+            labelConstraints.gridy = 6
+            fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            labelConstraints.gridy = 9
-            fieldConstraints.gridy = 9
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            labelConstraints.gridy = 10
-            fieldConstraints.gridy = 10
+            labelConstraints.gridy = 8
+            fieldConstraints.gridy = 8
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
             formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
-            labelConstraints.gridy = 11
-            fieldConstraints.gridy = 11
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
             formPanel.add(JBLabel("Panel padding:"), labelConstraints)
             formPanel.add(paddingSlider, fieldConstraints)
 
@@ -521,9 +521,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
-            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, opaque=${opaqueCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
-            colorSettings.setPanelOpaque(opaqueCheckBox.isSelected)
             colorSettings.setPanelPadding(paddingSlider.value)
             customColorSettings.setUseCustomColor(customColorCheckBox.isSelected)
             customColorSettings.setCustomColor(if (customColorCheckBox.isSelected) selectedColor else null)
@@ -543,6 +542,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             )
             if (chosen != null) {
                 selectedColor = chosen
+                updateColorPreview()
                 windowAccentSettings.syncPreview()
                 applySettings()
             }
@@ -556,6 +556,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 override fun getCustomColorPreviewPanel(): JPanel = colorPreview
                 override fun setSelectedColor(color: Color?) {
                     selectedColor = color
+                    updateColorPreview()
                 }
 
                 override fun syncEnabledState() = syncEnabledState()
@@ -609,7 +610,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         toggleGlobalCustomTitleButton.addActionListener(toggleGlobalCustomTitleListener)
         chooseColorButton.addActionListener(chooseColorListener)
         dropperButton.addActionListener(dropperListener)
-        opaqueCheckBox.addActionListener { applySettings() }
         val paddingSliderListener = ChangeListener { if (!paddingSlider.valueIsAdjusting) applySettings() }
         paddingSlider.addChangeListener(paddingSliderListener)
         customColorCheckBox.addActionListener(customColorCheckBoxListener)
