@@ -46,6 +46,7 @@ import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JRadioButton
+import javax.swing.JSeparator
 import javax.swing.SwingConstants
 import javax.swing.JSlider
 import javax.swing.JTabbedPane
@@ -293,8 +294,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun updateBgColorPreview() {
             bgColorPreview.background = selectedBgColor ?: Color.DARK_GRAY
-            bgColorPreviewLabel.foreground = if ((selectedBgColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
-                Color.DARK_GRAY else Color.LIGHT_GRAY
+            bgColorPreviewLabel.foreground =
+                if ((selectedBgColor?.let { (it.red + it.green + it.blue) / 3 } ?: 0) > 128)
+                    Color.DARK_GRAY else Color.LIGHT_GRAY
             bgColorPreview.repaint()
         }
 
@@ -388,6 +390,22 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             return panel
         }
 
+        fun getSeparatorConstraints(
+            fieldConstraints: GridBagConstraints,
+            gridX: Int,
+            gridY: Int,
+            gridWidth: Int
+        ): GridBagConstraints {
+            val panelSeparatorConstraints = (fieldConstraints.clone() as GridBagConstraints).apply {
+                gridx = gridX
+                gridy = gridY
+                gridwidth = gridWidth
+                fill = GridBagConstraints.HORIZONTAL
+                weightx = 1.0
+            }
+            return panelSeparatorConstraints
+        }
+
         fun buildSettingsForm(): JPanel {
             val formPanel = JPanel(GridBagLayout())
             val (labelConstraints, fieldConstraints) = windowAccentSettings.configureGrid()
@@ -400,37 +418,46 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JBLabel("Panel padding:"), labelConstraints)
             formPanel.add(paddingSlider, fieldConstraints)
 
-            labelConstraints.gridy = 2
-            fieldConstraints.gridy = 2
-            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
-            formPanel.add(titleNumberingCheckBox, fieldConstraints)
+            val panelSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 2, 2)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), panelSeparatorConstraints)
 
             labelConstraints.gridy = 3
             fieldConstraints.gridy = 3
+            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
+            formPanel.add(titleNumberingCheckBox, fieldConstraints)
+
+            labelConstraints.gridy = 4
+            fieldConstraints.gridy = 4
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            labelConstraints.gridy = 4
-            fieldConstraints.gridy = 4
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
-            formPanel.add(JBLabel("Color presets:"), labelConstraints)
-            formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
-
-            labelConstraints.gridy = 6
-            fieldConstraints.gridy = 6
-            formPanel.add(JBLabel("Custom color:"), labelConstraints)
-            formPanel.add(colorPreview, fieldConstraints)
+            val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 6, 2)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), titleSeparatorConstraints)
 
             labelConstraints.gridy = 7
             fieldConstraints.gridy = 7
+            formPanel.add(JBLabel("Color presets:"), labelConstraints)
+            formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
+
+            val presetSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 8, 1)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), presetSeparatorConstraints)
+
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
+            formPanel.add(JBLabel("Custom color:"), labelConstraints)
+            formPanel.add(colorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 10
+            fieldConstraints.gridy = 10
             val colorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             dropperButton.toolTipText = "Pick a color from the screen"
             dropperButton.isFocusable = false
@@ -439,13 +466,16 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(colorButtonsRow, fieldConstraints)
 
-            labelConstraints.gridy = 8
-            fieldConstraints.gridy = 8
+            val customColorSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 11, 1)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), customColorSeparatorConstraints)
+
+            labelConstraints.gridy = 12
+            fieldConstraints.gridy = 12
             formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
             formPanel.add(bgColorPreview, fieldConstraints)
 
-            labelConstraints.gridy = 9
-            fieldConstraints.gridy = 9
+            labelConstraints.gridy = 13
+            fieldConstraints.gridy = 13
             val bgColorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             bgDropperButton.toolTipText = "Pick a background color from the screen"
             bgDropperButton.isFocusable = false
