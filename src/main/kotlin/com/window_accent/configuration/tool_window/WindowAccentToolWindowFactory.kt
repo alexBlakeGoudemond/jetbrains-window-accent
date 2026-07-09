@@ -397,11 +397,40 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             labelConstraints.gridy = 1
             fieldConstraints.gridy = 1
-            formPanel.add(JBLabel("Custom color:"), labelConstraints)
-            formPanel.add(colorPreview, fieldConstraints)
+            formPanel.add(JBLabel("Panel padding:"), labelConstraints)
+            formPanel.add(paddingSlider, fieldConstraints)
 
             labelConstraints.gridy = 2
             fieldConstraints.gridy = 2
+            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
+            formPanel.add(titleNumberingCheckBox, fieldConstraints)
+
+            labelConstraints.gridy = 3
+            fieldConstraints.gridy = 3
+            formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
+            formPanel.add(customTitleTextField, fieldConstraints)
+            customTitleTextField.toolTipText =
+                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
+
+            labelConstraints.gridy = 4
+            fieldConstraints.gridy = 4
+            formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
+            formPanel.add(globalCustomTitleTextField, fieldConstraints)
+            globalCustomTitleTextField.toolTipText =
+                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
+
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
+            formPanel.add(JBLabel("Color presets:"), labelConstraints)
+            formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
+
+            labelConstraints.gridy = 6
+            fieldConstraints.gridy = 6
+            formPanel.add(JBLabel("Custom color:"), labelConstraints)
+            formPanel.add(colorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
             val colorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             dropperButton.toolTipText = "Pick a color from the screen"
             dropperButton.isFocusable = false
@@ -409,35 +438,6 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorButtonsRow.add(dropperButton)
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(colorButtonsRow, fieldConstraints)
-
-            labelConstraints.gridy = 3
-            fieldConstraints.gridy = 3
-            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
-            formPanel.add(titleNumberingCheckBox, fieldConstraints)
-
-            labelConstraints.gridy = 4
-            fieldConstraints.gridy = 4
-            formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
-            formPanel.add(customTitleTextField, fieldConstraints)
-            customTitleTextField.toolTipText =
-                "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
-
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
-            formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
-            formPanel.add(globalCustomTitleTextField, fieldConstraints)
-            globalCustomTitleTextField.toolTipText =
-                "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
-
-            labelConstraints.gridy = 6
-            fieldConstraints.gridy = 6
-            formPanel.add(JBLabel("Color presets:"), labelConstraints)
-            formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
-
-            labelConstraints.gridy = 7
-            fieldConstraints.gridy = 7
-            formPanel.add(JBLabel("Panel padding:"), labelConstraints)
-            formPanel.add(paddingSlider, fieldConstraints)
 
             labelConstraints.gridy = 8
             fieldConstraints.gridy = 8
