@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.2.1]
+
 ## [2.2.0]
 
 ### Added
@@ -759,7 +761,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.1...HEAD
+[2.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.2...2.2.0
 [2.1.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.1.0...2.1.1
