@@ -1,0 +1,14 @@
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  h_1197a506f6c7d6 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "00964bf119b31fd573773c53a95ac0889c8dc7cd",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
