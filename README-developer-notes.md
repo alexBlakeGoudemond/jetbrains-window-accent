@@ -227,7 +227,7 @@ catalogue, and log timeline) are in:
 
 **Quick reference:**
 
-Add to `Help > Edit Custom VM Options` (shared across all custom IntelliJ configurations):
+Add to `Help > Edit Custom VM Options` (referenced in the IntelliJ configuration directory):
 
 ```
 -XX:+UnlockDiagnosticVMOptions

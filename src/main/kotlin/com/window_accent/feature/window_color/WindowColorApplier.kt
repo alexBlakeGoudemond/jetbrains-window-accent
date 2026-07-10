@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import com.intellij.util.Alarm
+import com.window_accent.configuration.persistence.GlobalPanelBackgroundColorStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
 import java.awt.*
@@ -179,7 +180,15 @@ object WindowColorApplier {
         projectDisposeClosures.remove(project)?.invoke()
         val rootPane = frame.rootPane
         val side = panelSettings.getSide()
-        val panel = ColoredPanel(panelSettings.getSide(), resolveColor(customColorSettings, project))
+        val backgroundColorSettings = ApplicationManager.getApplication()
+            ?.getService(GlobalPanelBackgroundColorStateService::class.java)
+        val panel = ColoredPanel(
+            panelSettings.getSide(),
+            resolveColor(customColorSettings, project),
+            panelSettings.isPanelOpaque(),
+            panelSettings.getPanelPadding(),
+            backgroundColorSettings?.resolveBackgroundColor() ?: Color(0x26, 0x28, 0x2C)
+        )
         panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)
 
@@ -223,6 +232,7 @@ object WindowColorApplier {
     private fun placeSouthPanelAtBottomOfStatusBar(rootPane: JRootPane, panel: JPanel) {
         val originalContentPane = rootPane.contentPane
         val wrapper = JPanel(BorderLayout())
+        wrapper.isOpaque = false
         wrapper.putClientProperty(PANEL_CLIENT_PROPERTY, true)
         rootPane.contentPane = wrapper
         wrapper.add(originalContentPane, BorderLayout.CENTER)
