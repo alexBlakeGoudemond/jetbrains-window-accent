@@ -4,6 +4,12 @@
 
 ## [2.2.1]
 
+### Fixed
+
+- Ensure that new class `GlobalPanelBackgroundColorStateService` is cleaned up during GC
+  - Forgot to add this to the flush list, accidentally re-introducing the update forcing restart bug in 2.2.0
+  - Adding it to the flush list should allow unloading and updating the plugin without a restart
+
 ## [2.2.0]
 
 ### Added
