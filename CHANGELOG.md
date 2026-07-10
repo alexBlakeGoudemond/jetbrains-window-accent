@@ -4,6 +4,11 @@
 
 ## [2.2.2]
 
+### Added
+
+- Added code block to try resolving the Plugin Verification Warning relating to `ToolWindowManager.unregisterToolWindow` being deprecated
+  - Propose an alternative to resolving the unload problem with stripeTitleProvider: set to null via invasive reflection
+
 ## [2.2.1]
 
 ### Fixed
