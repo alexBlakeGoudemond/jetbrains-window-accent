@@ -3,9 +3,9 @@ package com.window_accent
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowManager
 import com.window_accent.WindowAccentApplicationService.Companion.cleanupCompleted
 import com.window_accent.WindowAccentApplicationService.Companion.performCleanup
@@ -168,25 +168,47 @@ class WindowAccentApplicationService : Disposable {
         // the stripeTitleProvider → PluginClassLoader retention chain before IntelliJ's GC check.
         // No non-deprecated alternative exists for this specific use case, and the method does
         // not carry @ApiStatus.ScheduledForRemoval, so suppression is safe here.
-        // TODO BlakeGoudemond 2026/06/30 | find replacement to ToolWindowManager.unregisterToolWindow
-        @Suppress("DEPRECATION")
         private fun flushToolWindowRegistrations() {
             val toolWindowId = "WindowAccent"
             ProjectManager.getInstance().openProjects.forEach { project ->
                 try {
                     val twm = ToolWindowManager.getInstance(project)
-                    if (twm.getToolWindow(toolWindowId) != null) {
+                    val toolWindow = twm.getToolWindow(toolWindowId) ?: return@forEach
+
+                    // TODO BlakeGoudemond 2026/06/30 | If this works - consider deleting the unregisterToolWindow call below. It is a full unregister, which is deprecated
+                    if (clearStripeTitleProviderReflectively(toolWindow)) {
+                        LOG.info("Cleared stripeTitleProvider on tool window '$toolWindowId' for project '${project.name}' via reflection")
+                    } else {
+                        // Field not found / shape changed on this IDE version — fall back to the
+                        // known-working (if deprecated) full unregister to guarantee correctness.
                         @Suppress("DEPRECATION")
                         twm.unregisterToolWindow(toolWindowId)
-                        LOG.info("Unregistered tool window '$toolWindowId' for project '${project.name}' to release stripeTitleProvider → PluginClassLoader reference")
+                        LOG.info("Reflective clear unavailable — unregistered tool window '$toolWindowId' for project '${project.name}' (fallback)")
                     }
                 } catch (e: Exception) {
-                    LOG.warn(
-                        "Could not unregister tool window '$toolWindowId' for project '${project.name}'",
-                        e
-                    )
+                    LOG.warn("Could not clear tool window registration for '$toolWindowId' in project '${project.name}'", e)
                 }
             }
+        }
+
+        /**
+         * Instead of removing the whole ToolWindowEntry, reflectively grab the live ToolWindowImpl and null out stripeTitleProvider directly
+         * */
+        private fun clearStripeTitleProviderReflectively(toolWindow: ToolWindow): Boolean {
+            var clazz: Class<*>? = toolWindow.javaClass
+            while (clazz != null && clazz != Any::class.java) {
+                try {
+                    val field = clazz.getDeclaredField("stripeTitleProvider")
+                    field.isAccessible = true
+                    field.set(toolWindow, null)
+                    return true
+                } catch (e: NoSuchFieldException) {
+                    clazz = clazz.superclass
+                } catch (e: Exception) {
+                    return false // found it but couldn't set — let caller fall back
+                }
+            }
+            return false
         }
 
         /**
