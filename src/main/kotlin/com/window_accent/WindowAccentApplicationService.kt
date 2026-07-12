@@ -323,8 +323,9 @@ class WindowAccentApplicationService : Disposable {
                 WindowCustomTitleStateService.State::class.java,
                 GlobalCustomTitleStateService.State::class.java,
                 GlobalPanelBackgroundColorStateService.State::class.java,
-                // Nested enum — may be introspected when serializing the Side property
+                // Nested enums — may be introspected when serializing their respective properties
                 WindowPanelAppearanceStateService.Side::class.java,
+                WindowPanelAppearanceStateService.GradientAnchor::class.java,
             )
             classesToFlush.forEach { Introspector.flushFromCaches(it) }
             LOG.info("Flushed Introspector BeanInfo caches for ${classesToFlush.size} classes (services + state types)")
