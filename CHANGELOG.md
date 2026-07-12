@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [2.3.1]
+
+### Fixed
+
+- Fix the Update on Restart bug reintroduced in version 2.3.0
+    - The new `GradientAnchor` enum added in 2.3.0 was not included in the Introspector BeanInfo
+      flush list in `WindowAccentApplicationService.flushIntrospectorCaches()`. When IntelliJ's XML
+      serializer introspects the `gradientAnchor` property of `WindowPanelAppearanceStateService.State`,
+      it caches a `BeanInfo` keyed on `GradientAnchor.class`, forming the retention chain:
+      `ThreadGroup → ThreadGroupContext → BeanInfoCache → BeanInfo → Method → GradientAnchor.class → PluginClassLoader`
+    - Fixed by adding `WindowPanelAppearanceStateService.GradientAnchor::class.java` to the flush list,
+      matching the same pattern already used for `WindowPanelAppearanceStateService.Side::class.java`
+
 ## [2.3.0]
 
 ### Added
@@ -13,7 +26,7 @@
 
 ### Fixed
 
-- Addressed subtle bug between Tool Window tabs and the Color Panel direction
+- Addressed a subtle bug between Tool Window tabs and the Color Panel direction
     - Toggling the Color Panel Direction in the Quick Controls would not update the Color Panel in the Settings tab,
       and vice versa
     - From version 2.3.0, this is resolved
@@ -799,7 +812,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.3.0...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.3.1...HEAD
+[2.3.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.3...2.3.0
 [2.2.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.1...2.2.2
