@@ -4,6 +4,20 @@
 
 ## [2.3.0]
 
+### Added
+
+- Tool Window settings can now toggle the Color Panel Gradient
+  - The user can now choose if they want the Gradient to be: 
+    - Horizontal: LHS / RHS / Middle / Off
+    - Vertical: Top / Bottom / Middle / Off
+
+### Fixed
+
+- Addressed subtle bug between Tool Window tabs and the Color Panel direction
+    - Toggling the Color Panel Direction in the Quick Controls would not update the Color Panel in the Settings tab,
+      and vice versa
+    - From version 2.3.0, this is resolved
+
 ## [2.2.3]
 
 - Fix the Update on Restart bug introduced in version 2.2.2
