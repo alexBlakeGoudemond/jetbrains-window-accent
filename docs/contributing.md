@@ -1,6 +1,6 @@
 ## Contributing
 
-If you would like to contribute - feel free to model an issue (Bugs, Feature Requests, or Questions)
+If you would like to contribute - feel free to open an issue (Bugs, Feature Requests, or Questions)
 or submit a pull request.
 
 We welcome contributions of all kinds, including code, documentation, and design.
@@ -45,3 +45,12 @@ Please describe:
 
 ```bash
 git clone https://github.com/alexBlakeGoudemond/jetbrains-window-accent.git
+```
+
+--- 
+
+## Key Contributors
+
+The following gave good feedback and helped shape the project:
+- [Francois Vermaak](https://github.com/fverco)
+- [Emily Blake-Goudemond](https://www.linkedin.com/in/emily-blake-goudemond-732641176/)
