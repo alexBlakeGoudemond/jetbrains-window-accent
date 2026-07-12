@@ -45,6 +45,7 @@ theme:
 
 plugins:
   - search
+  - glightbox
 
 markdown_extensions:
   - admonition
@@ -71,6 +72,9 @@ nav:
       - Installation: installation.md
       - Configuration: configuration.md
       - FAQ: faq.md
+
+  - Screenshots:
+        - Screenshots: screenshots.md
 
   - Compatibility:
       - Supported IDEs: compatibility.md
