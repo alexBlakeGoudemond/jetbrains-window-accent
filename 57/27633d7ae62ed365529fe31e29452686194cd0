@@ -1,0 +1,30 @@
+docs/window-accent-changelog.md
+  h_1197a506f6c7d6 1-3
+docs/contributing.md
+  s_053f47ed1b59be::t_56c379c39675f8 3-4,6
+  h_1197a506f6c7d6 5,7-47
+  s_053f47ed1b59be::t_3a87d8caa2278c 1-2
+docs/privacy.md
+  h_1197a506f6c7d6 1-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "5727633d7ae62ed365529fe31e29452686194cd0",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_053f47ed1b59be": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1783832158949",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
