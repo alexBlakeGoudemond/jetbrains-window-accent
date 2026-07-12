@@ -10,7 +10,9 @@ class ColoredPanel(
     private val panelColor: Color,
     private val isPanelOpaque: Boolean = true,
     private val panelPadding: Int = 4,
-    private val backgroundColor: Color = Color(0x26, 0x28, 0x2C)
+    private val backgroundColor: Color = Color(0x26, 0x28, 0x2C),
+    private val gradientAnchor: WindowPanelAppearanceStateService.GradientAnchor =
+        WindowPanelAppearanceStateService.GradientAnchor.START
 ) : JPanel() {
 
     private val log = windowAccentLogger<ColoredPanel>()
@@ -45,29 +47,51 @@ class ColoredPanel(
                 g2d.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 10, 10)
             }
 
-            // Gradient: NORTH/SOUTH fade left→right (RHS); WEST/EAST fade top→bottom.
-            // Both ends are fully opaque — no alpha compositing, no Swing black-fill artifact.
-            // The accent colour fades into the IntelliJ dark background (#26282C).
-            val solidColor = Color(panelColor.red, panelColor.green, panelColor.blue, 255)
-            val colorWithAlpha = solidColor
-            val transparentColor = backgroundColor
+            // Gradient: NORTH/SOUTH fade along the horizontal axis; WEST/EAST fade along the
+            // vertical axis. Both ends are fully opaque — no alpha compositing, no Swing
+            // black-fill artifact. The accent colour fades into the IntelliJ dark background.
+            //
+            // [gradientAnchor] controls where the solid edge of the fade sits along that axis:
+            // START = axis start (left/top), END = axis end (right/bottom), MIDDLE = centered
+            // with a fade on both sides, OFF = no fade — skip the gradient overlay entirely and
+            // leave the flat solid-color fill drawn above (if isPanelOpaque) untouched.
+            if (gradientAnchor != WindowPanelAppearanceStateService.GradientAnchor.OFF &&
+                rect.width > 0 && rect.height > 0
+            ) {
+                val solidColor = Color(panelColor.red, panelColor.green, panelColor.blue, 255)
+                val transparentColor = backgroundColor
 
-            val gradient = when (side) {
-                // NORTH + SOUTH: color on the left, fades to transparent on the right
-                WindowPanelAppearanceStateService.Side.NORTH,
-                WindowPanelAppearanceStateService.Side.SOUTH -> GradientPaint(
-                    rect.x.toFloat(), 0f, colorWithAlpha,
-                    (rect.x + rect.width).toFloat(), 0f, transparentColor
-                )
-                // WEST + EAST: color at the top, fades to transparent at the bottom
-                WindowPanelAppearanceStateService.Side.WEST,
-                WindowPanelAppearanceStateService.Side.EAST -> GradientPaint(
-                    0f, rect.y.toFloat(), colorWithAlpha,
-                    0f, (rect.y + rect.height).toFloat(), transparentColor
-                )
+                val (fractions, colors) = when (gradientAnchor) {
+                    WindowPanelAppearanceStateService.GradientAnchor.START ->
+                        floatArrayOf(0f, 1f) to arrayOf(solidColor, transparentColor)
+                    WindowPanelAppearanceStateService.GradientAnchor.END ->
+                        floatArrayOf(0f, 1f) to arrayOf(transparentColor, solidColor)
+                    WindowPanelAppearanceStateService.GradientAnchor.MIDDLE ->
+                        floatArrayOf(0f, 0.5f, 1f) to arrayOf(transparentColor, solidColor, transparentColor)
+                    WindowPanelAppearanceStateService.GradientAnchor.OFF ->
+                        // Unreachable — guarded above — but exhaustive `when` requires a branch.
+                        floatArrayOf(0f, 1f) to arrayOf(solidColor, solidColor)
+                }
+
+                val isHorizontal = side == WindowPanelAppearanceStateService.Side.NORTH ||
+                        side == WindowPanelAppearanceStateService.Side.SOUTH
+
+                val gradient = if (isHorizontal) {
+                    LinearGradientPaint(
+                        rect.x.toFloat(), 0f,
+                        (rect.x + rect.width).toFloat(), 0f,
+                        fractions, colors
+                    )
+                } else {
+                    LinearGradientPaint(
+                        0f, rect.y.toFloat(),
+                        0f, (rect.y + rect.height).toFloat(),
+                        fractions, colors
+                    )
+                }
+                g2d.paint = gradient
+                g2d.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 10, 10)
             }
-            g2d.paint = gradient
-            g2d.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 10, 10)
         } finally {
             g2d.dispose()
         }
