@@ -246,7 +246,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         styleAsCurrentButton(toggleCurrentCustomTitleButton)
         styleAsAllButton(toggleGlobalCustomTitleButton)
         styleAsCycleButton(cyclePanelDirectionButton)
-        styleAsGradientButton(cycleGradientDirectionButton)
+//        styleAsGradientButton(cycleGradientDirectionButton)
 
         // Settings form components
         val sideCombo = JComboBox(WindowPanelAppearanceStateService.Side.entries.toTypedArray())
@@ -909,9 +909,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         WindowPanelAppearanceStateService.GradientAnchor.MIDDLE -> "Middle"
         WindowPanelAppearanceStateService.GradientAnchor.OFF -> "Off"
         WindowPanelAppearanceStateService.GradientAnchor.START ->
-            if (side == Side.NORTH || side == Side.SOUTH) "LHS" else "UP"
-        WindowPanelAppearanceStateService.GradientAnchor.END ->
             if (side == Side.NORTH || side == Side.SOUTH) "RHS" else "DOWN"
+        WindowPanelAppearanceStateService.GradientAnchor.END ->
+            if (side == Side.NORTH || side == Side.SOUTH) "LHS" else "UP"
     }
 
     /**
