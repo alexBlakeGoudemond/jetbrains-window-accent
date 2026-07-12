@@ -2,39 +2,48 @@
 
 ## [Unreleased]
 
+## [2.3.0]
+
 ## [2.2.3]
+
+- Fix the Update on Restart bug introduced in version 2.2.2
+    - The `GlobalPanelBackgroundColorStateService` was not being cleaned up during GC, which caused the plugin to be
+      retained and required a restart to update. This has been fixed by adding it to the flush list, allowing the plugin
+      to be unloaded and updated without a restart
 
 ## [2.2.2]
 
 ### Added
 
-- Added code block to try resolving the Plugin Verification Warning relating to `ToolWindowManager.unregisterToolWindow` being deprecated
-  - Propose an alternative to resolving the unload problem with stripeTitleProvider: set to null via invasive reflection
+- Added code block to try resolving the Plugin Verification Warning relating to `ToolWindowManager.unregisterToolWindow`
+  being deprecated
+    - Propose an alternative to resolving the unload problem with stripeTitleProvider: set to null via invasive
+      reflection
 
 ## [2.2.1]
 
 ### Fixed
 
 - Ensure that new class `GlobalPanelBackgroundColorStateService` is cleaned up during GC
-  - Forgot to add this to the flush list, accidentally re-introducing the update forcing restart bug in 2.2.0
-  - Adding it to the flush list should allow unloading and updating the plugin without a restart
+    - Forgot to add this to the flush list, accidentally re-introducing the update forcing restart bug in 2.2.0
+    - Adding it to the flush list should allow unloading and updating the plugin without a restart
 
 ## [2.2.0]
 
 ### Added
 
 - Color Panel now has a colored background and adjustable padding
-  - The user can control the thickness of the padding between the colored panel and the JPanel
-  - The user can choose the color of both the color panel and the background
-    - This is particularly useful to create a fading effect
+    - The user can control the thickness of the padding between the colored panel and the JPanel
+    - The user can choose the color of both the color panel and the background
+        - This is particularly useful to create a fading effect
 
 ## [2.1.2]
 
 ### Fixed
 
 - Plugin Tool Window resizes nicely when interacting with other tool windows
-  - The Quick Settings tab does not have any scroll bar (vertical or horizontal) – all buttons are always in view
-  - The Settings tab has a vertical scroll bar if the window is too small to show all settings
+    - The Quick Settings tab does not have any scroll bar (vertical or horizontal) – all buttons are always in view
+    - The Settings tab has a vertical scroll bar if the window is too small to show all settings
 
 ## [2.1.1]
 
@@ -50,35 +59,35 @@
 ### Added
 
 - Added color presets to the Tool Window
-  - The settings tab has radio buttons to select from preset colors: 🔴🟠🟡🟢🔵🟣
-  - Selecting a color preset adds an emoji to the title and sets the colored panel to the selected color
+    - The settings tab has radio buttons to select from preset colors: 🔴🟠🟡🟢🔵🟣
+    - Selecting a color preset adds an emoji to the title and sets the colored panel to the selected color
 
 ### Fixed
 
 - Improved the UI of the colored panel
-  - Layer the colored panel so there is a clear background
-  - Round the panel's corners
-  - Apply a shifting gradient to the colored panel
+    - Layer the colored panel so there is a clear background
+    - Round the panel's corners
+    - Apply a shifting gradient to the colored panel
 
 ## [2.0.0]
 
 ### Added
 
 - All settings are now done through the Tool Window
-  - Quick Controls Panel: quickly toggle features through toggle buttons
-  - Settings Panel: fine-grained control over Window Accent configuration
+    - Quick Controls Panel: quickly toggle features through toggle buttons
+    - Settings Panel: fine-grained control over Window Accent configuration
 
 ### Removed
 
 - The configuration settings in the Settings view have been moved to the Tool Window
-  - Settings now have a short paragraph informing the user about the Tool Window
+    - Settings now have a short paragraph informing the user about the Tool Window
 
 ## [1.6.3]
 
 ### Fixed
 
 - Emojis now work in Custom Title on Restart of IDE windows
-  - Bring in UnicodeXmlSanitizer to safely encode and decode Emojis
+    - Bring in UnicodeXmlSanitizer to safely encode and decode Emojis
 
 ## [1.6.2]
 
@@ -776,7 +785,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.3...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.3...2.3.0
 [2.2.3]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.2.0...2.2.1
