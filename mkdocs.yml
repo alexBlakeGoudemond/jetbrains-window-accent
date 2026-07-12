@@ -74,7 +74,7 @@ nav:
       - FAQ: faq.md
 
   - Screenshots:
-        - Screenshots: screenshots.md
+      - Screenshots: screenshots.md
 
   - Compatibility:
       - Supported IDEs: compatibility.md
@@ -93,7 +93,7 @@ nav:
           - 2024.3.7.1 (v 1.0.5): compatibility-verification/gradle-verify-plugin-failure-v1.0.5-2024.3.7.1.md
 
   - Development:
-      - Changelog: changelog.md
+      - Changelog: window-accent-changelog.md
       - Contributing: contributing.md
 
   - Privacy: privacy.md
