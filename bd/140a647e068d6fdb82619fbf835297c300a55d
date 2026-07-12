@@ -1,0 +1,18 @@
+docs/about.md
+  h_1197a506f6c7d6 1-21
+.github/workflows/docs.yml
+  h_1197a506f6c7d6 1-36
+docs/contributing.md
+  h_1197a506f6c7d6 3,48-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "bd140a647e068d6fdb82619fbf835297c300a55d",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
