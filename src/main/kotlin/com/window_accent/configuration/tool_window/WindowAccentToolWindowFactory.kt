@@ -558,6 +558,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             colorSettings.setSide(nextSide)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
+            syncFromSettings()
         }
         val cycleGradientDirectionListener = ActionListener {
             animateButtonClick(cycleGradientDirectionButton, JBColor(Color(0x20B2AA), Color(0x39C5CF)))
