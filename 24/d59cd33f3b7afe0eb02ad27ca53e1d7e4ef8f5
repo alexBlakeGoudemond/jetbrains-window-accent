@@ -1,0 +1,20 @@
+docs/compatibility-verification/compatibility-verification-failure-analysis-v1.2.10-2026.1.md
+  h_1197a506f6c7d6 1-123
+docs/compatibility.md
+  h_1197a506f6c7d6 1-28
+mkdocs.yml
+  h_1197a506f6c7d6 11,29-31,36,40
+docs/verification.md
+  h_1197a506f6c7d6 1-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "24d59cd33f3b7afe0eb02ad27ca53e1d7e4ef8f5",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
