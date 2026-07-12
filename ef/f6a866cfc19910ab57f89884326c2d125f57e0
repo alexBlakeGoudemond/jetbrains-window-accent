@@ -1,0 +1,20 @@
+src/test/kotlin/com/window_accent/feature/window_color/WindowColorApplierTest.kt
+  h_1197a506f6c7d6 3-11,14-15,21-80,83-85,89-93,98-99,101-105,107-113,116-118,120-130,134-135,137-142,144,146-148,152-154,156-162,166-168,172-200,203-204,206-211,215-217
+src/main/kotlin/com/window_accent/feature/window_color/ColoredPanel.kt
+  h_1197a506f6c7d6 13-15
+src/test/kotlin/com/window_accent/configuration/persistence/WindowPanelAppearanceStateServiceTest.kt
+  h_1197a506f6c7d6 46
+src/main/kotlin/com/window_accent/configuration/persistence/WindowPanelAppearanceStateService.kt
+  h_1197a506f6c7d6 26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "eff6a866cfc19910ab57f89884326c2d125f57e0",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
