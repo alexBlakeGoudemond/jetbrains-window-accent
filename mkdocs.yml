@@ -1,0 +1,52 @@
+site_name: Window Accent
+site_description: Window Accent helps you distinguish between multiple JetBrains IDE windows with visual cues
+site_url: https://plugins.jetbrains.com/plugin/31895-window-accent/
+
+repo_name: alexBlakeGoudemond/jetbrains-window-accent
+repo_url: https://github.com/alexBlakeGoudemond/jetbrains-window-accent
+
+theme:
+  name: material
+
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - search.highlight
+    - search.suggest
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
