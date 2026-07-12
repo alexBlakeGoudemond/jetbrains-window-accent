@@ -229,6 +229,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val toggleAllColorsButton = JButton()
         val toggleCurrentColorButton = JButton()
         val cyclePanelDirectionButton = JButton()
+        val cycleGradientDirectionButton = JButton()
 
         val toggleAllTitlesButton = JButton()
         val toggleCurrentTitleButton = JButton()
@@ -245,6 +246,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         styleAsCurrentButton(toggleCurrentCustomTitleButton)
         styleAsAllButton(toggleGlobalCustomTitleButton)
         styleAsCycleButton(cyclePanelDirectionButton)
+//        styleAsGradientButton(cycleGradientDirectionButton)
 
         // Settings form components
         val sideCombo = JComboBox(WindowPanelAppearanceStateService.Side.entries.toTypedArray())
@@ -419,46 +421,51 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(paddingSlider, fieldConstraints)
             paddingSlider.toolTipText = "Control the padding between the accent panel and the IDE window edge"
 
-            val panelSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 2, 2)
-            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), panelSeparatorConstraints)
+            labelConstraints.gridy = 2
+            fieldConstraints.gridy = 2
+            formPanel.add(JBLabel("Gradient direction:"), labelConstraints)
+            formPanel.add(cycleGradientDirectionButton, fieldConstraints)
 
-            labelConstraints.gridy = 3
-            fieldConstraints.gridy = 3
-            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
-            formPanel.add(titleNumberingCheckBox, fieldConstraints)
+            val panelSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 3, 2)
+            formPanel.add(JSeparator(SwingConstants.HORIZONTAL), panelSeparatorConstraints)
 
             labelConstraints.gridy = 4
             fieldConstraints.gridy = 4
+            formPanel.add(JBLabel("Title numbering:"), labelConstraints)
+            formPanel.add(titleNumberingCheckBox, fieldConstraints)
+
+            labelConstraints.gridy = 5
+            fieldConstraints.gridy = 5
             formPanel.add(JBLabel("Custom title (this window):"), labelConstraints)
             formPanel.add(customTitleTextField, fieldConstraints)
             customTitleTextField.toolTipText =
                 "Label shown in this window's title alongside the number (e.g. \"dattebayo\"). Toggle on/off."
 
-            labelConstraints.gridy = 5
-            fieldConstraints.gridy = 5
+            labelConstraints.gridy = 6
+            fieldConstraints.gridy = 6
             formPanel.add(JBLabel("Custom title (all windows):"), labelConstraints)
             formPanel.add(globalCustomTitleTextField, fieldConstraints)
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 6, 2)
+            val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 7, 2)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), titleSeparatorConstraints)
 
-            labelConstraints.gridy = 7
-            fieldConstraints.gridy = 7
+            labelConstraints.gridy = 8
+            fieldConstraints.gridy = 8
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
             formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
-            val presetSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 8, 1)
+            val presetSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 9, 1)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), presetSeparatorConstraints)
-
-            labelConstraints.gridy = 9
-            fieldConstraints.gridy = 9
-            formPanel.add(JBLabel("Custom color:"), labelConstraints)
-            formPanel.add(colorPreview, fieldConstraints)
 
             labelConstraints.gridy = 10
             fieldConstraints.gridy = 10
+            formPanel.add(JBLabel("Custom color:"), labelConstraints)
+            formPanel.add(colorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 11
+            fieldConstraints.gridy = 11
             val colorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             dropperButton.toolTipText = "Pick a color from the screen"
             dropperButton.isFocusable = false
@@ -467,16 +474,16 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(colorButtonsRow, fieldConstraints)
 
-            val customColorSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 11, 1)
+            val customColorSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 12, 1)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), customColorSeparatorConstraints)
-
-            labelConstraints.gridy = 12
-            fieldConstraints.gridy = 12
-            formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
-            formPanel.add(bgColorPreview, fieldConstraints)
 
             labelConstraints.gridy = 13
             fieldConstraints.gridy = 13
+            formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
+            formPanel.add(bgColorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 14
+            fieldConstraints.gridy = 14
             val bgColorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             bgDropperButton.toolTipText = "Pick a background color from the screen"
             bgDropperButton.isFocusable = false
@@ -501,6 +508,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             cyclePanelDirectionButton.text = wrapTextInHtmlCenter("Panel direction: ${colorSettings.getSide()}")
             cyclePanelDirectionButton.toolTipText = "Click Me! Cycle the color panel location"
+
+            cycleGradientDirectionButton.text = wrapTextInHtmlCenter(
+                "Gradient: ${gradientAnchorLabel(colorSettings.getSide(), colorSettings.getGradientAnchor())}"
+            )
+            cycleGradientDirectionButton.toolTipText = "Click Me! Cycle the color gradient direction"
 
             val titlesEnabled = titleSettings.isTitleNumberingEnabled()
             toggleAllTitlesButton.text = wrapTextInHtmlCenter(
@@ -544,6 +556,16 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             val currentIndex = sidesCycleOrder.indexOf(colorSettings.getSide())
             val nextSide = sidesCycleOrder[(currentIndex + 1) % sidesCycleOrder.size]
             colorSettings.setSide(nextSide)
+            WindowColorApplier.applyToCurrentOpenProject(project)
+            refreshButtonText()
+            syncFromSettings()
+        }
+        val cycleGradientDirectionListener = ActionListener {
+            animateButtonClick(cycleGradientDirectionButton, JBColor(Color(0x20B2AA), Color(0x39C5CF)))
+            val order = gradientAnchorCycleOrder(colorSettings.getSide())
+            val currentIndex = order.indexOf(colorSettings.getGradientAnchor()).let { if (it < 0) 0 else it }
+            val nextAnchor = order[(currentIndex + 1) % order.size]
+            colorSettings.setGradientAnchor(nextAnchor)
             WindowColorApplier.applyToCurrentOpenProject(project)
             refreshButtonText()
         }
@@ -595,6 +617,12 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             WindowColorApplier.applyToCurrentOpenProject(project)
             WindowTitleApplier.applyToCurrentOpenProject(project)
+
+            // Keep the Quick Controls tab's "Panel direction" / "Gradient direction" button
+            // labels in sync when the panel side (or anything else here) is changed from the
+            // Settings tab — e.g. via sideCombo. Without this, those labels go stale until a
+            // button on the Quick Controls tab is clicked.
+            refreshButtonText()
         }
 
         val chooseColorListener = ActionListener {
@@ -693,6 +721,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         toggleAllColorsButton.addActionListener(toggleAllColorsListener)
         toggleCurrentColorButton.addActionListener(toggleCurrentColorListener)
         cyclePanelDirectionButton.addActionListener(cyclePanelDirectionListener)
+        cycleGradientDirectionButton.addActionListener(cycleGradientDirectionListener)
         toggleAllTitlesButton.addActionListener(toggleAllTitlesListener)
         toggleCurrentTitleButton.addActionListener(toggleCurrentTitleListener)
         resetTitleNumberingButton.addActionListener(resetTitleNumberingListener)
@@ -735,6 +764,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             toggleAllColorsButton to toggleAllColorsListener,
             toggleCurrentColorButton to toggleCurrentColorListener,
             cyclePanelDirectionButton to cyclePanelDirectionListener,
+            cycleGradientDirectionButton to cycleGradientDirectionListener,
             toggleAllTitlesButton to toggleAllTitlesListener,
             toggleCurrentTitleButton to toggleCurrentTitleListener,
             resetTitleNumberingButton to resetTitleNumberingListener,
@@ -834,6 +864,55 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
     private fun styleAsResetButton(button: JButton) {
         val borderColor = JBColor(Color(0xdc4fe3), Color(0xdc4fe3))
         button.border = BorderFactory.createLineBorder(borderColor, 1, true)
+    }
+
+    /**
+     * Styles the gradient-direction button.
+     *
+     * Applies a teal border (theme-aware via [JBColor]) to distinguish it from the
+     * panel-side cycle button while still signaling a mode/configuration control.
+     */
+    private fun styleAsGradientButton(button: JButton) {
+        val borderColor = JBColor(Color(0x20B2AA), Color(0x39C5CF))
+        button.border = BorderFactory.createLineBorder(borderColor, 1, true)
+    }
+
+    /**
+     * Ordered cycle of [WindowPanelAppearanceStateService.GradientAnchor] values for [side]'s
+     * axis, matching the labels shown to the user:
+     *
+     * - NORTH/SOUTH (horizontal axis): RHS → LHS → Middle → Off
+     * - WEST/EAST (vertical axis): UP → DOWN → Middle → Off
+     */
+    private fun gradientAnchorCycleOrder(side: Side): List<WindowPanelAppearanceStateService.GradientAnchor> =
+        when (side) {
+            Side.NORTH, Side.SOUTH -> listOf(
+                WindowPanelAppearanceStateService.GradientAnchor.END,   // RHS
+                WindowPanelAppearanceStateService.GradientAnchor.START, // LHS
+                WindowPanelAppearanceStateService.GradientAnchor.MIDDLE,
+                WindowPanelAppearanceStateService.GradientAnchor.OFF
+            )
+            Side.WEST, Side.EAST -> listOf(
+                WindowPanelAppearanceStateService.GradientAnchor.START, // UP
+                WindowPanelAppearanceStateService.GradientAnchor.END,   // DOWN
+                WindowPanelAppearanceStateService.GradientAnchor.MIDDLE,
+                WindowPanelAppearanceStateService.GradientAnchor.OFF
+            )
+        }
+
+    /**
+     * Axis-appropriate display label for [anchor] given the panel's current [side].
+     */
+    private fun gradientAnchorLabel(
+        side: Side,
+        anchor: WindowPanelAppearanceStateService.GradientAnchor
+    ): String = when (anchor) {
+        WindowPanelAppearanceStateService.GradientAnchor.MIDDLE -> "Middle"
+        WindowPanelAppearanceStateService.GradientAnchor.OFF -> "Off"
+        WindowPanelAppearanceStateService.GradientAnchor.START ->
+            if (side == Side.NORTH || side == Side.SOUTH) "RHS" else "DOWN"
+        WindowPanelAppearanceStateService.GradientAnchor.END ->
+            if (side == Side.NORTH || side == Side.SOUTH) "LHS" else "UP"
     }
 
     /**

@@ -23,7 +23,8 @@ class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAp
         var side: Side = Side.EAST,
         var panelEnabled: Boolean = true,
         var panelOpaque: Boolean = true,
-        var panelPadding: Int = 4
+        var panelPadding: Int = 4,
+        var gradientAnchor: GradientAnchor = GradientAnchor.START
     )
 
     enum class Side {
@@ -31,6 +32,27 @@ class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAp
         WEST,
         NORTH,
         SOUTH
+    }
+
+    /**
+     * Where the solid (fully-opaque) edge of the color gradient sits along the panel's axis.
+     *
+     * For NORTH/SOUTH panels the axis is horizontal (left→right); for WEST/EAST panels the
+     * axis is vertical (top→bottom). [START] and [END] refer to the geometric start/end of
+     * that axis, not a fixed screen direction — the tool window UI maps them to axis-appropriate
+     * labels (e.g. "LHS"/"RHS" or "UP"/"DOWN").
+     *
+     * - [START]: solid color at the axis start (left/top), fading out towards the axis end.
+     *   This matches the plugin's original, pre-toggle gradient behavior and is the default.
+     * - [END]: solid color at the axis end (right/bottom), fading out towards the axis start.
+     * - [MIDDLE]: solid color at the center, fading out towards both edges.
+     * - [OFF]: no gradient fade — the panel is a single flat color.
+     */
+    enum class GradientAnchor {
+        START,
+        END,
+        MIDDLE,
+        OFF
     }
 
     private var state = State()
@@ -65,5 +87,11 @@ class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAp
 
     fun setPanelPadding(padding: Int) {
         state.panelPadding = padding
+    }
+
+    fun getGradientAnchor(): GradientAnchor = state.gradientAnchor
+
+    fun setGradientAnchor(anchor: GradientAnchor) {
+        state.gradientAnchor = anchor
     }
 }

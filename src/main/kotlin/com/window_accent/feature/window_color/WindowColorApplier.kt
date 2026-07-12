@@ -187,7 +187,8 @@ object WindowColorApplier {
             resolveColor(customColorSettings, project),
             panelSettings.isPanelOpaque(),
             panelSettings.getPanelPadding(),
-            backgroundColorSettings?.resolveBackgroundColor() ?: Color(0x26, 0x28, 0x2C)
+            backgroundColorSettings?.resolveBackgroundColor() ?: Color(0x26, 0x28, 0x2C),
+            panelSettings.getGradientAnchor()
         )
         panel.preferredSize = panelDimension(panelSettings.getSide())
         addedPanels[project] = mutableListOf(panel)

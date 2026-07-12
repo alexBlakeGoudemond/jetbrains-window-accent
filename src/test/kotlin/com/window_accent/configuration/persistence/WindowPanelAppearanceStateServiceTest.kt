@@ -43,6 +43,16 @@ class WindowPanelAppearanceStateServiceTest {
                 Arguments.of(WindowPanelAppearanceStateService.Side.SOUTH)
             )
         }
+
+        @JvmStatic
+        fun gradientAnchors(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.START),
+                Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.END),
+                Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.MIDDLE),
+                Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.OFF)
+            )
+        }
     }
 
     @Test
@@ -157,5 +167,42 @@ class WindowPanelAppearanceStateServiceTest {
         assertEquals(WindowPanelAppearanceStateService.Side.NORTH, service.getSide())
     }
 
-}
+    @Test
+    fun `Initial gradient anchor is START`() {
+        assertEquals(WindowPanelAppearanceStateService.GradientAnchor.START, service.getGradientAnchor())
+    }
 
+    @ParameterizedTest
+    @MethodSource("gradientAnchors")
+    fun `can set gradient anchor`(anchor: WindowPanelAppearanceStateService.GradientAnchor) {
+        service.setGradientAnchor(anchor)
+        assertEquals(anchor, service.getGradientAnchor())
+    }
+
+    @Test
+    fun `can load gradient anchor`() {
+        val newState = WindowPanelAppearanceStateService.State(
+            gradientAnchor = WindowPanelAppearanceStateService.GradientAnchor.MIDDLE
+        )
+        service.loadState(newState)
+
+        assertEquals(WindowPanelAppearanceStateService.GradientAnchor.MIDDLE, service.getGradientAnchor())
+    }
+
+    @Test
+    fun `can return gradient anchor from state`() {
+        service.setGradientAnchor(WindowPanelAppearanceStateService.GradientAnchor.OFF)
+
+        val state = service.getState()
+        assertEquals(WindowPanelAppearanceStateService.GradientAnchor.OFF, state.gradientAnchor)
+    }
+
+    @Test
+    fun `gradient anchor is preserved when changing panel side`() {
+        service.setGradientAnchor(WindowPanelAppearanceStateService.GradientAnchor.END)
+
+        service.setSide(WindowPanelAppearanceStateService.Side.WEST)
+        assertEquals(WindowPanelAppearanceStateService.GradientAnchor.END, service.getGradientAnchor())
+    }
+
+}
