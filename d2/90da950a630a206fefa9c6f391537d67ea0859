@@ -1,0 +1,16 @@
+docs/installation.md
+  h_1197a506f6c7d6 1-7
+docs/index.md
+  h_1197a506f6c7d6 9-10,12-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "d290da950a630a206fefa9c6f391537d67ea0859",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
