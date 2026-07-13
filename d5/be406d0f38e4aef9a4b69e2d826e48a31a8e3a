@@ -1,0 +1,14 @@
+docs/compatibility-verification/success/gradle-verify-plugin-success-v2.3.1-2026.1.2.md
+  h_1197a506f6c7d6 1-339
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "d5be406d0f38e4aef9a4b69e2d826e48a31a8e3a",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
