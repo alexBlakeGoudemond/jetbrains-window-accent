@@ -1,10 +1,11 @@
 # IntelliJ Platform Plugin Window Accent
 
-[![Build](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/build.yml/badge.svg)](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/build.yml)
-[![Docs](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/docs.yml/badge.svg)](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/docs.yml)
 [![Marketplace](https://img.shields.io/jetbrains/plugin/v/31895-window-accent?logo=jetbrains)](https://plugins.jetbrains.com/plugin/31895-window-accent)
 [![License](https://img.shields.io/github/license/alexBlakeGoudemond/jetbrains-window-accent)](LICENSE)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/31895-window-accent?logo=jetbrains)](https://plugins.jetbrains.com/plugin/31895-window-accent)
+
+[![Docs](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/docs.yml/badge.svg)](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/docs.yml)
+[![Documentation](https://img.shields.io/badge/docs-online-blue)](https://alexBlakeGoudemond.github.io/jetbrains-window-accent/)
 
 
 ## Window Accent
