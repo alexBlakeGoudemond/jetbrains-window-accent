@@ -1,0 +1,25 @@
+docs/secrets/window-accent-game.html
+  h_1197a506f6c7d6 58,61-70
+  s_fe834b7a9c4053::t_a9a4629c384756 60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.13",
+  "base_commit_sha": "ec8010172738ba6c9d221d251e09ec4d16bd849d",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_fe834b7a9c4053": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1783955309017",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
