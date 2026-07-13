@@ -4,6 +4,10 @@
 
 ## [2.4.1]
 
+### Fixed
+
+- Try to unload stripeTitleProvider in all known ways to prevent update restart bug
+
 ## [2.4.0]
 
 ### Added
