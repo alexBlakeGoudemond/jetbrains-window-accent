@@ -174,14 +174,13 @@ class WindowAccentApplicationService : Disposable {
             ProjectManager.getInstance().openProjects.forEach { project ->
                 try {
                     val twm = ToolWindowManager.getInstance(project)
+                    val toolWindow = twm.getToolWindow(toolWindowId)
+                    if (toolWindow != null && clearStripeTitleProviderReflectively(toolWindow)) {
+                        LOG.info("Cleared stripeTitleProvider on tool window '$toolWindowId' for project '${project.name}' via reflection")
+                    } else {
+                        LOG.warn("Reflective clear of stripeTitleProvider failed or tool window not found for '$toolWindowId'")
+                    }
 
-//                    val toolWindow = twm.getToolWindow(toolWindowId) ?: return@forEach
-//                    if (clearStripeTitleProviderReflectively(toolWindow)) {
-//                        LOG.info("Cleared stripeTitleProvider on tool window '$toolWindowId' for project '${project.name}' via reflection")
-//                    }
-
-                    // Field not found / shape changed on this IDE version — fall back to the
-                    // known-working (if deprecated) full unregister to guarantee correctness.
                     @Suppress("DEPRECATION")
                     twm.unregisterToolWindow(toolWindowId)
                     LOG.info("Reflective clear unavailable — unregistered tool window '$toolWindowId' for project '${project.name}' (fallback)")
