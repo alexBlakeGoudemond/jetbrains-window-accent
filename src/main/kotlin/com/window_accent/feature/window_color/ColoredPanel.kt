@@ -2,6 +2,7 @@ package com.window_accent.feature.window_color
 
 import com.window_accent.diagnostic.windowAccentLogger
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService
+import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService.GradientAnchor.BOTH_ENDS
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService.GradientAnchor.START
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService.GradientAnchor.END
 import com.window_accent.configuration.persistence.WindowPanelAppearanceStateService.GradientAnchor.MIDDLE
@@ -74,10 +75,20 @@ class ColoredPanel(
         val solidColor = Color(panelColor.red, panelColor.green, panelColor.blue, 255)
         val transparentColor = backgroundColor
         val (fractions, colors) = when (gradientAnchor) {
-            START -> floatArrayOf(0f, 1f) to arrayOf(solidColor, transparentColor)
-            END -> floatArrayOf(0f, 1f) to arrayOf(transparentColor, solidColor)
-            MIDDLE -> floatArrayOf(0f, 0.5f, 1f) to arrayOf(transparentColor, solidColor, transparentColor)
-            OFF -> floatArrayOf(0f, 1f) to arrayOf(solidColor, solidColor)
+            START -> floatArrayOf(0f, 1f) to
+                    arrayOf(transparentColor, solidColor)
+
+            END -> floatArrayOf(0f, 1f) to
+                    arrayOf(solidColor, transparentColor)
+
+            BOTH_ENDS -> floatArrayOf(0f, 0.35f, 0.65f, 1f) to
+                    arrayOf(transparentColor, solidColor, solidColor, transparentColor)
+
+            MIDDLE -> floatArrayOf(0f, 0.35f, 0.65f, 1f) to
+                    arrayOf(solidColor, transparentColor, transparentColor, solidColor)
+
+            OFF -> floatArrayOf(0f, 1f) to
+                    arrayOf(solidColor, solidColor)
         }
         val isHorizontal = side == NORTH || side == SOUTH
         val gradient = if (isHorizontal) {

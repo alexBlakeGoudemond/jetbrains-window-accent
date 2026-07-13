@@ -46,12 +46,14 @@ class WindowPanelAppearanceStateService : PersistentStateComponent<WindowPanelAp
      *   This matches the plugin's original, pre-toggle gradient behavior and is the default.
      * - [END]: solid color at the axis end (right/bottom), fading out towards the axis start.
      * - [MIDDLE]: solid color at the center, fading out towards both edges.
+     * - [BOTH_ENDS]: solid colors at both ends, fading out towards the center.
      * - [OFF]: no gradient fade — the panel is a single flat color.
      */
     enum class GradientAnchor {
         START,
         END,
         MIDDLE,
+        BOTH_ENDS,
         OFF
     }
 

@@ -49,6 +49,7 @@ class WindowPanelAppearanceStateServiceTest {
             return Stream.of(
                 Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.START),
                 Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.END),
+                Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.BOTH_ENDS),
                 Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.MIDDLE),
                 Arguments.of(WindowPanelAppearanceStateService.GradientAnchor.OFF)
             )

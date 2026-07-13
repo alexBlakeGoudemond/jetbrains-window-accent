@@ -881,8 +881,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
      * Ordered cycle of [WindowPanelAppearanceStateService.GradientAnchor] values for [side]'s
      * axis, matching the labels shown to the user:
      *
-     * - NORTH/SOUTH (horizontal axis): RHS → LHS → Middle → Off
-     * - WEST/EAST (vertical axis): UP → DOWN → Middle → Off
+     * - NORTH/SOUTH (horizontal axis): RHS → LHS → Both Ends -> Middle → Off
+     * - WEST/EAST (vertical axis): UP → DOWN → Both Ends -> Middle → Off
      */
     private fun gradientAnchorCycleOrder(side: Side): List<WindowPanelAppearanceStateService.GradientAnchor> =
         when (side) {
@@ -890,12 +890,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 WindowPanelAppearanceStateService.GradientAnchor.END,   // RHS
                 WindowPanelAppearanceStateService.GradientAnchor.START, // LHS
                 WindowPanelAppearanceStateService.GradientAnchor.MIDDLE,
+                WindowPanelAppearanceStateService.GradientAnchor.BOTH_ENDS,
                 WindowPanelAppearanceStateService.GradientAnchor.OFF
             )
             Side.WEST, Side.EAST -> listOf(
                 WindowPanelAppearanceStateService.GradientAnchor.START, // UP
                 WindowPanelAppearanceStateService.GradientAnchor.END,   // DOWN
                 WindowPanelAppearanceStateService.GradientAnchor.MIDDLE,
+                WindowPanelAppearanceStateService.GradientAnchor.BOTH_ENDS,
                 WindowPanelAppearanceStateService.GradientAnchor.OFF
             )
         }
@@ -908,10 +910,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         anchor: WindowPanelAppearanceStateService.GradientAnchor
     ): String = when (anchor) {
         WindowPanelAppearanceStateService.GradientAnchor.MIDDLE -> "Middle"
+        WindowPanelAppearanceStateService.GradientAnchor.BOTH_ENDS -> "Both Ends"
         WindowPanelAppearanceStateService.GradientAnchor.OFF -> "Off"
-        WindowPanelAppearanceStateService.GradientAnchor.START ->
-            if (side == Side.NORTH || side == Side.SOUTH) "RHS" else "DOWN"
         WindowPanelAppearanceStateService.GradientAnchor.END ->
+            if (side == Side.NORTH || side == Side.SOUTH) "RHS" else "DOWN"
+        WindowPanelAppearanceStateService.GradientAnchor.START ->
             if (side == Side.NORTH || side == Side.SOUTH) "LHS" else "UP"
     }
 
