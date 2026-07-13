@@ -4,6 +4,11 @@
 
 ## [2.4.0]
 
+### Added
+
+- Documentation is now live
+- Add a Gradient option: BOTH_ENDS vs MIDDLE
+
 ## [2.3.1]
 
 ### Fixed
