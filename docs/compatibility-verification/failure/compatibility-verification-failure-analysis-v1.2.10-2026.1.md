@@ -4,7 +4,7 @@
 
 This exception was surfaced during compatibility verification of v1.2.10 against IU-261.22158.277
 (IntelliJ IDEA 2026.1). It is **identical in nature** to Exception 002 documented in
-[`compatibility-verification-failure-analysis-1.2.5-eap-2026.2.md`](compatibility-verification-failure-analysis-1.2.5-eap-2026.2.md).
+[`compatibility-verification-failure-analysis-1.2.5-eap-2026.2.md`](compatibility-verification-failure-analysis-v1.2.5-2026.2-eap.md).
 
 No plugin code appears in the stack trace. This is a latent threading bug in the IntelliJ Platform's
 `DaemonFusReporter` that is exposed whenever any write action is initiated on a coroutine background

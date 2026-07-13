@@ -1,3 +1,5 @@
+Command used to generate the results: `./gradlew verifyPlugin --rerun-tasks --info`
+
 ```markdown
 $  ./gradlew verifyPlugin --rerun-tasks --info
 Initialized native services in: C:\Users\alexander.goudemond\.gradle\native
