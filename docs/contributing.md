@@ -51,6 +51,8 @@ git clone https://github.com/alexBlakeGoudemond/jetbrains-window-accent.git
 
 ## Key Contributors
 
-The following gave good feedback and helped shape the project:
+The following gave lots of feedback and helped shape the project:
+
 - [Francois Vermaak](https://github.com/fverco)
+
 - [Emily Blake-Goudemond](https://www.linkedin.com/in/emily-blake-goudemond-732641176/)
