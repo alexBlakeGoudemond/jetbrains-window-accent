@@ -68,8 +68,8 @@ intellijPlatform {
     pluginVerification {
         // Suppress known platform threading bugs that appear in the verifier report but have no
         // plugin code in their stack trace. See plugin-verifier-ignored-problems.txt for details.
-        freeArgs.add("--ignored-problems")
-        freeArgs.add(layout.projectDirectory.file("plugin-verifier-ignored-problems.txt").asFile.absolutePath)
+        ignoredProblemsFile = layout.projectDirectory.file("plugin-verifier-ignored-problems.txt")
+
         ides {
             // See https://www.jetbrains.com/idea/download/other/ for other versions
             create("IU", "2026.1.2")

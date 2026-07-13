@@ -1,5 +1,26 @@
 # IntelliJ Plugin Verifier — ignored problems
 #
+# The Plugin Verifier CLI scans your plugin's bytecode against a target IDE build and flags
+# anything that looks like a compatibility problem — missing classes, removed/changed methods,
+# illegal API access, threading violations, etc. Most of these are real issues in your plugin
+# code that you should fix.
+#
+# But sometimes the verifier flags something that isn't this project's fault at all —
+# a bug or quirk in the platform itself that shows up regardless of what the plugin does.
+#
+# This file documents exactly this case:
+# DaemonFusReporter (an internal IntelliJ platform class) accesses
+# `CodeInsightContextManagerImpl.getPreferredContext` without holding a read lock, and
+# the stack trace shows no plugin code involved — it's the platform tripping over
+# its own threading rules.
+# Since we can't fix code written outside this plugin, and it's a false
+# positive with respect to this plugin's compatibility, we list a regex pattern matching
+# that problem's description so the verifier skips reporting it (and doesn't fail your build over it),
+# while everything else still gets fully checked.
+#
+# It's essentially an allowlist of "known, platform-side noise" so the verifyPlugin
+# task stays meaningful — failing only on problems that are actually within your control to fix.
+#
 # Each non-comment line is a Java regex pattern matched against the full problem description
 # produced by the plugin verifier. Lines starting with # are comments.
 #
