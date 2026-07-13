@@ -1,5 +1,12 @@
 # IntelliJ Platform Plugin Window Accent
 
+[![Build](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/build.yml/badge.svg)](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/build.yml)
+[![Docs](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/docs.yml/badge.svg)](https://github.com/alexBlakeGoudemond/jetbrains-window-accent/actions/workflows/docs.yml)
+[![Marketplace](https://img.shields.io/jetbrains/plugin/v/31895-window-accent?logo=jetbrains)](https://plugins.jetbrains.com/plugin/31895-window-accent)
+[![License](https://img.shields.io/github/license/alexBlakeGoudemond/jetbrains-window-accent)](LICENSE)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/31895-window-accent?logo=jetbrains)](https://plugins.jetbrains.com/plugin/31895-window-accent)
+
+
 ## Window Accent
 
 **Window Accent** helps you distinguish multiple JetBrains IDE windows with visual cues, a dedicated tool window, and
