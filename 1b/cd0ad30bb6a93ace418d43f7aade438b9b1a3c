@@ -1,0 +1,14 @@
+requirements.txt
+  h_1197a506f6c7d6 2-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "1bcd0ad30bb6a93ace418d43f7aade438b9b1a3c",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
