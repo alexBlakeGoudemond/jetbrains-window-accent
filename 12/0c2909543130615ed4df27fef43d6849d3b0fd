@@ -1,0 +1,14 @@
+docs/contributing.md
+  h_1197a506f6c7d6 54-55,57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "120c2909543130615ed4df27fef43d6849d3b0fd",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
