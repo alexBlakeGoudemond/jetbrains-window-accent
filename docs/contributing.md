@@ -47,6 +47,13 @@ Please describe:
 git clone https://github.com/alexBlakeGoudemond/jetbrains-window-accent.git
 ```
 
+---
+
+> **HELLO THERE** 🧔
+> 
+> Most people do not read documentation – and yet... here you are ... 😏
+> You have found my [Easter Egg](secrets/window-accent-game.html)
+
 --- 
 
 ## Key Contributors
