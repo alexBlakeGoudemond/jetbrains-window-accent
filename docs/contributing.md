@@ -60,6 +60,7 @@ git clone https://github.com/alexBlakeGoudemond/jetbrains-window-accent.git
 
 The following gave lots of feedback and helped shape the project:
 
+- [Emily Blake-Goudemond](https://www.linkedin.com/in/emily-blake-goudemond-732641176/)
+- [Altaaz Ghoor](https://www.linkedin.com/in/altaazghoor/)
 - [Francois Vermaak](https://github.com/fverco)
 
-- [Emily Blake-Goudemond](https://www.linkedin.com/in/emily-blake-goudemond-732641176/)
