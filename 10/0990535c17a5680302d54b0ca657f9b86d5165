@@ -1,0 +1,14 @@
+docs/secrets/window-accent-game.html
+  h_1197a506f6c7d6 59-64,66-112,129-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "100990535c17a5680302d54b0ca657f9b86d5165",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
