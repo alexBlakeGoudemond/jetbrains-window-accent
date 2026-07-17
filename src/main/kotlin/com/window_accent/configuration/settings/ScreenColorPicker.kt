@@ -141,33 +141,70 @@ fun takeScreenshot(captureRect: Rectangle): BufferedImage {
             return robot.createScreenCapture(captureRect)
         }
 
-        val boundsByScreen = screenDevices
+        val capturePieces = screenDevices
             .map { it.defaultConfiguration.bounds }
-            .filter { it.intersects(captureRect) }
-            .sortedBy { it.x }
-
-        val minY = boundsByScreen.minOfOrNull { it.y } ?: captureRect.y
-        val totalWidth = boundsByScreen.sumOf { it.width }.coerceAtLeast(captureRect.width)
-        val totalHeight = boundsByScreen.maxOfOrNull { it.y - minY + it.height }?.coerceAtLeast(captureRect.height) ?: captureRect.height
-        val screenshot = BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB)
-        val graphics = screenshot.createGraphics()
-        try {
-            var currentX = 0
-            for (screenBounds in boundsByScreen) {
+            .mapNotNull { screenBounds ->
                 val clippedBounds = screenBounds.intersection(captureRect)
-                if (clippedBounds.isEmpty) continue
-
-                val screenCapture = robot.createScreenCapture(clippedBounds)
-                graphics.drawImage(screenCapture, currentX, clippedBounds.y - minY, null)
-                currentX += clippedBounds.width
+                if (clippedBounds.isEmpty) return@mapNotNull null
+                ScreenCapturePiece(clippedBounds, robot.createScreenCapture(clippedBounds))
             }
-        } finally {
-            graphics.dispose()
-        }
-        return screenshot
+
+        return composeScreenCaptureAtlas(capturePieces, captureRect)
     } catch (e: Exception) {
         throw RuntimeException("Failed to capture screenshot: ${e.message}", e)
     }
+}
+
+internal data class ScreenCapturePiece(
+    val bounds: Rectangle,
+    val image: BufferedImage
+)
+
+internal fun composeScreenCaptureAtlas(
+    pieces: List<ScreenCapturePiece>,
+    captureRect: Rectangle
+): BufferedImage {
+    if (pieces.isEmpty()) {
+        return BufferedImage(captureRect.width, captureRect.height, BufferedImage.TYPE_INT_RGB)
+    }
+
+    val packVertically = captureRect.height > captureRect.width
+    val orderedPieces = if (packVertically) {
+        pieces.sortedBy { it.bounds.y }
+    } else {
+        pieces.sortedBy { it.bounds.x }
+    }
+
+    val atlasWidth = if (packVertically) {
+        orderedPieces.maxOf { it.image.width }
+    } else {
+        orderedPieces.sumOf { it.image.width }
+    }.coerceAtLeast(1)
+    val atlasHeight = if (packVertically) {
+        orderedPieces.sumOf { it.image.height }
+    } else {
+        orderedPieces.maxOf { it.image.height }
+    }.coerceAtLeast(1)
+
+    val atlas = BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_INT_RGB)
+    val graphics = atlas.createGraphics()
+    try {
+        var offsetX = 0
+        var offsetY = 0
+        orderedPieces.forEach { piece ->
+            val drawX = if (packVertically) (atlasWidth - piece.image.width) / 2 else offsetX
+            val drawY = if (packVertically) offsetY else (atlasHeight - piece.image.height) / 2
+            graphics.drawImage(piece.image, drawX, drawY, null)
+            if (packVertically) {
+                offsetY += piece.image.height
+            } else {
+                offsetX += piece.image.width
+            }
+        }
+    } finally {
+        graphics.dispose()
+    }
+    return atlas
 }
 
 private fun setupColorPickerUI(

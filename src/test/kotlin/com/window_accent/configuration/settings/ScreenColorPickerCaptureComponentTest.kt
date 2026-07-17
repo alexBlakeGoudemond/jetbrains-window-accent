@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
+import java.awt.Color
 import java.awt.Rectangle
 import java.awt.Robot
 import java.awt.image.BufferedImage
@@ -76,4 +77,55 @@ class ScreenColorPickerCaptureComponentTest : BaseScreenColorPickerTest() {
         }
     }
 
+    @Test
+    @DisplayName("composeScreenCaptureAtlas should pack screens horizontally when wider than tall")
+    fun testComposeScreenCaptureAtlasHorizontal() {
+        val left = solidImage(10, 20, Color.RED)
+        val right = solidImage(15, 30, Color.BLUE)
+
+        val atlas = composeScreenCaptureAtlas(
+            listOf(
+                ScreenCapturePiece(Rectangle(0, 0, 10, 20), left),
+                ScreenCapturePiece(Rectangle(10, 0, 15, 30), right)
+            ),
+            Rectangle(0, 0, 100, 40)
+        )
+
+        assertEquals(25, atlas.width)
+        assertEquals(30, atlas.height)
+        assertEquals(Color.RED.rgb, atlas.getRGB(0, 5))
+        assertEquals(Color.BLUE.rgb, atlas.getRGB(24, 5))
+    }
+
+    @Test
+    @DisplayName("composeScreenCaptureAtlas should pack screens vertically when taller than wide")
+    fun testComposeScreenCaptureAtlasVertical() {
+        val top = solidImage(20, 10, Color.GREEN)
+        val bottom = solidImage(30, 15, Color.MAGENTA)
+
+        val atlas = composeScreenCaptureAtlas(
+            listOf(
+                ScreenCapturePiece(Rectangle(0, 0, 20, 10), top),
+                ScreenCapturePiece(Rectangle(0, 10, 30, 15), bottom)
+            ),
+            Rectangle(0, 0, 40, 100)
+        )
+
+        assertEquals(30, atlas.width)
+        assertEquals(25, atlas.height)
+        assertEquals(Color.GREEN.rgb, atlas.getRGB(5, 0))
+        assertEquals(Color.MAGENTA.rgb, atlas.getRGB(5, 24))
+    }
+
 }
+
+private fun solidImage(width: Int, height: Int, color: Color): BufferedImage =
+    BufferedImage(width, height, BufferedImage.TYPE_INT_RGB).apply {
+        val graphics = createGraphics()
+        try {
+            graphics.color = color
+            graphics.fillRect(0, 0, width, height)
+        } finally {
+            graphics.dispose()
+        }
+    }
