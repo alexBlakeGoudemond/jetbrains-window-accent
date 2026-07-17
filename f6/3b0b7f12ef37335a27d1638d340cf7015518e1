@@ -1,0 +1,32 @@
+src/main/kotlin/com/window_accent/feature/window_title/TitleTextStyler.kt
+  s_e5e16b25646938::t_1aa138657ef76c 5,13-17,22-24,49
+  s_e5e16b25646938::t_ec26731b236e9f 50-52
+  s_e5e16b25646938::t_bf72c2cffd307d 53-57,65-71,109-132
+src/main/kotlin/com/window_accent/feature/window_title/WindowTitleApplier.kt
+  s_e5e16b25646938::t_a05396033fa881 355-357,399
+src/test/kotlin/com/window_accent/feature/window_title/TitleTextStylerTest.kt
+  s_e5e16b25646938::t_65a95fac4f575b 204-250
+src/test/kotlin/com/window_accent/feature/window_title/WindowTitleApplierTest.kt
+  s_e5e16b25646938::t_ee53070ae9168d 247-264
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "f63b0b7f12ef37335a27d1638d340cf7015518e1",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_e5e16b25646938": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "8853204a-0cfe-4dcc-863a-89e0e9278957",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
