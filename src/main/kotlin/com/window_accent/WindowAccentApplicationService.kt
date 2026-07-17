@@ -313,6 +313,7 @@ class WindowAccentApplicationService : Disposable {
                 WindowCustomColorStateService::class.java,
                 WindowTitleNumberingStateService::class.java,
                 WindowCustomTitleStateService::class.java,
+                LastOpenedWindowTitleStateService::class.java,
                 GlobalCustomTitleStateService::class.java,
                 GlobalPanelBackgroundColorStateService::class.java,
                 // Nested State data classes — the types actually introspected by BeanBinding
@@ -320,6 +321,7 @@ class WindowAccentApplicationService : Disposable {
                 WindowCustomColorStateService.State::class.java,
                 WindowTitleNumberingStateService.State::class.java,
                 WindowCustomTitleStateService.State::class.java,
+                LastOpenedWindowTitleStateService.State::class.java,
                 GlobalCustomTitleStateService.State::class.java,
                 GlobalPanelBackgroundColorStateService.State::class.java,
                 // Nested enums — may be introspected when serializing their respective properties
