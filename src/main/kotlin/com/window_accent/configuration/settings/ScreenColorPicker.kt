@@ -22,7 +22,7 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 
 
     fun pickColor(owner: Window, screenshot: BufferedImage, captureArea: Rectangle) {
-        mousePoint = Point(captureArea.width / 2, captureArea.height / 2)
+        mousePoint = Point(screenshot.width / 2, screenshot.height / 2)
         displayX = mousePoint.x.toDouble()
         displayY = mousePoint.y.toDouble()
 
@@ -33,6 +33,7 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
         overlay = createOverlay(owner, captureArea)
         colorSelectionHandler = createColorSelectionHandler(screenshot, overlay)
         overlay.contentPane = magnifierCanvas
+        overlay.setBounds(captureArea.x, captureArea.y, screenshot.width, screenshot.height)
         overlay.isVisible = true
 
         magnifierCanvas.addMouseMotionListener(createMouseMotionHandler(captureArea, screenshot))

@@ -27,6 +27,12 @@ internal fun createMagnifierCanvasWithCaptureArea(
     mousePointProvider: () -> Point
 ) = object : JComponent() {
 
+    init {
+        preferredSize = Dimension(screenshot.width, screenshot.height)
+        minimumSize = preferredSize
+        isDoubleBuffered = true
+    }
+
     val zoomRadius = 12
     val loupeSize = 180
     val loupeMargin = 24
@@ -48,7 +54,7 @@ internal fun createMagnifierCanvasWithCaptureArea(
         val graphics = g as Graphics2D
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        graphics.drawImage(screenshot, 0, 0, width, height, null)
+        graphics.drawImage(screenshot, 0, 0, null)
 
         graphics.color = Color(0, 0, 0, 60)
         graphics.fillRect(0, 0, width, height)
