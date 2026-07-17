@@ -1,0 +1,31 @@
+src/main/kotlin/com/window_accent/feature/window_title/TitleTextStyler.kt
+  s_e5e16b25646938::t_65ab654967d9dc 5,17
+  s_e5e16b25646938::t_f1c5af230cd77c 59-67,121-137
+src/main/kotlin/com/window_accent/feature/window_title/WindowTitleApplier.kt
+  s_e5e16b25646938::t_0a6847029f9b27 356,399
+src/test/kotlin/com/window_accent/feature/window_title/TitleTextStylerTest.kt
+  s_e5e16b25646938::t_17e882b54c3730 204-244
+src/test/kotlin/com/window_accent/feature/window_title/WindowTitleApplierTest.kt
+  s_e5e16b25646938::t_9a4cfd5769d6e5 248-249,251
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "946e026b679c34ef84e19804a763d65e8c63fdc2",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_e5e16b25646938": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "8853204a-0cfe-4dcc-863a-89e0e9278957",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
