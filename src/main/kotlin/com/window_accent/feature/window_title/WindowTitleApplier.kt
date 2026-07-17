@@ -352,9 +352,9 @@ class WindowTitleApplier {
      * The last-opened-window part appears first (far left), then the global part, then the
      * per-window part. The global title text is styled **bold** and the entire per-window
      * bracket content (number, separator, and custom title) is styled *italic* using Unicode
-     * Mathematical Alphanumeric Symbols. The last-opened-window label is left unstyled — its
-     * leading position already makes it visually distinct. Digits have no italic Unicode
-     * counterpart so they pass through unchanged.
+     * Mathematical Alphanumeric Symbols. The last-opened-window label is styled in
+     * double-struck text so it stands out as a transient focus indicator. Digits have no italic
+     * Unicode counterpart so they pass through unchanged.
      *
      * | Last-opened | Numbering | Per-window | Global | Result                                          |
      * |-------------|-----------|------------|--------|--------------------------------------------------|
@@ -396,7 +396,7 @@ class WindowTitleApplier {
         // is clear and the approach is future-proof should Unicode add italic digits.
         val styledGlobalTitle = TitleTextStyler.toBold(globalCustomTitle)
 
-        val lastOpenedPart = if (hasLastOpenedTitle) "[$lastOpenedWindowTitle]" else ""
+        val lastOpenedPart = if (hasLastOpenedTitle) "[${TitleTextStyler.toDoubleStruck(lastOpenedWindowTitle)}]" else ""
 
         val perWindowPart = when {
             numberingEnabled && hasCustomTitle -> "[${TitleTextStyler.toItalic("$number - $customTitle")}]"

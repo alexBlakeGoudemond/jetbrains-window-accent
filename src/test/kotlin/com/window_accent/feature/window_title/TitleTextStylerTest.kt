@@ -200,5 +200,51 @@ class TitleTextStylerTest {
         val party = cp(0x1F389)   // 🎉
         assertEquals("$rocket$party", TitleTextStyler.toItalic("$rocket$party"))
     }
-}
 
+    // -------------------------------------------------------------------------
+    // toDoubleStruck — letters, digits, passthrough
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("toDoubleStruck - lowercase letters map to Mathematical Double-Struck small letters")
+    fun testToDoubleStruckLowercaseLetters() {
+        assertEquals(cp(0x1D552), TitleTextStyler.toDoubleStruck("a"))
+        assertEquals(cp(0x1D56B), TitleTextStyler.toDoubleStruck("z"))
+    }
+
+    @Test
+    @DisplayName("toDoubleStruck - uppercase letters map correctly including legacy Unicode symbols")
+    fun testToDoubleStruckUppercaseLetters() {
+        assertEquals(cp(0x1D538), TitleTextStyler.toDoubleStruck("A"))
+        assertEquals("\u2102", TitleTextStyler.toDoubleStruck("C")) // ℂ
+        assertEquals("\u210D", TitleTextStyler.toDoubleStruck("H")) // ℍ
+        assertEquals("\u2115", TitleTextStyler.toDoubleStruck("N")) // ℕ
+        assertEquals("\u2119", TitleTextStyler.toDoubleStruck("P")) // ℙ
+        assertEquals("\u211A", TitleTextStyler.toDoubleStruck("Q")) // ℚ
+        assertEquals("\u211D", TitleTextStyler.toDoubleStruck("R")) // ℝ
+        assertEquals("\u2124", TitleTextStyler.toDoubleStruck("Z")) // ℤ
+    }
+
+    @Test
+    @DisplayName("toDoubleStruck - digits map to Mathematical Double-Struck digits")
+    fun testToDoubleStruckDigits() {
+        assertEquals(cp(0x1D7D8), TitleTextStyler.toDoubleStruck("0"))
+        assertEquals(cp(0x1D7E1), TitleTextStyler.toDoubleStruck("9"))
+    }
+
+    @Test
+    @DisplayName("toDoubleStruck - non-alphanumeric characters are passed through unchanged")
+    fun testToDoubleStruckPassthroughChars() {
+        assertEquals("-", TitleTextStyler.toDoubleStruck("-"))
+        assertEquals(" ", TitleTextStyler.toDoubleStruck(" "))
+        assertEquals("!", TitleTextStyler.toDoubleStruck("!"))
+    }
+
+    @Test
+    @DisplayName("toDoubleStruck - mixed content transforms letters and digits only")
+    fun testToDoubleStruckMixedContent() {
+        val result = TitleTextStyler.toDoubleStruck("NEW-42")
+        val expected = "\u2115" + cp(0x1D53C) + cp(0x1D54E) + "-" + cp(0x1D7DC) + cp(0x1D7DA)
+        assertEquals(expected, result)
+    }
+}
