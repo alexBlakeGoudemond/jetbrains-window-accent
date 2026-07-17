@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.Alarm
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
+import com.window_accent.configuration.persistence.LastOpenedWindowTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import java.awt.Frame
@@ -54,6 +55,15 @@ class WindowTitleApplier {
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
 
     /**
+     * The project whose window was most recently opened, i.e. the project that should
+     * currently display the "last opened window" label from [LastOpenedWindowTitleStateService].
+     *
+     * Updated only from the EDT (every call site already runs inside [runOnEdt]), so a
+     * plain `var` is sufficient — no additional synchronization is needed.
+     */
+    private var lastOpenedProject: Project? = null
+
+    /**
      * Stores (listener, frame) pairs so that cleanup can always remove each listener
      * from the exact frame it was added to, regardless of what
      * [WindowManager.getInstance().getFrame(project)] returns at cleanup time.
@@ -81,7 +91,8 @@ class WindowTitleApplier {
         val customTitleEnabled = project.getService(WindowCustomTitleStateService::class.java).isCustomTitleEnabled()
         val globalCustomTitleEnabled = ApplicationManager.getApplication()
             ?.getService(GlobalCustomTitleStateService::class.java)?.isGlobalCustomTitleEnabled() ?: false
-        val shouldApply = numberingEnabled || customTitleEnabled || globalCustomTitleEnabled
+        val lastOpenedTitleEnabled = getLastOpenedWindowTitleService().isFocussedWindowTitleEnabled()
+        val shouldApply = numberingEnabled || customTitleEnabled || globalCustomTitleEnabled || lastOpenedTitleEnabled
         runOnEdt {
             if (shouldApply) {
                 applyTitleToWindow(project)
@@ -166,8 +177,32 @@ class WindowTitleApplier {
     }
 
     private fun applyTitleToWindow(project: Project) {
+        // A project is "new" the first time its title is ever applied — projectNumbers
+        // hasn't assigned it a number yet. This is the same signal already used to hand
+        // out sequential numbering, so it's a natural point to also move the "last opened
+        // window" label. Must be checked BEFORE getWindowProjectNumber, which is the call
+        // that actually inserts the project into projectNumbers.
+        val isNewWindow = !projectNumbers.containsKey(project)
         val number = getWindowProjectNumber(project)
+        if (isNewWindow) {
+            markAsLastOpened(project)
+        }
         doApplyTitle(project, number, MAX_RETRIES)
+    }
+
+    /**
+     * Moves the "last opened window" label to [project], stripping it from whichever
+     * project held it previously by re-applying that project's title.
+     *
+     * If the previous holder has since closed (or was never open), re-applying is skipped
+     * since [getProjectFrame] would find no frame and only queue a wasted retry loop.
+     */
+    private fun markAsLastOpened(project: Project) {
+        val previous = lastOpenedProject
+        lastOpenedProject = project
+        if (previous != null && previous !== project && !previous.isDisposed) {
+            applyToCurrentOpenProject(previous)
+        }
     }
 
     /**
@@ -192,13 +227,16 @@ class WindowTitleApplier {
             val customTitleService = project.getService(WindowCustomTitleStateService::class.java)
             val globalCustomTitleService = ApplicationManager.getApplication()
                 .getService(GlobalCustomTitleStateService::class.java)
+            val lastOpenedTitleService = getLastOpenedWindowTitleService()
             updateWindowTitle(
                 frame, number,
                 customTitle = customTitleService.getCustomTitle(),
                 customTitleEnabled = customTitleService.isCustomTitleEnabled(),
                 numberingEnabled = numberingService.isTitleNumberingEnabled(),
                 globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
-                globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
+                globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled(),
+                lastOpenedWindowTitle = lastOpenedTitleService.getFocussedWindowTitle(),
+                isLastOpenedWindow = project === lastOpenedProject
             )
 
             // Dispose the previous Disposer holder BEFORE registering new listeners.
@@ -247,6 +285,16 @@ class WindowTitleApplier {
     private fun getProjectFrame(project: Project): Frame? =
         WindowManager.getInstance().getFrame(project)
 
+    /**
+     * Fetches the app-level [LastOpenedWindowTitleStateService], falling back to a fresh,
+     * unpersisted instance if the application service isn't available (mirrors the existing
+     * fallback pattern used for [GlobalCustomTitleStateService] elsewhere in this class).
+     */
+    private fun getLastOpenedWindowTitleService(): LastOpenedWindowTitleStateService =
+        ApplicationManager.getApplication()
+            ?.getService(LastOpenedWindowTitleStateService::class.java)
+            ?: LastOpenedWindowTitleStateService()
+
     private inline fun runOnEdt(crossinline action: () -> Unit) {
         val application = ApplicationManager.getApplication()
         if (application.isDispatchThread) {
@@ -266,11 +314,17 @@ class WindowTitleApplier {
         customTitleEnabled: Boolean = false,
         numberingEnabled: Boolean = true,
         globalCustomTitle: String = "",
-        globalCustomTitleEnabled: Boolean = false
+        globalCustomTitleEnabled: Boolean = false,
+        lastOpenedWindowTitle: String = "",
+        isLastOpenedWindow: Boolean = false
     ) {
         val currentTitle = frame.title ?: return
         val cleanedTitle = stripExistingPrefix(currentTitle)
-        val prefix = buildTitlePrefix(number, numberingEnabled, customTitle, customTitleEnabled, globalCustomTitle, globalCustomTitleEnabled)
+        val prefix = buildTitlePrefix(
+            number, numberingEnabled, customTitle, customTitleEnabled,
+            globalCustomTitle, globalCustomTitleEnabled,
+            lastOpenedWindowTitle, isLastOpenedWindow
+        )
         val updatedTitle = if (prefix.isNotEmpty()) "$prefix $cleanedTitle" else cleanedTitle
 
         if (frame.title != updatedTitle) {
@@ -280,23 +334,30 @@ class WindowTitleApplier {
 
     /**
      * Builds the window title prefix based on the current numbering, per-window custom title,
-     * and global custom title state.
+     * global custom title, and last-opened-window title state.
      *
-     * The global part appears first, followed by the per-window part. The global title text is
-     * styled **bold** and the entire per-window bracket content (number, separator, and custom
-     * title) is styled *italic* using Unicode Mathematical Alphanumeric Symbols.
-     * Digits have no italic Unicode counterpart so they pass through unchanged.
+     * The last-opened-window part appears first (far left), then the global part, then the
+     * per-window part. The global title text is styled **bold** and the entire per-window
+     * bracket content (number, separator, and custom title) is styled *italic* using Unicode
+     * Mathematical Alphanumeric Symbols. The last-opened-window label is left unstyled — its
+     * leading position already makes it visually distinct. Digits have no italic Unicode
+     * counterpart so they pass through unchanged.
      *
-     * | Numbering | Per-window | Global | Result                                |
-     * |-----------|------------|--------|---------------------------------------|
-     * | enabled   | enabled    | enabled  | `[boldGlobal][italic(n - perTitle)]`  |
-     * | enabled   | enabled    | disabled | `[italic(n - perTitle)]`              |
-     * | enabled   | disabled   | enabled  | `[boldGlobal][italic(n)]`             |
-     * | enabled   | disabled   | disabled | `[italic(n)]`                         |
-     * | disabled  | enabled    | enabled  | `[boldGlobal][italic(perTitle)]`      |
-     * | disabled  | enabled    | disabled | `[italic(perTitle)]`                  |
-     * | disabled  | disabled   | enabled  | `[boldGlobal]`                        |
-     * | disabled  | disabled   | disabled | `""` (no prefix)                      |
+     * | Last-opened | Numbering | Per-window | Global | Result                                          |
+     * |-------------|-----------|------------|--------|--------------------------------------------------|
+     * | shown       | enabled   | enabled    | enabled  | `[lastOpened][boldGlobal][italic(n - perTitle)]` |
+     * | shown       | disabled  | disabled   | disabled | `[lastOpened]`                                   |
+     * | hidden      | enabled   | enabled    | enabled  | `[boldGlobal][italic(n - perTitle)]`             |
+     * | hidden      | enabled   | enabled    | disabled | `[italic(n - perTitle)]`                         |
+     * | hidden      | enabled   | disabled   | enabled  | `[boldGlobal][italic(n)]`                        |
+     * | hidden      | enabled   | disabled   | disabled | `[italic(n)]`                                    |
+     * | hidden      | disabled  | enabled    | enabled  | `[boldGlobal][italic(perTitle)]`                 |
+     * | hidden      | disabled  | enabled    | disabled | `[italic(perTitle)]`                             |
+     * | hidden      | disabled  | disabled   | enabled  | `[boldGlobal]`                                   |
+     * | hidden      | disabled  | disabled   | disabled | `""` (no prefix)                                 |
+     *
+     * "shown" means [isLastOpenedWindow] is true and [lastOpenedWindowTitle] is non-blank;
+     * at most one open window has this segment at any time.
      */
     internal fun buildTitlePrefix(
         number: Int,
@@ -304,10 +365,13 @@ class WindowTitleApplier {
         customTitle: String,
         customTitleEnabled: Boolean,
         globalCustomTitle: String = "",
-        globalCustomTitleEnabled: Boolean = false
+        globalCustomTitleEnabled: Boolean = false,
+        lastOpenedWindowTitle: String = "",
+        isLastOpenedWindow: Boolean = false
     ): String {
         val hasCustomTitle = customTitleEnabled && customTitle.isNotBlank()
         val hasGlobalTitle = globalCustomTitleEnabled && globalCustomTitle.isNotBlank()
+        val hasLastOpenedTitle = isLastOpenedWindow && lastOpenedWindowTitle.isNotBlank()
 
         // Apply Unicode mathematical styling to the label text inside the brackets only.
         // Global title → bold; per-window content (number + separator + custom title) → italic.
@@ -319,6 +383,8 @@ class WindowTitleApplier {
         // is clear and the approach is future-proof should Unicode add italic digits.
         val styledGlobalTitle = TitleTextStyler.toBold(globalCustomTitle)
 
+        val lastOpenedPart = if (hasLastOpenedTitle) "[$lastOpenedWindowTitle]" else ""
+
         val perWindowPart = when {
             numberingEnabled && hasCustomTitle -> "[${TitleTextStyler.toItalic("$number - $customTitle")}]"
             numberingEnabled                   -> "[${TitleTextStyler.toItalic("$number")}]"
@@ -328,12 +394,7 @@ class WindowTitleApplier {
 
         val globalPart = if (hasGlobalTitle) "[$styledGlobalTitle]" else ""
 
-        return when {
-            globalPart.isNotEmpty() && perWindowPart.isNotEmpty() -> "$globalPart$perWindowPart"
-            globalPart.isNotEmpty() -> globalPart
-            perWindowPart.isNotEmpty() -> perWindowPart
-            else -> ""
-        }
+        return lastOpenedPart + globalPart + perWindowPart
     }
 
     private fun stripTitlePrefix(frame: Frame) {
@@ -368,13 +429,16 @@ class WindowTitleApplier {
                 val globalCustomTitleService = ApplicationManager.getApplication()
                     ?.getService(GlobalCustomTitleStateService::class.java)
                     ?: GlobalCustomTitleStateService()
+                val lastOpenedTitleService = getLastOpenedWindowTitleService()
                 updateWindowTitle(
                     frame, number,
                     customTitle = customTitleService.getCustomTitle(),
                     customTitleEnabled = customTitleService.isCustomTitleEnabled(),
                     numberingEnabled = numberingService.isTitleNumberingEnabled(),
                     globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
-                    globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
+                    globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled(),
+                    lastOpenedWindowTitle = lastOpenedTitleService.getFocussedWindowTitle(),
+                    isLastOpenedWindow = project === lastOpenedProject
                 )
             }
         }
@@ -390,13 +454,17 @@ class WindowTitleApplier {
                 val globalCustomTitleService = ApplicationManager.getApplication()
                     ?.getService(GlobalCustomTitleStateService::class.java)
                     ?: GlobalCustomTitleStateService()
+                val lastOpenedTitleService = getLastOpenedWindowTitleService()
+                val isLastOpened = project === lastOpenedProject
                 val expectedPrefix = buildTitlePrefix(
                     number,
                     numberingService.isTitleNumberingEnabled(),
                     customTitleService.getCustomTitle(),
                     customTitleService.isCustomTitleEnabled(),
                     globalCustomTitleService.getGlobalCustomTitle(),
-                    globalCustomTitleService.isGlobalCustomTitleEnabled()
+                    globalCustomTitleService.isGlobalCustomTitleEnabled(),
+                    lastOpenedTitleService.getFocussedWindowTitle(),
+                    isLastOpened
                 )
                 val expectedFullPrefix = if (expectedPrefix.isNotEmpty()) "$expectedPrefix " else ""
                 if (expectedFullPrefix.isEmpty() || !newTitle.startsWith(expectedFullPrefix)) {
@@ -406,7 +474,9 @@ class WindowTitleApplier {
                         customTitleEnabled = customTitleService.isCustomTitleEnabled(),
                         numberingEnabled = numberingService.isTitleNumberingEnabled(),
                         globalCustomTitle = globalCustomTitleService.getGlobalCustomTitle(),
-                        globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled()
+                        globalCustomTitleEnabled = globalCustomTitleService.isGlobalCustomTitleEnabled(),
+                        lastOpenedWindowTitle = lastOpenedTitleService.getFocussedWindowTitle(),
+                        isLastOpenedWindow = isLastOpened
                     )
                 }
             }
@@ -453,6 +523,7 @@ class WindowTitleApplier {
     fun resetProjectNumbering() {
         projectNumbers.clear()
         counter.set(1)
+        lastOpenedProject = null
     }
 
     /**
