@@ -105,6 +105,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             ConcurrentHashMap<Project, Pair<JTextField, DocumentListener>>()
 
         /**
+         * Tracks the "Custom title (all windows)" text field per open project so that
+         * edits made in one IDE window can be reflected in all other tool windows.
+         */
+        private val globalCustomTitleFieldBindings =
+            ConcurrentHashMap<Project, Pair<JTextField, DocumentListener>>()
+
+        /**
          * Tracks every [Timer] currently running a border-pulse animation.
          *
          * While a [Timer] is running, Swing's [javax.swing.TimerQueue] holds a strong reference
@@ -146,6 +153,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             stopAllAnimationTimers()
             removeAllButtonActionListeners()
             removeAllFocussedWindowTitleFieldBindings()
+            removeAllGlobalCustomTitleFieldBindings()
             removeDisposables()
         }
 
@@ -186,6 +194,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             }
         }
 
+        private fun removeAllGlobalCustomTitleFieldBindings() {
+            val snapshot = HashMap(globalCustomTitleFieldBindings)
+            globalCustomTitleFieldBindings.clear()
+            snapshot.values.forEach { (textField, listener) ->
+                textField.document.removeDocumentListener(listener)
+            }
+        }
+
         /**
          * Stops every currently-running border-pulse animation timer and clears the tracking list.
          *
@@ -211,7 +227,34 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             }
         }
 
+        private fun syncGlobalCustomTitleInAllToolWindows(newTitle: String, sourceField: JTextField) {
+            val snapshot = HashMap(globalCustomTitleFieldBindings)
+            snapshot.values.forEach { (textField, listener) ->
+                if (textField === sourceField) return@forEach
+                setGlobalCustomTitleTextSilently(textField, listener, "")
+            }
+            snapshot.values.forEach { (textField, listener) ->
+                if (textField === sourceField) return@forEach
+                setGlobalCustomTitleTextSilently(textField, listener, newTitle)
+            }
+        }
+
         private fun setFocussedWindowTitleTextSilently(
+            textField: JTextField,
+            listener: DocumentListener,
+            value: String
+        ) {
+            textField.document.removeDocumentListener(listener)
+            try {
+                if (textField.text != value) {
+                    textField.text = value
+                }
+            } finally {
+                textField.document.addDocumentListener(listener)
+            }
+        }
+
+        private fun setGlobalCustomTitleTextSilently(
             textField: JTextField,
             listener: DocumentListener,
             value: String
@@ -662,9 +705,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
+            val newGlobalCustomTitle = globalCustomTitleTextField.text.trim()
+            val previousGlobalCustomTitle = globalCustomTitleSettings.getGlobalCustomTitle()
             val newFocussedWindowTitle = focussedWindowTitleTextField.text.trim()
             val previousFocussedWindowTitle = lastOpenedWindowTitleSettings.getFocussedWindowTitle()
-            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}', lastOpenedTitle='$newFocussedWindowTitle'")
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='$newGlobalCustomTitle', lastOpenedTitle='$newFocussedWindowTitle'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             colorSettings.setPanelPadding(paddingSlider.value)
             customColorSettings.setUseCustomColor(selectedColor != null)
@@ -673,8 +718,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             bgColorSettings.setCustomBackgroundColor(selectedBgColor)
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
-            globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
+            globalCustomTitleSettings.setGlobalCustomTitle(newGlobalCustomTitle)
             lastOpenedWindowTitleSettings.setFocussedWindowTitle(newFocussedWindowTitle)
+            if (newGlobalCustomTitle != previousGlobalCustomTitle) {
+                syncGlobalCustomTitleInAllToolWindows(newGlobalCustomTitle, globalCustomTitleTextField)
+            }
             if (newFocussedWindowTitle != previousFocussedWindowTitle) {
                 syncFocussedWindowTitleInAllToolWindows(newFocussedWindowTitle, focussedWindowTitleTextField)
             }
@@ -807,11 +855,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         titleNumberingCheckBox.addActionListener(titleNumberingListener)
 
         customTitleTextField.document.addDocumentListener(customTitleListener)
-        globalCustomTitleTextField.document.addDocumentListener(object : DocumentListener {
+        val globalCustomTitleListener = object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
             override fun removeUpdate(e: DocumentEvent) = applySettings()
             override fun changedUpdate(e: DocumentEvent) = applySettings()
-        })
+        }
+        globalCustomTitleTextField.document.addDocumentListener(globalCustomTitleListener)
+        globalCustomTitleFieldBindings[project] = globalCustomTitleTextField to globalCustomTitleListener
         val focussedWindowTitleListener = object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
             override fun removeUpdate(e: DocumentEvent) = applySettings()
@@ -876,6 +926,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 button.removeActionListener(listener)
             }
             focussedWindowTitleFieldBindings.remove(project)?.let { (textField, listener) ->
+                textField.document.removeDocumentListener(listener)
+            }
+            globalCustomTitleFieldBindings.remove(project)?.let { (textField, listener) ->
                 textField.document.removeDocumentListener(listener)
             }
             // Self-remove from tracking when naturally disposed (project/tool-window close),
