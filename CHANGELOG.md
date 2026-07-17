@@ -4,6 +4,10 @@
 
 ## [2.5.3]
 
+### Fixed
+
+- The fix applied in 2.5.2 – apply it to the global title as well
+
 ## [2.5.2]
 
 ### Fixed
