@@ -98,6 +98,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             ConcurrentHashMap<Project, List<Pair<JRadioButton, ActionListener>>>()
 
         /**
+         * Tracks the "Last focussed window title" text field per open project so that
+         * edits made in one IDE window can be reflected in all other tool windows.
+         */
+        private val focussedWindowTitleFieldBindings =
+            ConcurrentHashMap<Project, Pair<JTextField, DocumentListener>>()
+
+        /**
          * Tracks every [Timer] currently running a border-pulse animation.
          *
          * While a [Timer] is running, Swing's [javax.swing.TimerQueue] holds a strong reference
@@ -138,6 +145,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         fun removeAllButtonListeners() {
             stopAllAnimationTimers()
             removeAllButtonActionListeners()
+            removeAllFocussedWindowTitleFieldBindings()
             removeDisposables()
         }
 
@@ -170,6 +178,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             }
         }
 
+        private fun removeAllFocussedWindowTitleFieldBindings() {
+            val snapshot = HashMap(focussedWindowTitleFieldBindings)
+            focussedWindowTitleFieldBindings.clear()
+            snapshot.values.forEach { (textField, listener) ->
+                textField.document.removeDocumentListener(listener)
+            }
+        }
+
         /**
          * Stops every currently-running border-pulse animation timer and clears the tracking list.
          *
@@ -181,6 +197,33 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             val snapshot = ArrayList(runningAnimationTimers)
             runningAnimationTimers.clear()
             snapshot.forEach { it.stop() }
+        }
+
+        private fun syncFocussedWindowTitleInAllToolWindows(newTitle: String, sourceField: JTextField) {
+            val snapshot = HashMap(focussedWindowTitleFieldBindings)
+            snapshot.values.forEach { (textField, listener) ->
+                if (textField === sourceField) return@forEach
+                setFocussedWindowTitleTextSilently(textField, listener, "")
+            }
+            snapshot.values.forEach { (textField, listener) ->
+                if (textField === sourceField) return@forEach
+                setFocussedWindowTitleTextSilently(textField, listener, newTitle)
+            }
+        }
+
+        private fun setFocussedWindowTitleTextSilently(
+            textField: JTextField,
+            listener: DocumentListener,
+            value: String
+        ) {
+            textField.document.removeDocumentListener(listener)
+            try {
+                if (textField.text != value) {
+                    textField.text = value
+                }
+            } finally {
+                textField.document.addDocumentListener(listener)
+            }
         }
 
         /** Duration of each step in the border pulse animation, in milliseconds. */
@@ -619,7 +662,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
-            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}', lastOpenedTitle='${focussedWindowTitleTextField.text.trim()}'")
+            val newFocussedWindowTitle = focussedWindowTitleTextField.text.trim()
+            val previousFocussedWindowTitle = lastOpenedWindowTitleSettings.getFocussedWindowTitle()
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}', lastOpenedTitle='$newFocussedWindowTitle'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             colorSettings.setPanelPadding(paddingSlider.value)
             customColorSettings.setUseCustomColor(selectedColor != null)
@@ -629,7 +674,10 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
             globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
-            lastOpenedWindowTitleSettings.setFocussedWindowTitle(focussedWindowTitleTextField.text.trim())
+            lastOpenedWindowTitleSettings.setFocussedWindowTitle(newFocussedWindowTitle)
+            if (newFocussedWindowTitle != previousFocussedWindowTitle) {
+                syncFocussedWindowTitleInAllToolWindows(newFocussedWindowTitle, focussedWindowTitleTextField)
+            }
 
             WindowColorApplier.applyToCurrentOpenProject(project)
             WindowTitleApplier.applyToCurrentOpenProject(project)
@@ -764,11 +812,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun removeUpdate(e: DocumentEvent) = applySettings()
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         })
-        focussedWindowTitleTextField.document.addDocumentListener(object : DocumentListener {
+        val focussedWindowTitleListener = object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
             override fun removeUpdate(e: DocumentEvent) = applySettings()
             override fun changedUpdate(e: DocumentEvent) = applySettings()
-        })
+        }
+        focussedWindowTitleTextField.document.addDocumentListener(focussedWindowTitleListener)
+        focussedWindowTitleFieldBindings[project] = focussedWindowTitleTextField to focussedWindowTitleListener
 
         panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
         panel.add(Box.createVerticalStrut(8))
@@ -824,6 +874,9 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             }
             allRadioButtonListeners.remove(project)?.forEach { (button, listener) ->
                 button.removeActionListener(listener)
+            }
+            focussedWindowTitleFieldBindings.remove(project)?.let { (textField, listener) ->
+                textField.document.removeDocumentListener(listener)
             }
             // Self-remove from tracking when naturally disposed (project/tool-window close),
             // so removeAllButtonListeners() does not try to dispose an already-disposed entry.

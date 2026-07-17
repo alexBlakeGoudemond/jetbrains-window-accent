@@ -2,12 +2,18 @@
 
 ## [Unreleased]
 
+## [2.5.2]
+
+### Fixed
+
+- updating “Last focussed window title” in one IDE window copies to all other IDE windows
+
 ## [2.5.1]
 
 ### Fixed
 
 - Resolved bug: updating forces restart
-  - Added LastOpenedWindowTitleStateService to flush list in WindowAccentApplicationService
+    - Added LastOpenedWindowTitleStateService to flush list in WindowAccentApplicationService
 
 ## [2.5.0]
 
@@ -846,7 +852,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.5.1...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.5.2...HEAD
+[2.5.2]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.4.1...2.5.0
 [2.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.4.0...2.4.1
