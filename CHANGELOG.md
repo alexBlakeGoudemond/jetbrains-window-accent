@@ -4,6 +4,11 @@
 
 ## [2.5.1]
 
+### Fixed
+
+- Resolved bug: updating forces restart
+  - Added LastOpenedWindowTitleStateService to flush list in WindowAccentApplicationService
+
 ## [2.5.0]
 
 ### Added
