@@ -16,8 +16,19 @@ fun createMagnifierCanvas(
     val loupeSize = 180
     val loupeMargin = 24
 
+    // The lens panel is painted outside the [0, loupeSize] box used for placement math:
+    // the background glow starts 10px above/left of the lens (setupMagnifyingLens) and the
+    // "Click to select..." caption extends up to 42px below it (setupColorSelectionPreview).
+    // These constants describe that real drawn footprint so the placement clamps below
+    // can keep the *entire* panel on-screen, not just the lens square itself.
+    private val panelLeftTopExtra = 10
+    private val panelRightExtra = 10
+    private val panelBottomExtra = 42
+
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
+        if (width <= 0 || height <= 0) return // not yet laid out; nothing sane to paint
+
         val graphics = g as Graphics2D
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
@@ -25,17 +36,34 @@ fun createMagnifierCanvas(
 
         graphics.color = Color(0, 0, 0, 60)
         graphics.fillRect(0, 0, width, height)
-
+        // TODO Blake-Goudemond 20260717 | First pass of magnifying bugfix with second screen RHS - not yet working
         val (displayX, displayY) = displayMousePoint()
-        val mouseX = displayX.roundToInt().coerceIn(0, screenshot.width - 1)
-        val mouseY = displayY.roundToInt().coerceIn(0, screenshot.height - 1)
+
+        // Coordinates for PLACING the loupe panel must be in this component's own
+        // coordinate space (`width`/`height`), since that's the space the panel is
+        // actually painted and clipped in.
+        val mouseX = displayX.roundToInt().coerceIn(0, width - 1)
+        val mouseY = displayY.roundToInt().coerceIn(0, height - 1)
+
+        // Coordinates for SAMPLING the hovered color/zoom source must be in the
+        // screenshot's own pixel space. `screenshot` is not guaranteed to be the same
+        // pixel size as this component (e.g. a Robot capture taken at a different
+        // per-monitor DPI scale than the overlay is rendered at), so mouseX/mouseY are
+        // rescaled here rather than reused directly. Reusing the canvas-space mouseX/Y
+        // to index into `screenshot` (as before) is exactly what let the panel's placement
+        // math see an out-of-range coordinate and place the loupe outside the visible
+        // canvas on multi-monitor setups with mismatched scaling.
+        val scaleX = if (width > 0) screenshot.width.toDouble() / width else 1.0
+        val scaleY = if (height > 0) screenshot.height.toDouble() / height else 1.0
+        val sampleX = (mouseX * scaleX).roundToInt().coerceIn(0, screenshot.width - 1)
+        val sampleY = (mouseY * scaleY).roundToInt().coerceIn(0, screenshot.height - 1)
 
         val magnifyingX = getMagnifyingX(mouseX)
         val magnifyingY = getMagnifyingY(mouseY)
 
-        val hoveredColor = Color(screenshot.getRGB(mouseX, mouseY), true)
+        val hoveredColor = Color(screenshot.getRGB(sampleX, sampleY), true)
 
-        setupMagnifyingLens(graphics, mouseX, mouseY, magnifyingX, magnifyingY)
+        setupMagnifyingLens(graphics, sampleX, sampleY, magnifyingX, magnifyingY)
         setupCursor(magnifyingX, magnifyingY, graphics)
         setupColorSelectionPreview(graphics, hoveredColor, magnifyingX, magnifyingY)
     }
@@ -43,21 +71,26 @@ fun createMagnifierCanvas(
     private fun getMagnifyingX(mouseX: Int): Int {
         val placeRight = mouseX + loupeSize + loupeMargin <= width
         val magnifyingX = if (placeRight) {
-            (mouseX + loupeMargin).coerceAtMost(width - loupeSize - 20)
+            (mouseX + loupeMargin).coerceAtMost(width - loupeSize - panelRightExtra)
         } else {
-            (mouseX - loupeSize - loupeMargin).coerceAtLeast(20)
+            (mouseX - loupeSize - loupeMargin).coerceAtLeast(panelLeftTopExtra)
         }
-        return magnifyingX
+        // Final safety net: whatever branch was taken above, never let the panel's actual
+        // painted bounds (magnifyingX - panelLeftTopExtra .. magnifyingX + loupeSize + panelRightExtra)
+        // fall outside the component, regardless of how mouseX/width were computed.
+        return magnifyingX.coerceIn(panelLeftTopExtra, (width - loupeSize - panelRightExtra).coerceAtLeast(panelLeftTopExtra))
     }
 
     private fun getMagnifyingY(mouseY: Int): Int {
         val placeBelow = mouseY + loupeSize + loupeMargin <= height
         val magnifyingY = if (placeBelow) {
-            (mouseY + loupeMargin).coerceAtMost(height - loupeSize - 20)
+            (mouseY + loupeMargin).coerceAtMost(height - loupeSize - panelBottomExtra)
         } else {
-            (mouseY - loupeSize - loupeMargin).coerceAtLeast(20)
+            (mouseY - loupeSize - loupeMargin).coerceAtLeast(panelLeftTopExtra)
         }
-        return magnifyingY
+        // Same safety net as getMagnifyingX, but reserving panelBottomExtra (42px) below
+        // the lens for the color-swatch + caption text, rather than the old, too-small 20px.
+        return magnifyingY.coerceIn(panelLeftTopExtra, (height - loupeSize - panelBottomExtra).coerceAtLeast(panelLeftTopExtra))
     }
 
     private fun setupColorSelectionPreview(
