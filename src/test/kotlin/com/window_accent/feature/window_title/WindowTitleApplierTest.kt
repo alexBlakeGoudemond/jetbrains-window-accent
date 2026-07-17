@@ -245,10 +245,10 @@ class WindowTitleApplierTest {
     }
 
     @Test
-    @DisplayName("buildTitlePrefix - last opened window label uses double-struck style")
-    fun testBuildTitlePrefixLastOpenedUsesDoubleStruck() {
+    @DisplayName("buildTitlePrefix - last opened window label uses monospace style")
+    fun testBuildTitlePrefixLastOpenedUsesMonospace() {
         assertEquals(
-            "[${TitleTextStyler.toDoubleStruck("NEW")}]",
+            "[${TitleTextStyler.toMonospace("NEW")}]",
             applier.buildTitlePrefix(
                 number = 1,
                 numberingEnabled = false,

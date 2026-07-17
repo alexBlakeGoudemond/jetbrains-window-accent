@@ -2,7 +2,7 @@ package com.window_accent.feature.window_title
 
 /**
  * Transforms plain Latin text into Unicode Mathematical Alphanumeric Symbol
- * equivalents, producing a visual bold, italic, or double-struck effect in contexts that render
+ * equivalents, producing a visual bold, italic, monospace, or double-struck effect in contexts that render
  * only plain text — such as OS native window title bars.
  *
  * Only ASCII letters (A–Z, a–z) and digits (0–9) are transformed; all other
@@ -14,6 +14,7 @@ package com.window_accent.feature.window_title
  * |---------------|------------------------------|----------------|----------------|
  * | Bold          | U+1D400–1D419                | U+1D41A–1D433  | U+1D7CE–1D7D7  |
  * | Italic        | U+1D434–1D44D                | U+1D44E–1D467* | — (unchanged)  |
+ * | Monospace     | U+1D670–U+1D689              | U+1D68A–1D6A3  | U+1D7F6–1D7FF  |
  * | Double-struck | U+1D538–U+1D551**            | U+1D552–1D56B  | U+1D7D8–1D7E1  |
  *
  * *U+1D455 (italic small h) is absent from Unicode; the Planck constant
@@ -54,6 +55,15 @@ object TitleTextStyler {
 
     /** Offset from ASCII '0' to Mathematical Double-Struck Digit Zero (U+1D7D8). */
     private const val DOUBLE_STRUCK_DIGIT_OFFSET = 0x1D7D8 - '0'.code
+
+    /** Offset from ASCII 'A' to Mathematical Monospace Capital A (U+1D670). */
+    private const val MONOSPACE_CAPITAL_OFFSET = 0x1D670 - 'A'.code
+
+    /** Offset from ASCII 'a' to Mathematical Monospace Small a (U+1D68A). */
+    private const val MONOSPACE_SMALL_OFFSET = 0x1D68A - 'a'.code
+
+    /** Offset from ASCII '0' to Mathematical Monospace Digit Zero (U+1D7F6). */
+    private const val MONOSPACE_DIGIT_OFFSET = 0x1D7F6 - '0'.code
 
     /**
      * Mathematical Italic Small H (U+210E — Planck constant symbol).
@@ -101,6 +111,23 @@ object TitleTextStyler {
                 in 'A'..'Z' -> appendCodePoint(ch.code + ITALIC_CAPITAL_OFFSET)
                 'h'         -> append(ITALIC_SMALL_H)
                 in 'a'..'z' -> appendCodePoint(ch.code + ITALIC_SMALL_OFFSET)
+                else        -> append(ch)
+            }
+        }
+    }
+
+    /**
+     * Returns [text] with each ASCII letter or digit replaced by its
+     * Mathematical Monospace Unicode equivalent.
+     *
+     * Example: `"new-42"` → `"𝚗𝚎𝚠-𝟺𝟸"`
+     */
+    fun toMonospace(text: String): String = buildString {
+        for (ch in text) {
+            when (ch) {
+                in 'A'..'Z' -> appendCodePoint(ch.code + MONOSPACE_CAPITAL_OFFSET)
+                in 'a'..'z' -> appendCodePoint(ch.code + MONOSPACE_SMALL_OFFSET)
+                in '0'..'9' -> appendCodePoint(ch.code + MONOSPACE_DIGIT_OFFSET)
                 else        -> append(ch)
             }
         }

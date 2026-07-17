@@ -202,6 +202,47 @@ class TitleTextStylerTest {
     }
 
     // -------------------------------------------------------------------------
+    // toMonospace — letters, digits, passthrough
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("toMonospace - lowercase letters map to Mathematical Monospace small letters")
+    fun testToMonospaceLowercaseLetters() {
+        assertEquals(cp(0x1D68A), TitleTextStyler.toMonospace("a"))
+        assertEquals(cp(0x1D6A3), TitleTextStyler.toMonospace("z"))
+    }
+
+    @Test
+    @DisplayName("toMonospace - uppercase letters map to Mathematical Monospace capitals")
+    fun testToMonospaceUppercaseLetters() {
+        assertEquals(cp(0x1D670), TitleTextStyler.toMonospace("A"))
+        assertEquals(cp(0x1D689), TitleTextStyler.toMonospace("Z"))
+    }
+
+    @Test
+    @DisplayName("toMonospace - digits map to Mathematical Monospace digits")
+    fun testToMonospaceDigits() {
+        assertEquals(cp(0x1D7F6), TitleTextStyler.toMonospace("0"))
+        assertEquals(cp(0x1D7FF), TitleTextStyler.toMonospace("9"))
+    }
+
+    @Test
+    @DisplayName("toMonospace - non-alphanumeric characters are passed through unchanged")
+    fun testToMonospacePassthroughChars() {
+        assertEquals("-", TitleTextStyler.toMonospace("-"))
+        assertEquals(" ", TitleTextStyler.toMonospace(" "))
+        assertEquals("!", TitleTextStyler.toMonospace("!"))
+    }
+
+    @Test
+    @DisplayName("toMonospace - mixed content transforms letters and digits only")
+    fun testToMonospaceMixedContent() {
+        val result = TitleTextStyler.toMonospace("NEW-42")
+        val expected = cp(0x1D67D) + cp(0x1D674) + cp(0x1D686) + "-" + cp(0x1D7FA) + cp(0x1D7F8)
+        assertEquals(expected, result)
+    }
+
+    // -------------------------------------------------------------------------
     // toDoubleStruck — letters, digits, passthrough
     // -------------------------------------------------------------------------
 
