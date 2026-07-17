@@ -1,0 +1,24 @@
+src/main/kotlin/com/window_accent/WindowAccentApplicationService.kt
+  s_6e1d8b619794b5::t_d11714fea0edc9 316,324
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "b27273a09acba5ccb9def7b31f8f41b281bdfce1",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_6e1d8b619794b5": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "426a7a8f-0e77-4ec4-b33f-39ca3d59fca2",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
