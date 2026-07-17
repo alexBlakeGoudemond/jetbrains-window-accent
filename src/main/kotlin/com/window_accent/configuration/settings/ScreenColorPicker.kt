@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
+import kotlin.math.roundToInt
 
 private val logger = windowAccentLogger<ScreenColorPicker>()
 
@@ -26,7 +27,7 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
         displayX = mousePoint.x.toDouble()
         displayY = mousePoint.y.toDouble()
 
-        magnifierCanvas = createMagnifierCanvas(screenshot) { displayX to displayY }
+        magnifierCanvas = createMagnifierCanvasWithCaptureArea(screenshot, captureArea, { displayX to displayY }) { mousePoint }
         magnifierCanvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
         magnifierCanvas.isFocusable = true
 
@@ -35,7 +36,7 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
         overlay.contentPane = magnifierCanvas
         overlay.isVisible = true
 
-        magnifierCanvas.addMouseMotionListener(createMouseMotionHandler())
+        magnifierCanvas.addMouseMotionListener(createMouseMotionHandler(captureArea, screenshot))
         magnifierCanvas.addMouseListener(createMousePressedHandler())
         magnifierCanvas.requestFocusInWindow()
 
@@ -68,7 +69,7 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
             }
         }
 
-    private fun createMouseMotionHandler(): MouseMotionAdapter =
+    private fun createMouseMotionHandler(captureArea: Rectangle, screenshot: BufferedImage): MouseMotionAdapter =
         object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 mousePoint.setLocation(e.x, e.y)

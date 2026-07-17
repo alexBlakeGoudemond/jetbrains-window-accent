@@ -10,6 +10,21 @@ fun toHex(color: Color): String = "#%02X%02X%02X".format(color.red, color.green,
 fun createMagnifierCanvas(
     screenshot: BufferedImage,
     displayMousePoint: () -> Pair<Double, Double>
+) = createMagnifierCanvasWithCaptureArea(
+    screenshot = screenshot,
+    captureArea = Rectangle(0, 0, screenshot.width, screenshot.height),
+    displayMousePoint = displayMousePoint,
+    mousePointProvider = {
+        val (x, y) = displayMousePoint()
+        Point(x.roundToInt(), y.roundToInt())
+    }
+)
+
+internal fun createMagnifierCanvasWithCaptureArea(
+    screenshot: BufferedImage,
+    captureArea: Rectangle = Rectangle(0, 0, screenshot.width, screenshot.height),
+    displayMousePoint: () -> Pair<Double, Double>,
+    mousePointProvider: () -> Point
 ) = object : JComponent() {
 
     val zoomRadius = 12
@@ -24,6 +39,7 @@ fun createMagnifierCanvas(
     private val panelLeftTopExtra = 10
     private var panelRightExtra = 10
     private val panelBottomExtra = 42
+    private val rightEdgeSafetyMargin = 320
 
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
@@ -37,12 +53,15 @@ fun createMagnifierCanvas(
         graphics.color = Color(0, 0, 0, 60)
         graphics.fillRect(0, 0, width, height)
         val (displayX, displayY) = displayMousePoint()
+        val rawMousePoint = mousePointProvider()
+        val globalMouseX = captureArea.x + rawMousePoint.x
+        val globalMouseY = captureArea.y + rawMousePoint.y
 
         // Coordinates for PLACING the loupe panel must be in this component's own
         // coordinate space (`width`/`height`), since that's the space the panel is
         // actually painted and clipped in.
-        val mouseX = displayX.roundToInt().coerceIn(0, width - 1)
-        val mouseY = displayY.roundToInt().coerceIn(0, height - 1)
+        val mouseX = rawMousePoint.x.coerceIn(0, width - 1)
+        val mouseY = rawMousePoint.y.coerceIn(0, height - 1)
 
         // Coordinates for SAMPLING the hovered color/zoom source must be in the
         // screenshot's own pixel space. `screenshot` is not guaranteed to be the same
@@ -59,37 +78,70 @@ fun createMagnifierCanvas(
         val hoveredColor = Color(screenshot.getRGB(sampleX, sampleY), true)
         panelRightExtra = calculatePanelRightExtra(graphics, hoveredColor)
 
-        val magnifyingX = getMagnifyingX(mouseX)
-        val magnifyingY = getMagnifyingY(mouseY)
+        val screenBounds = getCurrentScreenBounds(globalMouseX, globalMouseY)
+        val screenOffsetX = screenBounds.x - captureArea.x
+        val screenOffsetY = screenBounds.y - captureArea.y
+        val magnifyingX = screenOffsetX + getMagnifyingX(globalMouseX - screenBounds.x, screenBounds.width)
+        val magnifyingY = screenOffsetY + getMagnifyingY(globalMouseY - screenBounds.y, screenBounds.height)
 
         setupMagnifyingLens(graphics, sampleX, sampleY, magnifyingX, magnifyingY)
         setupCursor(magnifyingX, magnifyingY, graphics)
         setupColorSelectionPreview(graphics, hoveredColor, magnifyingX, magnifyingY)
     }
 
-    private fun getMagnifyingX(mouseX: Int): Int {
-        val placeRight = mouseX + loupeSize + loupeMargin <= width
+    private fun getMagnifyingX(mouseX: Int, availableWidth: Int): Int {
+        val placeRight = mouseX + loupeSize + loupeMargin + panelRightExtra + rightEdgeSafetyMargin <= availableWidth
         val magnifyingX = if (placeRight) {
-            (mouseX + loupeMargin).coerceAtMost(width - loupeSize - panelRightExtra)
+            (mouseX + loupeMargin).coerceAtMost(availableWidth - loupeSize - panelRightExtra - rightEdgeSafetyMargin)
         } else {
             (mouseX - loupeSize - loupeMargin).coerceAtLeast(panelLeftTopExtra)
         }
         // Final safety net: whatever branch was taken above, never let the panel's actual
         // painted bounds (magnifyingX - panelLeftTopExtra .. magnifyingX + loupeSize + panelRightExtra)
         // fall outside the component, regardless of how mouseX/width were computed.
-        return magnifyingX.coerceIn(panelLeftTopExtra, (width - loupeSize - panelRightExtra).coerceAtLeast(panelLeftTopExtra))
+        return magnifyingX.coerceIn(
+            panelLeftTopExtra,
+            (availableWidth - loupeSize - panelRightExtra - rightEdgeSafetyMargin).coerceAtLeast(panelLeftTopExtra)
+        )
     }
 
-    private fun getMagnifyingY(mouseY: Int): Int {
-        val placeBelow = mouseY + loupeSize + loupeMargin <= height
+    private fun getMagnifyingY(mouseY: Int, availableHeight: Int): Int {
+        val placeBelow = mouseY + loupeSize + loupeMargin <= availableHeight
         val magnifyingY = if (placeBelow) {
-            (mouseY + loupeMargin).coerceAtMost(height - loupeSize - panelBottomExtra)
+            (mouseY + loupeMargin).coerceAtMost(availableHeight - loupeSize - panelBottomExtra)
         } else {
             (mouseY - loupeSize - loupeMargin).coerceAtLeast(panelLeftTopExtra)
         }
         // Same safety net as getMagnifyingX, but reserving panelBottomExtra (42px) below
         // the lens for the color-swatch + caption text, rather than the old, too-small 20px.
-        return magnifyingY.coerceIn(panelLeftTopExtra, (height - loupeSize - panelBottomExtra).coerceAtLeast(panelLeftTopExtra))
+        return magnifyingY.coerceIn(panelLeftTopExtra, (availableHeight - loupeSize - panelBottomExtra).coerceAtLeast(panelLeftTopExtra))
+    }
+
+    private fun getCurrentScreenBounds(mouseX: Int, mouseY: Int): Rectangle {
+        val screens = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+            .map { screen ->
+                val bounds = screen.defaultConfiguration.bounds
+                val insets = Toolkit.getDefaultToolkit().getScreenInsets(screen.defaultConfiguration)
+                Rectangle(
+                    bounds.x + insets.left,
+                    bounds.y + insets.top,
+                    (bounds.width - insets.left - insets.right).coerceAtLeast(1),
+                    (bounds.height - insets.top - insets.bottom).coerceAtLeast(1)
+                )
+            }
+        return screens.firstOrNull { it.contains(mouseX, mouseY) } ?: screens.minBy { bounds ->
+            val dx = when {
+                mouseX < bounds.x -> bounds.x - mouseX
+                mouseX > bounds.x + bounds.width -> mouseX - (bounds.x + bounds.width)
+                else -> 0
+            }
+            val dy = when {
+                mouseY < bounds.y -> bounds.y - mouseY
+                mouseY > bounds.y + bounds.height -> mouseY - (bounds.y + bounds.height)
+                else -> 0
+            }
+            dx * dx + dy * dy
+        }
     }
 
     private fun calculatePanelRightExtra(graphics: Graphics2D, hoveredColor: Color): Int {
