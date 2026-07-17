@@ -22,7 +22,7 @@ fun createMagnifierCanvas(
     // These constants describe that real drawn footprint so the placement clamps below
     // can keep the *entire* panel on-screen, not just the lens square itself.
     private val panelLeftTopExtra = 10
-    private val panelRightExtra = 10
+    private var panelRightExtra = 10
     private val panelBottomExtra = 42
 
     override fun paintComponent(g: Graphics) {
@@ -36,7 +36,6 @@ fun createMagnifierCanvas(
 
         graphics.color = Color(0, 0, 0, 60)
         graphics.fillRect(0, 0, width, height)
-        // TODO Blake-Goudemond 20260717 | First pass of magnifying bugfix with second screen RHS - not yet working
         val (displayX, displayY) = displayMousePoint()
 
         // Coordinates for PLACING the loupe panel must be in this component's own
@@ -57,11 +56,11 @@ fun createMagnifierCanvas(
         val scaleY = if (height > 0) screenshot.height.toDouble() / height else 1.0
         val sampleX = (mouseX * scaleX).roundToInt().coerceIn(0, screenshot.width - 1)
         val sampleY = (mouseY * scaleY).roundToInt().coerceIn(0, screenshot.height - 1)
+        val hoveredColor = Color(screenshot.getRGB(sampleX, sampleY), true)
+        panelRightExtra = calculatePanelRightExtra(graphics, hoveredColor)
 
         val magnifyingX = getMagnifyingX(mouseX)
         val magnifyingY = getMagnifyingY(mouseY)
-
-        val hoveredColor = Color(screenshot.getRGB(sampleX, sampleY), true)
 
         setupMagnifyingLens(graphics, sampleX, sampleY, magnifyingX, magnifyingY)
         setupCursor(magnifyingX, magnifyingY, graphics)
@@ -91,6 +90,21 @@ fun createMagnifierCanvas(
         // Same safety net as getMagnifyingX, but reserving panelBottomExtra (42px) below
         // the lens for the color-swatch + caption text, rather than the old, too-small 20px.
         return magnifyingY.coerceIn(panelLeftTopExtra, (height - loupeSize - panelBottomExtra).coerceAtLeast(panelLeftTopExtra))
+    }
+
+    private fun calculatePanelRightExtra(graphics: Graphics2D, hoveredColor: Color): Int {
+        val boldFont = graphics.font.deriveFont(Font.BOLD, 12f)
+        val plainFont = graphics.font.deriveFont(Font.PLAIN, 12f)
+        val hexText = "HEX: ${toHex(hoveredColor)}"
+        val rgbText = "RGB: ${hoveredColor.red}, ${hoveredColor.green}, ${hoveredColor.blue}"
+        val captionText = "Click to select · Esc to cancel"
+        val rightEdge = maxOf(
+            58,
+            68 + graphics.getFontMetrics(boldFont).stringWidth(hexText),
+            68 + graphics.getFontMetrics(plainFont).stringWidth(rgbText),
+            18 + graphics.getFontMetrics(plainFont).stringWidth(captionText)
+        )
+        return (rightEdge - loupeSize + 12).coerceAtLeast(panelLeftTopExtra)
     }
 
     private fun setupColorSelectionPreview(

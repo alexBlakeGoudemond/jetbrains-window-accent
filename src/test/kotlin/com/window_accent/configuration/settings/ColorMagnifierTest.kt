@@ -131,6 +131,12 @@ class ColorMagnifierTest {
         return zoomRadius
     }
 
+    private fun setPrivateField(canvas: JComponent, privateField: String, value: Any) {
+        val field = canvas.javaClass.getDeclaredField(privateField)
+        field.isAccessible = true
+        field.set(canvas, value)
+    }
+
     private fun getPrivateMethod(canvas: JComponent, privateMethod: String): Method {
         val getMagnifyingXMethod = canvas.javaClass.getDeclaredMethod(privateMethod, Int::class.java)
         return getMagnifyingXMethod
@@ -158,6 +164,32 @@ class ColorMagnifierTest {
             getMagnifyingYMethod.invoke(canvas, 0)
             getMagnifyingYMethod.invoke(canvas, height - 1)
         }
+    }
+
+    @Test
+    @DisplayName("Magnifier should stay within the right edge when extra width is required")
+    fun testMagnifierStaysVisibleOnRightEdge() {
+        val width = 320
+        val height = 200
+        val screenshot = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+        val displayMousePoint = { Pair((width - 1).toDouble(), (height / 2).toDouble()) }
+
+        val canvas = createMagnifierCanvas(screenshot, displayMousePoint)
+        canvas.setSize(width, height)
+
+        setPrivateField(canvas, "panelRightExtra", 80)
+
+        val getMagnifyingXMethod = getPrivateMethod(canvas, "getMagnifyingX")
+        getMagnifyingXMethod.isAccessible = true
+
+        val resultX = getMagnifyingXMethod.invoke(canvas, width - 1) as Int
+        val loupeSize = getPrivateFieldAsInt(canvas, "loupeSize")
+        val panelRightExtra = getPrivateFieldAsInt(canvas, "panelRightExtra")
+
+        assertTrue(
+            resultX + loupeSize + panelRightExtra <= width,
+            "Magnifier should remain inside the visible width"
+        )
     }
 
     @Test
