@@ -92,7 +92,7 @@ object TitleTextStyler {
                 in 'A'..'Z' -> appendCodePoint(ch.code + BOLD_CAPITAL_OFFSET)
                 in 'a'..'z' -> appendCodePoint(ch.code + BOLD_SMALL_OFFSET)
                 in '0'..'9' -> appendCodePoint(ch.code + BOLD_DIGIT_OFFSET)
-                else         -> append(ch)
+                else -> append(ch)
             }
         }
     }
@@ -109,9 +109,9 @@ object TitleTextStyler {
         for (ch in text) {
             when (ch) {
                 in 'A'..'Z' -> appendCodePoint(ch.code + ITALIC_CAPITAL_OFFSET)
-                'h'         -> append(ITALIC_SMALL_H)
+                'h' -> append(ITALIC_SMALL_H)
                 in 'a'..'z' -> appendCodePoint(ch.code + ITALIC_SMALL_OFFSET)
-                else        -> append(ch)
+                else -> append(ch)
             }
         }
     }
@@ -128,7 +128,7 @@ object TitleTextStyler {
                 in 'A'..'Z' -> appendCodePoint(ch.code + MONOSPACE_CAPITAL_OFFSET)
                 in 'a'..'z' -> appendCodePoint(ch.code + MONOSPACE_SMALL_OFFSET)
                 in '0'..'9' -> appendCodePoint(ch.code + MONOSPACE_DIGIT_OFFSET)
-                else        -> append(ch)
+                else -> append(ch)
             }
         }
     }
@@ -137,22 +137,27 @@ object TitleTextStyler {
      * Returns [text] with each ASCII letter or digit replaced by its
      * Mathematical Double-Struck Unicode equivalent.
      *
+     * {CHNPQRZ}: those are special-cased because Unicode double-struck uppercase
+     * letters are not fully contiguous. Most caps are in the math block, but C H N P Q R Z are
+     * historic Letterlike Symbols (ℂ ℍ ℕ ℙ ℚ ℝ ℤ), so a simple offset would produce wrong
+     * characters for those seven unless they’re handled explicitly.
+     *
      * Example: `"new-42"` → `"𝕟𝕖𝕨-𝟜𝟚"`
      */
     fun toDoubleStruck(text: String): String = buildString {
         for (ch in text) {
             when (ch) {
-                'C'         -> append(DOUBLE_STRUCK_CAPITAL_C)
-                'H'         -> append(DOUBLE_STRUCK_CAPITAL_H)
-                'N'         -> append(DOUBLE_STRUCK_CAPITAL_N)
-                'P'         -> append(DOUBLE_STRUCK_CAPITAL_P)
-                'Q'         -> append(DOUBLE_STRUCK_CAPITAL_Q)
-                'R'         -> append(DOUBLE_STRUCK_CAPITAL_R)
-                'Z'         -> append(DOUBLE_STRUCK_CAPITAL_Z)
+                'C' -> append(DOUBLE_STRUCK_CAPITAL_C)
+                'H' -> append(DOUBLE_STRUCK_CAPITAL_H)
+                'N' -> append(DOUBLE_STRUCK_CAPITAL_N)
+                'P' -> append(DOUBLE_STRUCK_CAPITAL_P)
+                'Q' -> append(DOUBLE_STRUCK_CAPITAL_Q)
+                'R' -> append(DOUBLE_STRUCK_CAPITAL_R)
+                'Z' -> append(DOUBLE_STRUCK_CAPITAL_Z)
                 in 'A'..'Z' -> appendCodePoint(ch.code + DOUBLE_STRUCK_CAPITAL_OFFSET)
                 in 'a'..'z' -> appendCodePoint(ch.code + DOUBLE_STRUCK_SMALL_OFFSET)
                 in '0'..'9' -> appendCodePoint(ch.code + DOUBLE_STRUCK_DIGIT_OFFSET)
-                else        -> append(ch)
+                else -> append(ch)
             }
         }
     }
