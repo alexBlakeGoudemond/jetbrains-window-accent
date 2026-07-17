@@ -1,0 +1,26 @@
+src/main/kotlin/com/window_accent/configuration/settings/ColorMagnifier.kt
+  s_ffc68c9448159c::t_81a33340123073 30-35,57
+src/main/kotlin/com/window_accent/configuration/settings/ScreenColorPicker.kt
+  s_ffc68c9448159c::t_4be680e04b101f 25,36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "b8fdf8bfe53afaf665067c8227acc94119b6f272",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ffc68c9448159c": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "fa8d330f-eb56-4b6d-a4b6-cf76c1f42633",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
