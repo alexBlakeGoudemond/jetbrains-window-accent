@@ -4,6 +4,10 @@
 
 ## [2.5.4]
 
+### Fixed
+
+- cleanup-safe behavior that removes old DocumentListeners when tool window content is recreated for the same project.
+
 ## [2.5.3]
 
 ### Added
