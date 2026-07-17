@@ -65,6 +65,7 @@
         <applicationService serviceImplementation="com.window_accent.WindowAccentApplicationService"/>
         <applicationService serviceImplementation="com.window_accent.configuration.persistence.GlobalCustomTitleStateService"/>
         <applicationService serviceImplementation="com.window_accent.configuration.persistence.GlobalPanelBackgroundColorStateService"/>
+        <applicationService serviceImplementation="com.window_accent.configuration.persistence.LastOpenedWindowTitleStateService"/>
 
         <projectService serviceImplementation="com.window_accent.configuration.persistence.WindowPanelAppearanceStateService"/>
         <projectService serviceImplementation="com.window_accent.configuration.persistence.WindowCustomColorStateService"/>

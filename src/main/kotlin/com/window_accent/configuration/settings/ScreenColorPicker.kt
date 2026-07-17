@@ -22,20 +22,21 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 
 
     fun pickColor(owner: Window, screenshot: BufferedImage, captureArea: Rectangle) {
-        mousePoint = Point(captureArea.width / 2, captureArea.height / 2)
+        mousePoint = Point(screenshot.width / 2, screenshot.height / 2)
         displayX = mousePoint.x.toDouble()
         displayY = mousePoint.y.toDouble()
 
-        magnifierCanvas = createMagnifierCanvas(screenshot) { displayX to displayY }
+        magnifierCanvas = createMagnifierCanvasWithCaptureArea(screenshot, captureArea, { displayX to displayY }) { mousePoint }
         magnifierCanvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
         magnifierCanvas.isFocusable = true
 
         overlay = createOverlay(owner, captureArea)
         colorSelectionHandler = createColorSelectionHandler(screenshot, overlay)
         overlay.contentPane = magnifierCanvas
+        overlay.setBounds(captureArea.x, captureArea.y, screenshot.width, screenshot.height)
         overlay.isVisible = true
 
-        magnifierCanvas.addMouseMotionListener(createMouseMotionHandler())
+        magnifierCanvas.addMouseMotionListener(createMouseMotionHandler(captureArea, screenshot))
         magnifierCanvas.addMouseListener(createMousePressedHandler())
         magnifierCanvas.requestFocusInWindow()
 
@@ -68,7 +69,7 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
             }
         }
 
-    private fun createMouseMotionHandler(): MouseMotionAdapter =
+    private fun createMouseMotionHandler(captureArea: Rectangle, screenshot: BufferedImage): MouseMotionAdapter =
         object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 mousePoint.setLocation(e.x, e.y)
@@ -102,47 +103,109 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 fun showScreenColorPicker(windowAccentSettings: IWindowAccentSettings) {
     val owner = SwingUtilities.getWindowAncestor(windowAccentSettings.getPanel()) ?: return
 
-    val virtualBounds = calculateScreenBoundsAcrossMultipleScreens()
-    if (virtualBounds.isEmpty) return
+    val captureBounds = calculateScreenBoundsAcrossMultipleScreens()
+    if (captureBounds.isEmpty) return
 
     try {
-        showColorChooserViaFullScreenScreenshot(virtualBounds, owner, windowAccentSettings)
+        showColorChooserViaFullScreenScreenshot(captureBounds, owner, windowAccentSettings)
     } catch (e: Exception) {
         logger.info("unable to capture screenshot: ${e.message}")
     }
 }
 
 private fun calculateScreenBoundsAcrossMultipleScreens(): Rectangle {
-    val screens = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
-    val bounds = Rectangle()
-    for (screen in screens) {
-        bounds.add(screen.defaultConfiguration.bounds)
-    }
-    return bounds
+    val screenDevices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+    return screenDevices
+        .map { it.defaultConfiguration.bounds }
+        .fold(Rectangle()) { acc, bounds ->
+            if (acc.isEmpty) Rectangle(bounds) else acc.union(bounds)
+        }
 }
 
 fun showColorChooserViaFullScreenScreenshot(
-    virtualBounds: Rectangle,
+    captureBounds: Rectangle,
     owner: Window,
     windowAccentSettings: IWindowAccentSettings
 ) {
-    val screenshot = takeScreenshot(virtualBounds)
-    setupColorPickerUI(owner, screenshot, virtualBounds, windowAccentSettings)
+    val screenshot = takeScreenshot(captureBounds)
+    setupColorPickerUI(owner, screenshot, captureBounds, windowAccentSettings)
 }
 
-// Note: This uses Robot
 fun takeScreenshot(captureRect: Rectangle): BufferedImage {
-    // Note: Robot usage may be restricted in JetBrains plugin sandbox. Ensure permissions are granted.
     if (captureRect.width <= 0 || captureRect.height <= 0) {
         throw IllegalArgumentException("Invalid capture rectangle: $captureRect")
     }
     try {
         val robot = Robot()
-        val screenshot = robot.createScreenCapture(captureRect)
-        return screenshot
+        val screenDevices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+        if (screenDevices.size <= 1) {
+            return robot.createScreenCapture(captureRect)
+        }
+
+        val capturePieces = screenDevices
+            .map { it.defaultConfiguration.bounds }
+            .mapNotNull { screenBounds ->
+                val clippedBounds = screenBounds.intersection(captureRect)
+                if (clippedBounds.isEmpty) return@mapNotNull null
+                ScreenCapturePiece(clippedBounds, robot.createScreenCapture(clippedBounds))
+            }
+
+        return composeScreenCaptureAtlas(capturePieces, captureRect)
     } catch (e: Exception) {
         throw RuntimeException("Failed to capture screenshot: ${e.message}", e)
     }
+}
+
+internal data class ScreenCapturePiece(
+    val bounds: Rectangle,
+    val image: BufferedImage
+)
+
+internal fun composeScreenCaptureAtlas(
+    pieces: List<ScreenCapturePiece>,
+    captureRect: Rectangle
+): BufferedImage {
+    if (pieces.isEmpty()) {
+        return BufferedImage(captureRect.width, captureRect.height, BufferedImage.TYPE_INT_RGB)
+    }
+
+    val packVertically = captureRect.height > captureRect.width
+    val orderedPieces = if (packVertically) {
+        pieces.sortedBy { it.bounds.y }
+    } else {
+        pieces.sortedBy { it.bounds.x }
+    }
+
+    val atlasWidth = if (packVertically) {
+        orderedPieces.maxOf { it.image.width }
+    } else {
+        orderedPieces.sumOf { it.image.width }
+    }.coerceAtLeast(1)
+    val atlasHeight = if (packVertically) {
+        orderedPieces.sumOf { it.image.height }
+    } else {
+        orderedPieces.maxOf { it.image.height }
+    }.coerceAtLeast(1)
+
+    val atlas = BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_INT_RGB)
+    val graphics = atlas.createGraphics()
+    try {
+        var offsetX = 0
+        var offsetY = 0
+        orderedPieces.forEach { piece ->
+            val drawX = if (packVertically) (atlasWidth - piece.image.width) / 2 else offsetX
+            val drawY = if (packVertically) offsetY else (atlasHeight - piece.image.height) / 2
+            graphics.drawImage(piece.image, drawX, drawY, null)
+            if (packVertically) {
+                offsetY += piece.image.height
+            } else {
+                offsetX += piece.image.width
+            }
+        }
+    } finally {
+        graphics.dispose()
+    }
+    return atlas
 }
 
 private fun setupColorPickerUI(

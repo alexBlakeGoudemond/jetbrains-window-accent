@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [2.5.0]
+
+### Added
+
+- New Custom Title option: "Last focussed window title"
+    - When set, this will only show in the title of the last focussed window, and will not be applied to all windows
+    - Value Proposition: 'out of these 5 windows, which one is the current one!?'
+
+### Fixed
+
+- Custom Color Chooser maginifying Glass now does not hide on secondary screens
+    - If you have a secondary screen, the magnifying glass would hide behind the secondary screen at the extreme
+      boundary
+
 ## [2.4.1]
 
 ### Fixed
@@ -825,7 +839,8 @@
 - Window color management
 - Title numbering options
 
-[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.4.1...HEAD
+[Unreleased]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.5.0...HEAD
+[2.5.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.4.1...2.5.0
 [2.4.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.3.1...2.4.0
 [2.3.1]: https://github.com/alexBlakeGoudemond/jetbrains-window-accent/compare/2.3.0...2.3.1

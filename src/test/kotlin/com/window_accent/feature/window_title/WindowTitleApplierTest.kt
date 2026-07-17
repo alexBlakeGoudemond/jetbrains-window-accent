@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
+import com.window_accent.configuration.persistence.LastOpenedWindowTitleStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
 import com.window_accent.configuration.persistence.WindowTitleNumberingStateService
 import com.window_accent.diagnostic.windowAccentLogger
@@ -41,6 +42,7 @@ class WindowTitleApplierTest {
 
     /** Real service instance shared across @BeforeEach and setupFullMocks. */
     private lateinit var mockGlobalCustomTitleService: GlobalCustomTitleStateService
+    private lateinit var mockLastOpenedWindowTitleService: LastOpenedWindowTitleStateService
     private var logger = windowAccentLogger<WindowTitleApplierTest>()
 
     @BeforeEach
@@ -65,6 +67,7 @@ class WindowTitleApplierTest {
         mockTitleNumberingService2.setTitleNumberingEnabled(true)
 
         mockGlobalCustomTitleService = GlobalCustomTitleStateService()
+        mockLastOpenedWindowTitleService = LastOpenedWindowTitleStateService()
     }
 
     private fun setupFullMocks() {
@@ -86,6 +89,8 @@ class WindowTitleApplierTest {
 
         Mockito.`when`(mockApplication.getService(GlobalCustomTitleStateService::class.java))
             .thenReturn(mockGlobalCustomTitleService)
+        Mockito.`when`(mockApplication.getService(LastOpenedWindowTitleStateService::class.java))
+            .thenReturn(mockLastOpenedWindowTitleService)
 
         // Setup invokeLater to run immediately for testing
         Mockito.doAnswer { invocation ->
@@ -509,6 +514,28 @@ class WindowTitleApplierTest {
         listener.windowGainedFocus(null)
 
         assertEquals("[2 - ${TitleTextStyler.toItalic("dattebayo")}] My Project", mockFrame1.title)
+    }
+
+    @Test
+    @DisplayName("Focused window title should move to the newly focused window")
+    fun testFocusedWindowTitleMovesBetweenWindows() {
+        try {
+            setupFullMocks()
+        } catch (e: Exception) {
+            logger.info("Skipping testFocusedWindowTitleMovesBetweenWindows due to Mockito/Java 25 limitations: ${e.message}")
+            return
+        }
+        Mockito.`when`(mockProjectManager.openProjects).thenReturn(arrayOf(mockProject1, mockProject2))
+        mockLastOpenedWindowTitleService.setFocussedWindowTitle("NEW")
+
+        applier.applyToCurrentOpenProject(mockProject1)
+        applier.applyToCurrentOpenProject(mockProject2)
+
+        val focusListener = createFocusListenerViaReflection(mockProject1, mockFrame1)
+        focusListener.windowGainedFocus(null)
+
+        assertEquals("[NEW] Test Project 1", mockFrame1.title)
+        assertEquals("Test Project 2", mockFrame2.title)
     }
 
     // -------------------------------------------------------------------------

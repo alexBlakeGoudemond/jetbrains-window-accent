@@ -15,6 +15,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import com.window_accent.configuration.persistence.GlobalCustomTitleStateService
+import com.window_accent.configuration.persistence.LastOpenedWindowTitleStateService
 import com.window_accent.configuration.persistence.GlobalPanelBackgroundColorStateService
 import com.window_accent.configuration.persistence.WindowCustomColorStateService
 import com.window_accent.configuration.persistence.WindowCustomTitleStateService
@@ -210,6 +211,8 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val customTitleSettings = project.getService(WindowCustomTitleStateService::class.java)
         val globalCustomTitleSettings = ApplicationManager.getApplication()
             .getService(GlobalCustomTitleStateService::class.java)
+        val lastOpenedWindowTitleSettings = ApplicationManager.getApplication()
+            .getService(LastOpenedWindowTitleStateService::class.java)
         val bgColorSettings = ApplicationManager.getApplication()
             .getService(GlobalPanelBackgroundColorStateService::class.java)
 
@@ -254,6 +257,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
         val titleNumberingCheckBox = JCheckBox("Enable custom title numbering")
         val customTitleTextField = JTextField()
         val globalCustomTitleTextField = JTextField()
+        val focussedWindowTitleTextField = JTextField()
         val colorPreview = JPanel(BorderLayout())
         val colorPreviewLabel = JLabel("Preview", SwingConstants.CENTER)
         colorPreview.add(colorPreviewLabel, BorderLayout.CENTER)
@@ -321,6 +325,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
                 titleNumberingCheckBox.isSelected = titleSettings.isTitleNumberingEnabled()
                 customTitleTextField.text = customTitleSettings.getCustomTitle()
                 globalCustomTitleTextField.text = globalCustomTitleSettings.getGlobalCustomTitle()
+                focussedWindowTitleTextField.text = lastOpenedWindowTitleSettings.getFocussedWindowTitle()
                 paddingSlider.value = colorSettings.getPanelPadding()
             } finally {
                 isSyncing = false
@@ -448,24 +453,34 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             globalCustomTitleTextField.toolTipText =
                 "Label shown in ALL window titles (e.g. \"PERSONAL\" or \"CLIENT\"). Toggle on/off."
 
-            val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 7, 2)
+            labelConstraints.gridy = 7
+            fieldConstraints.gridy = 7
+            formPanel.add(JBLabel("Last focussed window title:"), labelConstraints)
+            formPanel.add(focussedWindowTitleTextField, fieldConstraints)
+            focussedWindowTitleTextField.toolTipText =
+                "Label shown at the very front of the title of whichever window instance was focused " +
+                        "most recently (e.g. \"NEW\"). Automatically moves to the newest focused window " +
+                        "as you switch between windows. Leave blank to disable — there's no separate on/off " +
+                        "toggle for this one."
+
+            val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 8, 2)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), titleSeparatorConstraints)
 
-            labelConstraints.gridy = 8
-            fieldConstraints.gridy = 8
+            labelConstraints.gridy = 9
+            fieldConstraints.gridy = 9
             formPanel.add(JBLabel("Color presets:"), labelConstraints)
             formPanel.add(buildColorPresetsPanel(colorPresetsGroup), fieldConstraints)
 
-            val presetSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 9, 1)
+            val presetSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 10, 1)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), presetSeparatorConstraints)
-
-            labelConstraints.gridy = 10
-            fieldConstraints.gridy = 10
-            formPanel.add(JBLabel("Custom color:"), labelConstraints)
-            formPanel.add(colorPreview, fieldConstraints)
 
             labelConstraints.gridy = 11
             fieldConstraints.gridy = 11
+            formPanel.add(JBLabel("Custom color:"), labelConstraints)
+            formPanel.add(colorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 12
+            fieldConstraints.gridy = 12
             val colorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             dropperButton.toolTipText = "Pick a color from the screen"
             dropperButton.isFocusable = false
@@ -474,16 +489,16 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             formPanel.add(JLabel(""), labelConstraints)
             formPanel.add(colorButtonsRow, fieldConstraints)
 
-            val customColorSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 12, 1)
+            val customColorSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 1, 13, 1)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), customColorSeparatorConstraints)
-
-            labelConstraints.gridy = 13
-            fieldConstraints.gridy = 13
-            formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
-            formPanel.add(bgColorPreview, fieldConstraints)
 
             labelConstraints.gridy = 14
             fieldConstraints.gridy = 14
+            formPanel.add(JBLabel("Custom Color (Background):"), labelConstraints)
+            formPanel.add(bgColorPreview, fieldConstraints)
+
+            labelConstraints.gridy = 15
+            fieldConstraints.gridy = 15
             val bgColorButtonsRow = JPanel(GridLayout(1, 2, 4, 0))
             bgDropperButton.toolTipText = "Pick a background color from the screen"
             bgDropperButton.isFocusable = false
@@ -604,7 +619,7 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         fun applySettings() {
             if (isSyncing) return
-            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}'")
+            LOG.debug("applySettings: side=${sideCombo.selectedItem as Side}, useCustomColor=${customColorCheckBox.isSelected}, padding=${paddingSlider.value}, customTitle='${customTitleTextField.text.trim()}', globalTitle='${globalCustomTitleTextField.text.trim()}', lastOpenedTitle='${focussedWindowTitleTextField.text.trim()}'")
             colorSettings.setSide(sideCombo.selectedItem as Side)
             colorSettings.setPanelPadding(paddingSlider.value)
             customColorSettings.setUseCustomColor(selectedColor != null)
@@ -614,9 +629,16 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             titleSettings.setTitleNumberingEnabled(titleNumberingCheckBox.isSelected)
             customTitleSettings.setCustomTitle(customTitleTextField.text.trim())
             globalCustomTitleSettings.setGlobalCustomTitle(globalCustomTitleTextField.text.trim())
+            lastOpenedWindowTitleSettings.setFocussedWindowTitle(focussedWindowTitleTextField.text.trim())
 
             WindowColorApplier.applyToCurrentOpenProject(project)
             WindowTitleApplier.applyToCurrentOpenProject(project)
+            // The last-opened-window label can currently be showing on a DIFFERENT open
+            // window than the one this Settings tab belongs to (whichever project was opened
+            // most recently). applyToCurrentOpenProject above only refreshes `project`'s own
+            // title, so re-apply everywhere to make sure an edited label text/blank-out is
+            // reflected immediately regardless of which window currently holds it.
+            WindowTitleApplier.applyToAllOpenProjects()
 
             // Keep the Quick Controls tab's "Panel direction" / "Gradient direction" button
             // labels in sync when the panel side (or anything else here) is changed from the
@@ -738,6 +760,11 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
         customTitleTextField.document.addDocumentListener(customTitleListener)
         globalCustomTitleTextField.document.addDocumentListener(object : DocumentListener {
+            override fun insertUpdate(e: DocumentEvent) = applySettings()
+            override fun removeUpdate(e: DocumentEvent) = applySettings()
+            override fun changedUpdate(e: DocumentEvent) = applySettings()
+        })
+        focussedWindowTitleTextField.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
             override fun removeUpdate(e: DocumentEvent) = applySettings()
             override fun changedUpdate(e: DocumentEvent) = applySettings()
