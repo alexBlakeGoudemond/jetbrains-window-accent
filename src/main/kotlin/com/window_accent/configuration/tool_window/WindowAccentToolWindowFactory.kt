@@ -202,6 +202,26 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             }
         }
 
+        private fun replaceGlobalCustomTitleBinding(
+            project: Project,
+            textField: JTextField,
+            listener: DocumentListener
+        ) {
+            globalCustomTitleFieldBindings.put(project, textField to listener)?.let { (oldField, oldListener) ->
+                oldField.document.removeDocumentListener(oldListener)
+            }
+        }
+
+        private fun replaceFocussedWindowTitleBinding(
+            project: Project,
+            textField: JTextField,
+            listener: DocumentListener
+        ) {
+            focussedWindowTitleFieldBindings.put(project, textField to listener)?.let { (oldField, oldListener) ->
+                oldField.document.removeDocumentListener(oldListener)
+            }
+        }
+
         /**
          * Stops every currently-running border-pulse animation timer and clears the tracking list.
          *
@@ -861,14 +881,14 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         }
         globalCustomTitleTextField.document.addDocumentListener(globalCustomTitleListener)
-        globalCustomTitleFieldBindings[project] = globalCustomTitleTextField to globalCustomTitleListener
+        replaceGlobalCustomTitleBinding(project, globalCustomTitleTextField, globalCustomTitleListener)
         val focussedWindowTitleListener = object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = applySettings()
             override fun removeUpdate(e: DocumentEvent) = applySettings()
             override fun changedUpdate(e: DocumentEvent) = applySettings()
         }
         focussedWindowTitleTextField.document.addDocumentListener(focussedWindowTitleListener)
-        focussedWindowTitleFieldBindings[project] = focussedWindowTitleTextField to focussedWindowTitleListener
+        replaceFocussedWindowTitleBinding(project, focussedWindowTitleTextField, focussedWindowTitleListener)
 
         panel.add(buildButtonRow(toggleAllColorsButton, toggleCurrentColorButton, cyclePanelDirectionButton))
         panel.add(Box.createVerticalStrut(8))
