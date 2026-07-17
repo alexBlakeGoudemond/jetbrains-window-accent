@@ -4,6 +4,13 @@
 
 ## [2.5.0]
 
+### Added
+
+- New Custom Title option: "Last focussed window title"
+  - When set, this will only show in the title of the last focussed window, and will not be applied to all windows
+  - Value Proposition: 'out of these 5 windows, which one is the current one!?'
+
+
 ## [2.4.1]
 
 ### Fixed
