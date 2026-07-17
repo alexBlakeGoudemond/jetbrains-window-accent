@@ -245,6 +245,24 @@ class WindowTitleApplierTest {
     }
 
     @Test
+    @DisplayName("buildTitlePrefix - last opened window label uses monospace style")
+    fun testBuildTitlePrefixLastOpenedUsesMonospace() {
+        assertEquals(
+            "[${TitleTextStyler.toMonospace("NEW")}]",
+            applier.buildTitlePrefix(
+                number = 1,
+                numberingEnabled = false,
+                customTitle = "",
+                customTitleEnabled = false,
+                globalCustomTitle = "",
+                globalCustomTitleEnabled = false,
+                lastOpenedWindowTitle = "NEW",
+                isLastOpenedWindow = true
+            )
+        )
+    }
+
+    @Test
     @DisplayName("Should apply title to current project when enabled")
     fun testApplyToCurrentOpenProjectEnabled() {
         try {
