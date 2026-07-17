@@ -1,0 +1,24 @@
+src/main/kotlin/com/window_accent/configuration/settings/ScreenColorPicker.kt
+  s_ffc68c9448159c::t_e9db405fa87bf6 105-106,109,116-121,125,129-130,139-166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "75ac0728176b3f4aac6cdaef44c18a84c081f112",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ffc68c9448159c": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "fa8d330f-eb56-4b6d-a4b6-cf76c1f42633",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
