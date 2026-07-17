@@ -4,6 +4,11 @@
 
 ## [2.5.3]
 
+### Added
+
+- Added support for custom title formatting: Doublespace and Monospace
+  - Chose to set the focussed window title to monospace format
+
 ### Fixed
 
 - The fix applied in 2.5.2 – apply it to the global title as well
