@@ -4,12 +4,16 @@
 
 ## [2.5.2]
 
+### Fixed
+
+- updating “Last focussed window title” in one IDE window copies to all other IDE windows
+
 ## [2.5.1]
 
 ### Fixed
 
 - Resolved bug: updating forces restart
-  - Added LastOpenedWindowTitleStateService to flush list in WindowAccentApplicationService
+    - Added LastOpenedWindowTitleStateService to flush list in WindowAccentApplicationService
 
 ## [2.5.0]
 
