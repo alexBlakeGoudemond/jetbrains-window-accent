@@ -1,0 +1,38 @@
+src/main/kotlin/com/window_accent/configuration/settings/ColorMagnifier.kt
+  s_ffc68c9448159c::t_8f8dec8bcc0daa 14,17-21,118
+  s_ffc68c9448159c::t_2f14e9f869dea3 27,56-58,63-64
+  s_ffc68c9448159c::t_e1947fe5b8f4e1 15
+  s_ffc68c9448159c::t_10108daf9ffb7b 42
+  s_ffc68c9448159c::t_54a9eda77160c6 22
+  s_ffc68c9448159c::t_f2ae5f5bdbc33f 23-26
+  s_ffc68c9448159c::t_7b71128780d830 13
+  s_ffc68c9448159c::t_a16fa56bc0c5fc 16
+  s_ffc68c9448159c::t_21c78c888517c1 117
+  s_ffc68c9448159c::t_f40cf92cd19c66 119-121
+  s_ffc68c9448159c::t_9bb6b7592276ab 81-85,92-93,95,102-105,108-109,111,122-144
+src/main/kotlin/com/window_accent/configuration/settings/ScreenColorPicker.kt
+  s_ffc68c9448159c::t_85cf5f76c5bebf 11,30,39,72
+src/test/kotlin/com/window_accent/configuration/settings/ColorMagnifierTest.kt
+  s_ffc68c9448159c::t_bf72b499b5a4a5 108,112,141,162-165,185,253,266-267
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "1273739df54ffd56a3986898bcd8e44b4c11716b",
+  "prompts": {},
+  "humans": {
+    "h_1197a506f6c7d6": {
+      "author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ffc68c9448159c": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "fa8d330f-eb56-4b6d-a4b6-cf76c1f42633",
+        "model": "unknown"
+      },
+      "human_author": "Alex Blake-Goudemond <alexgoudemond@gmail.com>"
+    }
+  }
+}
