@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
-import kotlin.math.roundToInt
 
 private val logger = windowAccentLogger<ScreenColorPicker>()
 
@@ -103,43 +102,68 @@ internal class ScreenColorPicker(private val settings: IWindowAccentSettings) {
 fun showScreenColorPicker(windowAccentSettings: IWindowAccentSettings) {
     val owner = SwingUtilities.getWindowAncestor(windowAccentSettings.getPanel()) ?: return
 
-    val virtualBounds = calculateScreenBoundsAcrossMultipleScreens()
-    if (virtualBounds.isEmpty) return
+    val captureBounds = calculateScreenBoundsAcrossMultipleScreens()
+    if (captureBounds.isEmpty) return
 
     try {
-        showColorChooserViaFullScreenScreenshot(virtualBounds, owner, windowAccentSettings)
+        showColorChooserViaFullScreenScreenshot(captureBounds, owner, windowAccentSettings)
     } catch (e: Exception) {
         logger.info("unable to capture screenshot: ${e.message}")
     }
 }
 
 private fun calculateScreenBoundsAcrossMultipleScreens(): Rectangle {
-    val screens = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
-    val bounds = Rectangle()
-    for (screen in screens) {
-        bounds.add(screen.defaultConfiguration.bounds)
-    }
-    return bounds
+    val screenDevices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+    return screenDevices
+        .map { it.defaultConfiguration.bounds }
+        .fold(Rectangle()) { acc, bounds ->
+            if (acc.isEmpty) Rectangle(bounds) else acc.union(bounds)
+        }
 }
 
 fun showColorChooserViaFullScreenScreenshot(
-    virtualBounds: Rectangle,
+    captureBounds: Rectangle,
     owner: Window,
     windowAccentSettings: IWindowAccentSettings
 ) {
-    val screenshot = takeScreenshot(virtualBounds)
-    setupColorPickerUI(owner, screenshot, virtualBounds, windowAccentSettings)
+    val screenshot = takeScreenshot(captureBounds)
+    setupColorPickerUI(owner, screenshot, captureBounds, windowAccentSettings)
 }
 
-// Note: This uses Robot
 fun takeScreenshot(captureRect: Rectangle): BufferedImage {
-    // Note: Robot usage may be restricted in JetBrains plugin sandbox. Ensure permissions are granted.
     if (captureRect.width <= 0 || captureRect.height <= 0) {
         throw IllegalArgumentException("Invalid capture rectangle: $captureRect")
     }
     try {
         val robot = Robot()
-        val screenshot = robot.createScreenCapture(captureRect)
+        val screenDevices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+        if (screenDevices.size <= 1) {
+            return robot.createScreenCapture(captureRect)
+        }
+
+        val boundsByScreen = screenDevices
+            .map { it.defaultConfiguration.bounds }
+            .filter { it.intersects(captureRect) }
+            .sortedBy { it.x }
+
+        val minY = boundsByScreen.minOfOrNull { it.y } ?: captureRect.y
+        val totalWidth = boundsByScreen.sumOf { it.width }.coerceAtLeast(captureRect.width)
+        val totalHeight = boundsByScreen.maxOfOrNull { it.y - minY + it.height }?.coerceAtLeast(captureRect.height) ?: captureRect.height
+        val screenshot = BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB)
+        val graphics = screenshot.createGraphics()
+        try {
+            var currentX = 0
+            for (screenBounds in boundsByScreen) {
+                val clippedBounds = screenBounds.intersection(captureRect)
+                if (clippedBounds.isEmpty) continue
+
+                val screenCapture = robot.createScreenCapture(clippedBounds)
+                graphics.drawImage(screenCapture, currentX, clippedBounds.y - minY, null)
+                currentX += clippedBounds.width
+            }
+        } finally {
+            graphics.dispose()
+        }
         return screenshot
     } catch (e: Exception) {
         throw RuntimeException("Failed to capture screenshot: ${e.message}", e)
