@@ -51,12 +51,18 @@ class WindowTitleApplier {
      */
     @Volatile private var isShuttingDown = false
 
+    /**
+     * Guards the "move the focussed-window label to a new project" handoff so the
+     * re-application of the previous holder does not recursively promote it back.
+     */
+    @Volatile private var isPromotingLastOpenedWindow = false
+
     private val counter = AtomicInteger(1)
     private val projectNumbers = ConcurrentHashMap<Project, Int>()
 
     /**
-     * The project whose window was most recently opened, i.e. the project that should
-     * currently display the "last opened window" label from [LastOpenedWindowTitleStateService].
+     * The project whose window was most recently focused, i.e. the project that should
+     * currently display the "last focussed window" label from [LastOpenedWindowTitleStateService].
      *
      * Updated only from the EDT (every call site already runs inside [runOnEdt]), so a
      * plain `var` is sufficient — no additional synchronization is needed.
@@ -179,29 +185,36 @@ class WindowTitleApplier {
     private fun applyTitleToWindow(project: Project) {
         // A project is "new" the first time its title is ever applied — projectNumbers
         // hasn't assigned it a number yet. This is the same signal already used to hand
-        // out sequential numbering, so it's a natural point to also move the "last opened
-        // window" label. Must be checked BEFORE getWindowProjectNumber, which is the call
+        // out sequential numbering, so it's a natural point to also move the focussed
+        // window label. Must be checked BEFORE getWindowProjectNumber, which is the call
         // that actually inserts the project into projectNumbers.
         val isNewWindow = !projectNumbers.containsKey(project)
         val number = getWindowProjectNumber(project)
-        if (isNewWindow) {
-            markAsLastOpened(project)
+        if (isNewWindow || lastOpenedProject == null) {
+            promoteLastOpenedWindow(project)
         }
         doApplyTitle(project, number, MAX_RETRIES)
     }
 
     /**
-     * Moves the "last opened window" label to [project], stripping it from whichever
+     * Moves the "last focussed window" label to [project], stripping it from whichever
      * project held it previously by re-applying that project's title.
      *
      * If the previous holder has since closed (or was never open), re-applying is skipped
      * since [getProjectFrame] would find no frame and only queue a wasted retry loop.
      */
-    private fun markAsLastOpened(project: Project) {
+    private fun promoteLastOpenedWindow(project: Project) {
+        if (isPromotingLastOpenedWindow) return
         val previous = lastOpenedProject
+        if (previous === project) return
         lastOpenedProject = project
-        if (previous != null && previous !== project && !previous.isDisposed) {
-            applyToCurrentOpenProject(previous)
+        if (previous != null && !previous.isDisposed) {
+            try {
+                isPromotingLastOpenedWindow = true
+                applyToCurrentOpenProject(previous)
+            } finally {
+                isPromotingLastOpenedWindow = false
+            }
         }
     }
 
@@ -430,6 +443,7 @@ class WindowTitleApplier {
                     ?.getService(GlobalCustomTitleStateService::class.java)
                     ?: GlobalCustomTitleStateService()
                 val lastOpenedTitleService = getLastOpenedWindowTitleService()
+                promoteLastOpenedWindow(project)
                 updateWindowTitle(
                     frame, number,
                     customTitle = customTitleService.getCustomTitle(),

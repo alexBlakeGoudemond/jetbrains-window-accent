@@ -6,13 +6,13 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 
 /**
- * Application-level persisted state for the "last opened window" title label.
+ * Application-level persisted state for the "last focussed window" title label.
  *
  * This service stores a single label string (e.g. "NEW") that [WindowTitleApplier]
  * shows, as the very first prefix segment, on whichever IDE window instance was
- * most recently opened. Unlike [GlobalCustomTitleStateService] (shown on *every*
+ * most recently focused. Unlike [GlobalCustomTitleStateService] (shown on *every*
  * window) or [WindowCustomTitleStateService] (a fixed, per-project label), this
- * label automatically follows the most-recently-opened project: opening a new
+ * label automatically follows the most-recently-focused project: focusing a new
  * window moves it there and removes it from whichever window held it before.
  *
  * There is no separate enabled/disabled flag by design — the feature is "on" for
@@ -27,7 +27,6 @@ import com.intellij.openapi.components.Storage
 )
 class LastOpenedWindowTitleStateService : PersistentStateComponent<LastOpenedWindowTitleStateService.State> {
 
-    // TODO Blake-Goudemond 20260717 | First pass of this new service - add event so that new window is given title and added to cleanup list
     data class State(
         var focussedWindowTitle: String = ""
     )

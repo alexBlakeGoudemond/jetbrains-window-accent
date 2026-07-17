@@ -455,12 +455,13 @@ class WindowAccentToolWindowFactory : ToolWindowFactory, DumbAware {
 
             labelConstraints.gridy = 7
             fieldConstraints.gridy = 7
-            formPanel.add(JBLabel("Last opened window title:"), labelConstraints)
+            formPanel.add(JBLabel("Last focussed window title:"), labelConstraints)
             formPanel.add(focussedWindowTitleTextField, fieldConstraints)
             focussedWindowTitleTextField.toolTipText =
-                "Label shown at the very front of the title of whichever window instance was opened " +
-                        "most recently (e.g. \"NEW\"). Automatically moves to the newest window as you open " +
-                        "more. Leave blank to disable — there's no separate on/off toggle for this one."
+                "Label shown at the very front of the title of whichever window instance was focused " +
+                        "most recently (e.g. \"NEW\"). Automatically moves to the newest focused window " +
+                        "as you switch between windows. Leave blank to disable — there's no separate on/off " +
+                        "toggle for this one."
 
             val titleSeparatorConstraints = getSeparatorConstraints(fieldConstraints, 0, 8, 2)
             formPanel.add(JSeparator(SwingConstants.HORIZONTAL), titleSeparatorConstraints)
